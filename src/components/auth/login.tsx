@@ -60,7 +60,7 @@ const Login = () => {
                             </Button>
                         </Form.Item>
                     </Form>
-                    <Link href={"/"}><ArrowLeftOutlined /> Quay lại trang chủ</Link>
+                    <Link href={"/homepage"}><ArrowLeftOutlined /> Quay lại trang chủ</Link>
                     <Divider />
                     <div style={{ textAlign: "center" }}>
                         Chưa có tài khoản? <Link href={"/auth/register"}>Đăng ký tại đây</Link>
