@@ -1,8 +1,10 @@
 'use client'
 import React from "react";
+import Link from "next/link";
 import { Carousel, Layout, Menu, Button, Row, Col, Card, Typography } from "antd";
 import { HomeOutlined, InfoCircleOutlined, PhoneOutlined, TrophyOutlined, BookOutlined, SolutionOutlined, FileTextOutlined, ReadOutlined, SafetyOutlined, TeamOutlined, HeartOutlined, UserOutlined, LoginOutlined, UserAddOutlined, LeftOutlined, RightOutlined, YoutubeOutlined } from "@ant-design/icons";
-import Link from "next/link";
+import NavbarComponent from "@/components/common/navbar";
+import FooterComponent from "@/components/common/footer";
 const { Title, Paragraph } = Typography;
 const { Header, Content, Footer } = Layout;
 
@@ -74,60 +76,7 @@ const HomePage = () => {
 
     return (
         <Layout>
-            <Header style={{
-                position: "sticky",
-                top: 0,
-                width: "100%",
-                alignItems: "center",
-                justifyContent: "space-between",
-                zIndex: 1000,
-            }}>
-                <div className="logo" style={{ float: "left" }}>
-                    <img src="/logo.png" alt="Logo" style={{ height: "65px", maxWidth: "150px" }} />
-                </div>
-
-                <Menu
-                    theme="dark"
-                    mode="horizontal"
-                    style={{
-                        flex: 1,
-                        justifyContent: "flex-end",
-                        overflow: "visible",
-                        whiteSpace: "nowrap"
-                    }}
-                >
-                    <Menu.Item key="1" icon={<InfoCircleOutlined />}>
-                        <Link href="/info">Giới thiệu</Link>
-                    </Menu.Item>
-                    <Menu.Item key="2" icon={<TrophyOutlined />}>
-                        <Link href="/achievements">Bảng vàng thành tích</Link>
-                    </Menu.Item>
-                    <Menu.Item key="3" icon={<BookOutlined />}>
-                        <Link href="/courses">Khóa học</Link>
-                    </Menu.Item>
-                    <Menu.Item key="4" icon={<SolutionOutlined />}>
-                        <Link href="/admission">Tuyển sinh</Link>
-                    </Menu.Item>
-                    <Menu.Item key="5" icon={<FileTextOutlined />}>
-                        <Link href="/documents">Tài liệu</Link>
-                    </Menu.Item>
-                    <Menu.Item key="6" icon={<ReadOutlined />}>
-                        <Link href="/news">Tin tức</Link>
-                    </Menu.Item>
-                    <Menu.Item key="7" icon={<PhoneOutlined />}>
-                        <Link href="/contact">Liên hệ</Link>
-                    </Menu.Item>
-
-                    <SubMenu key="8" title="Khu vực thành viên">
-                        <Menu.Item key="login" icon={<LoginOutlined />}>
-                            <Link href="/auth/login">Đăng nhập</Link>
-                        </Menu.Item>
-                        <Menu.Item key="register" icon={<UserAddOutlined />}>
-                            <Link href="/auth/register">Đăng ký</Link>
-                        </Menu.Item>
-                    </SubMenu>
-                </Menu>
-            </Header>
+            <NavbarComponent />
 
             <Content>
                 <div>
@@ -305,40 +254,7 @@ const HomePage = () => {
 
             </Content>
 
-            <Footer style={{ background: "#FFD700", padding: "40px 10%", color: "#000" }}>
-                <Row gutter={[32, 32]} justify="space-around" align="top">
-
-                    <Col xs={24} md={7} style={{ textAlign: "left" }}>
-                        <Title level={4} style={{ color: "#000", marginBottom: "20px" }}>
-                            Câu lạc bộ Toán học muôn màu
-                        </Title>
-                    </Col>
-
-                    <Col xs={24} md={10} style={{ paddingLeft: "20px" }}>
-                        <Paragraph><strong>Địa chỉ:</strong></Paragraph>
-                        <Paragraph>CS1: NTT12, Thống Nhất Complex, 82 Nguyễn Tuân, Thanh Xuân, Hà Nội.</Paragraph>
-                        <Paragraph>CS2: NTT06, Thống Nhất Complex, 82 Nguyễn Tuân, Thanh Xuân, Hà Nội.</Paragraph>
-                        <Paragraph>CS3: 12A Khu C Đô thị A10 Nam Trung Yên, Trung Hòa, Cầu Giấy.</Paragraph>
-                        <Paragraph><strong>Hotline:</strong> 0911 190 991 - 0973872184 - 0981571746</Paragraph>
-                    </Col>
-
-                    <Col xs={24} md={7} style={{ paddingLeft: "20px" }}>
-                        <Paragraph><strong>Website:</strong> cmath.edu.vn</Paragraph>
-                        <Paragraph><strong>Email:</strong> info@cskh.cmath.edu.vn</Paragraph>
-                        <Paragraph><strong>Facebook:</strong> fb.com/clbtoanhocmuonmau</Paragraph>
-                        <Paragraph><strong>Youtube:</strong> youtube.com/@cmatheducation1800</Paragraph>
-                        <Paragraph><strong>Tiktok:</strong> tiktok.com/@toanthaycan</Paragraph>
-                    </Col>
-                </Row>
-
-                <Row justify="center" style={{ marginTop: "20px" }}>
-                    <Col>
-                        <Paragraph style={{ textAlign: "center", fontSize: "14px", color: "#000" }}>
-                            CMATH ©2025 Created by PhongBui
-                        </Paragraph>
-                    </Col>
-                </Row>
-            </Footer>
+            <FooterComponent />
 
         </Layout>
     );

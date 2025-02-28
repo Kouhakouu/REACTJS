@@ -1,5 +1,6 @@
 'use client'
 import { AdminContext } from '@/library/admin.context';
+import { AuthContext } from '@/library/authContext';
 import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
 import { Button, Layout } from 'antd';
 import { useContext } from 'react';
@@ -10,6 +11,7 @@ import { Dropdown, Space } from 'antd';
 const AdminHeader = () => {
     const { Header } = Layout;
     const { collapseMenu, setCollapseMenu } = useContext(AdminContext)!;
+    const { user, logout } = useContext(AuthContext);
 
     const items: MenuProps['items'] = [
         {
@@ -42,7 +44,8 @@ const AdminHeader = () => {
         {
             key: '4',
             danger: true,
-            label: 'a danger item',
+            label: 'Đăng xuất',
+            onClick: () => logout()
         },
     ];
 
@@ -55,8 +58,8 @@ const AdminHeader = () => {
                     background: "#f5f5f5",
                     justifyContent: "space-between",
                     alignItems: "center"
-                }} >
-
+                }}
+            >
                 <Button
                     type="text"
                     icon={collapseMenu ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
@@ -67,12 +70,12 @@ const AdminHeader = () => {
                         height: 64,
                     }}
                 />
-                <Dropdown menu={{ items }} >
+                <Dropdown menu={{ items }}>
                     <a onClick={(e) => e.preventDefault()}
                         style={{ color: "unset", lineHeight: "0 !important", marginRight: 20 }}
                     >
                         <Space>
-                            Welcome Admin
+                            Welcome {user ? user.fullName : "Guest"}
                             <DownOutlined />
                         </Space>
                     </a>
