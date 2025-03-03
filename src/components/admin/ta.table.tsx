@@ -416,6 +416,7 @@ const TaTable = () => {
                                 <List.Item
                                     actions={[
                                         <Popconfirm
+                                            key={item.id}
                                             title="Bạn có chắc chắn muốn xóa lớp này khỏi trợ giảng?"
                                             onConfirm={() => handleDeleteClassFromAssistant(item.id)}
                                             okText="Xóa"
