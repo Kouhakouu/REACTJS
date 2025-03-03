@@ -306,7 +306,7 @@ const ChildrenHomework = () => {
                     </Card>
 
                     <Card>
-                        <Title level={3}>Summary</Title>
+                        <Title level={3}>Summary (chú ý hệ thống chấm theo nguyên tắc cộng dồn)</Title>
                         <Text><strong>Làm:</strong> {doneTasks.length} / {initialTasks.length}</Text><br />
                         <Text><strong>Đúng:</strong> {totalScore}</Text><br />
                         <Text><strong>Sai:</strong> {incorrectTasks.join(', ') || 'Không có'}</Text><br />
