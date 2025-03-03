@@ -101,7 +101,7 @@ const renderScheduleContent = (
                     </strong>
                     <br />
                     <span>
-                        Giáo viên: {classInfo.classTeacher.teacher.fullName || 'N/A'}
+                        Giáo viên: {classInfo.classTeacher?.teacher?.fullName || 'Chưa có'}
                     </span>
                     {classInfo.assistants && classInfo.assistants.length > 0 && (
                         <>

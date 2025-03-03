@@ -45,8 +45,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         localStorage.setItem("user", JSON.stringify(user));
         Cookies.set("token", token, { expires: 1 });
 
-        router.push("/dashboard");
+        // Điều hướng dựa trên vai trò
+        if (user.role === "Assistant") {
+            router.push("/assistant");
+        } else {
+            router.push("/dashboard");
+        }
     };
+
 
     const logout = () => {
         setUser(null);

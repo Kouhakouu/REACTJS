@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, Card, Typography, Space, Row, Col, Input, Table, Upload, message, AutoComplete } from 'antd';
 import { CloseOutlined, UploadOutlined } from '@ant-design/icons';
 import * as XLSX from 'xlsx';
@@ -24,7 +24,7 @@ interface SubmittedData {
     comments: string;
 }
 
-const ChildrenHomework: React.FC = () => {
+const ChildrenHomework = () => {
     const [customTasks, setCustomTasks] = useState<string>(''); // Chuỗi chứa danh sách bài tập nhập vào
     const [initialTasks, setInitialTasks] = useState<string[]>([]); // Danh sách bài tập thực tế
 
