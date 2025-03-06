@@ -1,0 +1,215 @@
+"use client";
+
+import { useEffect, useRef } from "react";
+
+const HeartAnimation = () => {
+    const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+
+        // Lấy context WebGL
+        const gl = canvas.getContext("webgl");
+        if (!gl) {
+            console.error("Unable to initialize WebGL.");
+            return;
+        }
+
+        // Shader sources
+        const vertexSource = `
+      attribute vec2 position;
+      void main() {
+        gl_Position = vec4(position, 0.0, 1.0);
+      }
+    `;
+
+        const fragmentSource = `
+      precision highp float;
+      uniform float width;
+      uniform float height;
+      uniform float time;
+      vec2 resolution = vec2(width, height);
+      #define POINT_COUNT 8
+      vec2 points[POINT_COUNT];
+      const float speed = -0.5;
+      const float len = 0.25;
+      float intensity = 0.8;
+      float radius = 0.03;
+
+      float sdBezier(vec2 pos, vec2 A, vec2 B, vec2 C) {    
+        vec2 a = B - A;
+        vec2 b = A - 2.0 * B + C;
+        vec2 c = a * 2.0;
+        vec2 d = A - pos;
+        float kk = 1.0 / dot(b, b);
+        float kx = kk * dot(a, b);
+        float ky = kk * (2.0 * dot(a, a) + dot(d, b)) / 3.0;
+        float kz = kk * dot(d, a);      
+        float res = 0.0;
+        float p = ky - kx * kx;
+        float p3 = p * p * p;
+        float q = kx * (2.0 * kx * kx - 3.0 * ky) + kz;
+        float h = q * q + 4.0 * p3;
+        if (h >= 0.0) { 
+          h = sqrt(h);
+          vec2 x = (vec2(h, -h) - q) / 2.0;
+          vec2 uv = sign(x) * pow(abs(x), vec2(1.0 / 3.0));
+          float t = uv.x + uv.y - kx;
+          t = clamp(t, 0.0, 1.0);
+          vec2 qos = d + (c + b * t) * t;
+          res = length(qos);
+        } else {
+          float z = sqrt(-p);
+          float v = acos(q / (p * z * 2.0)) / 3.0;
+          float m = cos(v);
+          float n = sin(v) * 1.732050808;
+          vec3 t = vec3(m + m, -n - m, n - m) * z - kx;
+          t = clamp(t, 0.0, 1.0);
+          vec2 qos = d + (c + b * t.x) * t.x;
+          float dis = dot(qos, qos);
+          res = dis;
+          qos = d + (c + b * t.y) * t.y;
+          dis = dot(qos, qos);
+          res = min(res, dis);
+          qos = d + (c + b * t.z) * t.z;
+          dis = dot(qos, qos);
+          res = min(res, dis);
+          res = sqrt(res);
+        }
+        return res;
+      }
+
+      vec2 getHeartPosition(float t) {
+        return vec2(
+          16.0 * sin(t) * sin(t) * sin(t),
+          -(13.0 * cos(t) - 5.0 * cos(2.0 * t) - 2.0 * cos(3.0 * t) - cos(4.0 * t))
+        );
+      }
+
+      float getGlow(float dist, float radius, float intensity) {
+        return pow(radius / dist, intensity);
+      }
+
+      float getSegment(float t, vec2 pos, float offset, float scale) {
+        for (int i = 0; i < POINT_COUNT; i++) {
+          points[i] = getHeartPosition(offset + float(i) * len + fract(speed * t) * 6.28);
+        }
+        vec2 c = (points[0] + points[1]) / 2.0;
+        vec2 c_prev;
+        float dist = 10000.0;
+        for (int i = 0; i < POINT_COUNT - 1; i++) {
+          c_prev = c;
+          c = (points[i] + points[i + 1]) / 2.0;
+          dist = min(dist, sdBezier(pos, scale * c_prev, scale * points[i], scale * c));
+        }
+        return max(0.0, dist);
+      }
+
+        void main() {
+            vec2 uv = gl_FragCoord.xy / resolution.xy;
+            float widthHeightRatio = resolution.x / resolution.y;
+            vec2 centre = vec2(0.5, 0.5);
+            vec2 pos = centre - uv;
+            pos.y /= widthHeightRatio;
+            pos.y += 0.02;
+            float scale = 0.00001 * height;
+            float tPink = time;
+            float tBlue = time + 1.5;
+            float distPink = getSegment(tPink, pos, 0.0, scale);
+            float distBlue = getSegment(tBlue, pos, 1.0, scale);
+            float glowPink = getGlow(distPink, radius, intensity);
+            float glowBlue = getGlow(distBlue, radius, intensity);
+            vec3 colorPink = vec3(1.0, 0.2, 0.6);
+            vec3 colorBlue = vec3(0.2, 0.8, 1.0);
+            vec3 col = vec3(0.0);
+            col += glowPink * colorPink;
+            col += glowBlue * colorBlue;
+            col = 1.0 - exp(-col);
+
+            // Tính toán độ sáng thay đổi liên tục
+            float brightness = 0.5 + 0.4 * sin(time * 1.0); // Bạn có thể điều chỉnh tần số (1.0) theo nhu cầu
+            col *= brightness;
+
+            gl_FragColor = vec4(col, 1.0);
+        }
+    `;
+
+        // Hàm compile shader và log lỗi nếu có
+        const compileShader = (source: string, type: number) => {
+            const shader = gl.createShader(type)!;
+            gl.shaderSource(shader, source);
+            gl.compileShader(shader);
+            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                console.error("Shader compilation error:", gl.getShaderInfoLog(shader));
+            }
+            return shader;
+        };
+
+        const vertexShader = compileShader(vertexSource, gl.VERTEX_SHADER);
+        const fragmentShader = compileShader(fragmentSource, gl.FRAGMENT_SHADER);
+
+        // Tạo chương trình, attach shader, link và dùng chương trình
+        const program = gl.createProgram()!;
+        gl.attachShader(program, vertexShader);
+        gl.attachShader(program, fragmentShader);
+        gl.linkProgram(program);
+        if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+            console.error("Program linking error:", gl.getProgramInfoLog(program));
+        }
+        gl.useProgram(program);
+
+        // Lấy uniform locations sau khi gọi gl.useProgram
+        const widthHandle = gl.getUniformLocation(program, "width");
+        const heightHandle = gl.getUniformLocation(program, "height");
+        const timeHandle = gl.getUniformLocation(program, "time");
+
+        if (!widthHandle) console.error("Uniform 'width' không được tìm thấy.");
+        if (!heightHandle) console.error("Uniform 'height' không được tìm thấy.");
+        if (!timeHandle) console.error("Uniform 'time' không được tìm thấy.");
+
+        // Cập nhật ban đầu giá trị cho uniform width và height
+        if (widthHandle) gl.uniform1f(widthHandle, window.innerWidth);
+        if (heightHandle) gl.uniform1f(heightHandle, window.innerHeight);
+
+        // Hàm cập nhật kích thước canvas và uniform khi load/resize
+        const setCanvasSize = () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            gl.viewport(0, 0, canvas.width, canvas.height);
+            if (widthHandle) gl.uniform1f(widthHandle, window.innerWidth);
+            if (heightHandle) gl.uniform1f(heightHandle, window.innerHeight);
+        };
+
+        // Gọi setCanvasSize ngay sau khi khởi tạo
+        setCanvasSize();
+
+        // Thiết lập dữ liệu vertex cho hình chữ nhật phủ toàn canvas
+        const vertexData = new Float32Array([-1, 1, -1, -1, 1, 1, 1, -1]);
+        const buffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+        gl.bufferData(gl.ARRAY_BUFFER, vertexData, gl.STATIC_DRAW);
+        const position = gl.getAttribLocation(program, "position");
+        gl.enableVertexAttribArray(position);
+        gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
+
+        let time = 0.0;
+        const render = () => {
+            time += 0.01;
+            if (timeHandle) gl.uniform1f(timeHandle, time);
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+            requestAnimationFrame(render);
+        };
+
+        window.addEventListener("resize", setCanvasSize);
+        render();
+
+        return () => {
+            window.removeEventListener("resize", setCanvasSize);
+        };
+    }, []);
+
+    return <canvas ref={canvasRef} className="absolute top-0 left-0 w-full h-full" />;
+};
+
+export default HeartAnimation;
