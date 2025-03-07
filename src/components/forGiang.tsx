@@ -116,7 +116,7 @@ const HeartAnimation = () => {
         vec2 pos = centre - uv;
         pos.y /= widthHeightRatio;
         pos.y += 0.02;
-        float scale = 0.00001 * height;
+        float scale = 0.000015 * height;
         float tPink = time;
         float tBlue = time + 1.5;
         float distPink = getSegment(tPink, pos, 0.0, scale);
@@ -244,13 +244,13 @@ export default function HomePage() {
       {/* Các nút button */}
       <Link href="/forGiang2">
         <div className="buttons">
-          HUHU CẢ TỐI CODE ĐƯỢC MỖI CÁI TRÁI TIM
+          Ấn nút để chuyển trang sau đó F5 để đỡ lag nha...
           <span></span>
         </div>
-      </Link>
+      </Link >
 
       {/* CSS từ file style.css và import font Google */}
-      <style jsx global>{`
+      < style jsx global > {`
         @import url("https://fonts.googleapis.com/css?family=Poppins:200,300,400,500,600,700,800,900&display=swap");
         * {
           margin: 0;
@@ -278,7 +278,7 @@ export default function HomePage() {
           color: #fff;
           text-decoration: none;
           text-transform: uppercase;
-          font-size: 7px;
+          font-size: 8px;
           letter-spacing: 2px;
           border-radius: 40px;
           overflow: hidden;
@@ -307,7 +307,7 @@ export default function HomePage() {
             opacity: 0;
           }
         }
-      `}</style>
-    </div>
+      `}</style >
+    </div >
   );
 }

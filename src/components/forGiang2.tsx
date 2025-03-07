@@ -14,53 +14,11 @@ const WomensDay: React.FC = () => {
 
     // Mảng chứa các dòng nội dung cần hiển thị theo hiệu ứng gõ chữ.
     const textLines = [
-        "Today is...",
-        "as beautiful as other days",
-        "but you realize",
-        "another year has gone",
-        "in a blink of the eyes",
-        "<strong>however</strong>",
-        "Do you know..?",
-        "today is just special",
-        "so special to you",
-        "that's why",
-        "Let's make it...",
-        "the best celebration ever",
-        "and let me share...",
-        "a piece of happiness to you",
-        "I made all this...",
-        "as a birthday present to you",
-        "thanks for being there",
-        "thanks for the friendship we made",
-        "thanks for everything",
-        "I wish you all the best",
-        "May your life be at ease",
-        "May all your wishes come true",
-        "Remember",
-        "your ambitions",
-        "you live as a free bird...",
-        "flying in the blue sky",
-        "Now things are different...",
-        "real story of your life",
-        "is just about to begin",
-        "indeed..",
-        "but...",
-        "don't worry",
-        "because...",
-        "God has your back",
-        "and",
-        "this year will be better",
-        "and I hope",
-        "you'll find...",
-        "happiness along the way",
-        "keep your spirit up",
-        "enjoy every single moment...",
-        "that you experience today",
-        "fill it with your most beautiful smile",
-        "and make it the best memory..",
-        "lastly...",
-        "I'd like to wish you one more time",
-        "a very happy birthday Xola Mathembisa"
+        "Không biết có được là người chúc em sớm nhất hông ...",
+        "Nhưng mà bây giờ, 1h sáng rùiiii",
+        "Chúc em có một ngày thật vui vẻ, hạnh phúc và ấm áp nè",
+        "Dù có gặp khó khăn, thất bại hay gì chăng nữa, hãy nhớ rằng:",
+        "Anh vẫn ở đây, đợi em nha 🥺🥺🥺",
     ];
     const [displayedLines, setDisplayedLines] = useState<string[]>([]);
     const [currentLine, setCurrentLine] = useState<string>('');
@@ -101,7 +59,7 @@ const WomensDay: React.FC = () => {
             {!mounted ? null : (
                 <>
                     <h1 className="animated-text">Chúc mừng ngày 8/3!</h1>
-                    <p className="subtext">Chúc tất cả những người phụ nữ luôn tươi cười và hạnh phúc!</p>
+                    <p className="subtext">Muốn gửi một bông hoa đến bông hoa đẹp nhất đang đọc cơ 🥺🥺🥺</p>
 
                     <div className="typing-container">
                         {displayedLines.map((line, index) => (
