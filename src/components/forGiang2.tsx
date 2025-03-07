@@ -18,12 +18,19 @@ const WomensDay: React.FC = () => {
         "Nhưng mà bây giờ, 1h sáng rùiiii",
         "Chúc em có một ngày thật vui vẻ, hạnh phúc và ấm áp nè",
         "Dù có gặp khó khăn, thất bại hay gì chăng nữa, hãy nhớ rằng:",
-        "Anh vẫn ở đây, đợi em nha 🥺🥺🥺",
+        "Anh vẫn ở đây ...",
+        "Đợi em",
+        "Đồng ý",
+        "14/3 này đi chơi với anh nha"
     ];
     const [displayedLines, setDisplayedLines] = useState<string[]>([]);
     const [currentLine, setCurrentLine] = useState<string>('');
     const [currentLineIndex, setCurrentLineIndex] = useState<number>(0);
     const [charIndex, setCharIndex] = useState<number>(0);
+
+    // State cho vị trí của nút "không".
+    // Ban đầu đặt cách tâm 80px về bên phải (và top = 0).
+    const [noButtonPos, setNoButtonPos] = useState<{ top: number; left: number }>({ top: 0, left: 80 });
 
     // Đánh dấu khi component được mount
     useEffect(() => {
@@ -53,9 +60,21 @@ const WomensDay: React.FC = () => {
         }
     }, [mounted, charIndex, currentLineIndex, textLines]);
 
+    // Xử lý khi nhấn nút "có"
+    const handleYesClick = () => {
+        alert('Ừm... anh không biết em có ấn hay không, tại anh không kịp làm thêm gì nữa, mama giục anh ngủ rùi :< nhắn cho anh nha');
+    };
+
+    // Khi hover vào nút "không": thay đổi vị trí của nút, với offset ngẫu nhiên rộng hơn
+    const handleNoHover = () => {
+        // Cập nhật phạm vi di chuyển: horizontal từ -200 đến 200, vertical từ -100 đến 100.
+        const randomOffsetX = Math.floor(Math.random() * 401) - 200; // từ -200 đến 200
+        const randomOffsetY = Math.floor(Math.random() * 201) - 100;   // từ -100 đến 100
+        setNoButtonPos({ top: randomOffsetY, left: 80 + randomOffsetX });
+    };
+
     return (
         <div className="container">
-            {/* Nếu chưa mounted, có thể hiển thị một container rỗng hoặc loader */}
             {!mounted ? null : (
                 <>
                     <h1 className="animated-text">Chúc mừng ngày 8/3!</h1>
@@ -72,6 +91,36 @@ const WomensDay: React.FC = () => {
                             </p>
                         )}
                     </div>
+
+                    {/* Hiển thị nút sau khi tất cả các dòng chữ đã được gõ */}
+                    {currentLineIndex >= textLines.length && (
+                        <div className="button-group">
+                            <button
+                                className="yes-button"
+                                onClick={handleYesClick}
+                                style={{
+                                    position: 'absolute',
+                                    top: '0px',
+                                    left: 'calc(50% - 80px)',
+                                    transform: 'translateX(-50%)',
+                                }}
+                            >
+                                Dạạạạạạ
+                            </button>
+                            <button
+                                className="no-button"
+                                onMouseEnter={handleNoHover}
+                                style={{
+                                    position: 'absolute',
+                                    top: `${noButtonPos.top}px`,
+                                    left: `calc(50% + ${noButtonPos.left}px)`,
+                                    transform: 'translateX(-50%)',
+                                }}
+                            >
+                                KHÔNG !!!
+                            </button>
+                        </div>
+                    )}
 
                     <div className="confetti-container">
                         {confettiPieces.map((_, i) => (
@@ -158,6 +207,33 @@ const WomensDay: React.FC = () => {
             transform: translateY(110vh);
             opacity: 0;
           }
+        }
+        .button-group {
+          position: relative;
+          width: 100%;
+          height: 100px;
+          margin-top: 20px;
+        }
+        .button-group .yes-button,
+        .button-group .no-button {
+          font-size: 1.2rem;
+          padding: 10px 20px;
+          border-radius: 8px;
+          border: none;
+          cursor: pointer;
+          transition: background-color 0.3s, transform 0.3s;
+        }
+        .button-group .yes-button {
+          background-color: #28a745;
+          color: white;
+        }
+        .button-group .no-button {
+          background-color: #dc3545;
+          color: white;
+        }
+        .button-group .yes-button:hover,
+        .button-group .no-button:hover {
+          transform: scale(1.1);
         }
       `}</style>
         </div>
