@@ -94,7 +94,7 @@ const ChildrenHomework = () => {
         }
     }, [skills, presentation]);
 
-    // Xử lý upload file Excel: chỉ lấy dữ liệu cột "họ và tên"
+    // Xử lý upload file Excel: 
     const handleFileUpload = (file: File) => {
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -191,7 +191,7 @@ const ChildrenHomework = () => {
             missingTasks: missingTasks.length > 0 ? missingTasks.join('; ') : "0",
             presentation: presentation,
             skills: skills,
-            comments: newComments, // **Dùng comments vừa cập nhật**
+            comments: newComments,
         };
 
         let updatedData;
@@ -207,13 +207,25 @@ const ChildrenHomework = () => {
         resetScores();
     };
 
-
     const exportToExcel = () => {
-        const ws = XLSX.utils.json_to_sheet(submittedData);
+        // Xử lý dữ liệu trước khi xuất ra file Excel
+        const exportData = submittedData.map(item => ({
+            'Họ và Tên': item.name,
+            'Tổng số BTVN đã làm': `${item.doneTasks} / ${initialTasks.length}`,
+            'Tổng số BTVN làm đúng': `${item.totalScore} / ${item.doneTasks}`,
+            'Tên bài Sai': item.incorrectTasks,
+            'Tên bài Thiếu': item.missingTasks,
+            'Trình bày': item.presentation,
+            'Kĩ năng': item.skills,
+            'Nhận xét': item.comments,
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(exportData);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Homework Results");
-        XLSX.writeFile(wb, "homework_results.xlsx");
+        XLSX.writeFile(wb, "Homework Results.xlsx");
     };
+
 
 
     // Các option cho AutoComplete dựa trên danh sách học sinh từ file Excel
@@ -286,10 +298,10 @@ const ChildrenHomework = () => {
                         <Title level={4}>Nhập danh sách bài tập (cách nhau bằng dấu phẩy)</Title>
                         <Space direction="horizontal" style={{ width: '100%' }}>
                             <Input
-                                placeholder="Nhập bài tập, ví dụ: 1, 2, 3a, 3b, 4..."
+                                placeholder="Nhập bài tập: 1a, 2,..."
                                 value={customTasks}
                                 onChange={(e) => setCustomTasks(e.target.value)}
-                                style={{ flex: 1 }}
+                                style={{ flex: 1, minWidth: '150px' }}
                             />
                             <Button type="primary" onClick={() => {
                                 const tasks = customTasks.split(',').map(task => task.trim()).filter(task => task !== '');
@@ -308,7 +320,7 @@ const ChildrenHomework = () => {
                     <Card>
                         <Title level={3}>Summary (chú ý hệ thống chấm theo nguyên tắc cộng dồn)</Title>
                         <Text><strong>Làm:</strong> {doneTasks.length} / {initialTasks.length}</Text><br />
-                        <Text><strong>Đúng:</strong> {totalScore}</Text><br />
+                        <Text><strong>Đúng:</strong> {totalScore} / {doneTasks.length}</Text><br />
                         <Text><strong>Sai:</strong> {incorrectTasks.join(', ') || 'Không có'}</Text><br />
                         <Text><strong>Thiếu:</strong> {missingTasks.join(', ') || 'Không có'}</Text><br />
                         {/* Dùng AutoComplete để đảm bảo chỉ được chọn tên từ danh sách file Excel */}
