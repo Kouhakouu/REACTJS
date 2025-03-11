@@ -17,10 +17,15 @@
     "antd": "^5.19.3",
     "axios": "^1.7.8",
     "dayjs": "^1.11.13",
+    "dotenv": "^16.4.7",
+    "jquery": "^3.7.1",
     "next": "^14.2.18",
+    "p5": "^1.11.3",
     "query-string": "9.1.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
+    "react-helmet": "^6.1.0",
+    "react-p5": "^1.4.1",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
