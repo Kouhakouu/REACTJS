@@ -31,7 +31,12 @@ const AssistantSideBar = () => {
                 },
                 {
                     key: "children-homework",
-                    label: <Link href={"/assistant/childrenHomework"}>Chấm bài tập về nhà</Link>,
+                    label: <Link href={"/assistant/childrenHomework"}>Excel chấm bài</Link>,
+                    icon: <TeamOutlined />,
+                },
+                {
+                    key: "student-homework",
+                    label: <Link href={`/assistant/studentHomework`}>Chấm bài tập về nhà</Link>,
                     icon: <TeamOutlined />,
                 },
                 {

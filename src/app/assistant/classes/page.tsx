@@ -1,9 +1,9 @@
-import React from 'react'
+import AssistantPage from "@/components/assistant/assistantPage"
 
-const AssistantClassesPage = () => {
+const assistantClassPage = () => {
     return (
-        <div>page</div>
+        <AssistantPage />
     )
 }
 
-export default AssistantClassesPage
+export default assistantClassPage

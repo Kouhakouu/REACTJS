@@ -1,8 +1,7 @@
-import AssistantPage from "@/components/assistant/assistantPage"
 
 const assistantPage = () => {
     return (
-        <AssistantPage />
+        <div>hello</div>
     )
 }
 
