@@ -15,5 +15,5 @@ export function middleware(request: NextRequest) {
 
 // Áp dụng middleware cho cả /dashboard/* và /assistant/*
 export const config = {
-    matcher: ["/dashboard/:path*", "/assistant/:path*"],
+    matcher: ["/dashboard/:path*"],
 };
