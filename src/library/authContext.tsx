@@ -33,11 +33,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const storedUser = localStorage.getItem("user");
         const storedToken = Cookies.get("token");
 
+        console.log("🔹 Token từ Cookies:", storedToken);
+        console.log("🔹 User từ LocalStorage:", storedUser);
+
         if (storedUser && storedToken) {
             setUser(JSON.parse(storedUser));
             setToken(storedToken);
+        } else {
+            console.warn("⚠ Không tìm thấy user hoặc token trong LocalStorage.");
         }
     }, []);
+
 
     const login = ({ user, token }: { user: User, token: string }) => {
         setUser(user);
@@ -46,10 +52,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         Cookies.set("token", token, { expires: 1 });
 
         // Điều hướng dựa trên vai trò
-        if (user.role === "Assistant") {
-            router.push("/assistant");
-        } else {
+        if (user.role === "Admin") {
             router.push("/dashboard");
+        } else if (user.role === "Assistant") {
+            router.push("/assistant");
+        } else if (user.role === "Teacher") {
+            router.push("/teacher");
+        } else if (user.role === "Manager") {
+            router.push("/manager");
         }
     };
 
