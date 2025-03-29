@@ -1,48 +1,49 @@
 'use client'
-import React, { useState } from 'react'
-import NavbarComponent from "@/components/common/navbar";
-import FooterComponent from "@/components/common/footer";
-import { Layout, Row, Col, Card, Checkbox, Button, Typography } from "antd";
+import React from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import NavbarComponent from '@/components/common/navbar';
+import FooterComponent from '@/components/common/footer';
+import { Layout, Typography, Menu } from 'antd';
+
 const { Content, Sider } = Layout;
 const { Title } = Typography;
 
+const sidebarItems = [
+    { key: 'primary', label: 'Toán Tiểu học', path: '/courses/primary' },
+    { key: 'middle-basic', label: 'Toán cơ bản Trung học cơ sở', path: '/courses/middle-basic' },
+    { key: 'middle-advanced', label: 'Toán ôn thi cận chuyên THCS', path: '/courses/middle-advanced' },
+    { key: 'middle-specialized', label: 'Toán ôn thi chuyên THCS', path: '/courses/middle-specialized' },
+];
+
 const Courses = () => {
-    const skills = [
-        "Frontend React.JS",
-        "Mobile React Native",
-        "Backend Node.JS",
-        "Backend Java",
-        "Sinh Tồn",
-    ];
-    const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
-    const handleSkillChange = (checkedValues: any) => {
-        setSelectedSkills(checkedValues);
-    };
+    const pathname = usePathname();
+
     return (
         <Layout>
             <NavbarComponent />
             <Layout>
-                <Sider width={300} style={{ background: "#fff", padding: "20px", borderRadius: "10px" }}>
-                    <Title level={4}>Phân loại:</Title>
-                    <Checkbox.Group
-                        style={{ display: "flex", flexDirection: "column", gap: "10px" }}
-                        onChange={handleSkillChange}
+                <Sider width={300} style={{ background: '#fff', padding: '20px', borderRadius: '10px' }}>
+                    <Title level={4}>Danh mục khóa học</Title>
+                    <Menu
+                        mode="inline"
+                        selectedKeys={[pathname]}
+                        style={{ borderRight: 0 }}
                     >
-                        {skills.map((skill, index) => (
-                            <Checkbox key={index} value={skill} style={{ fontSize: "16px" }}>
-                                {skill}
-                            </Checkbox>
+                        {sidebarItems.map((item) => (
+                            <Menu.Item key={item.path}>
+                                <Link href={item.path}>{item.label}</Link>
+                            </Menu.Item>
                         ))}
-                    </Checkbox.Group>
-                    <hr style={{ margin: "20px 0" }} />
-                    <Button type="primary" block>
-                        Gợi Ý Khóa Học
-                    </Button>
+                    </Menu>
                 </Sider>
+                <Content style={{ padding: '20px', minHeight: '80vh' }}>
+                    {/* Nội dung chính sẽ hiển thị ở đây */}
+                </Content>
             </Layout>
             <FooterComponent />
         </Layout>
-    )
-}
+    );
+};
 
-export default Courses
+export default Courses;

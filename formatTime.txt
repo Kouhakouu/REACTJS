@@ -1,0 +1,10 @@
+// Hàm định dạng thời gian (24 giờ)
+
+const formatTime = (timeStr: string): string => {
+        const date = new Date(timeStr);
+        const hours = date.getUTCHours();
+        const minutes = date.getUTCMinutes();
+        const hoursStr = hours.toString(); // Không thêm số 0 phía trước
+        const minutesStr = minutes < 10 ? `0${minutes}` : minutes.toString();
+        return `${hoursStr}:${minutesStr}`;
+    };

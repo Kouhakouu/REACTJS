@@ -25,24 +25,27 @@ interface SubmittedData {
 }
 
 const ChildrenHomework = () => {
-    const [customTasks, setCustomTasks] = useState<string>(''); // Chuỗi chứa danh sách bài tập nhập vào
-    const [initialTasks, setInitialTasks] = useState<string[]>([]); // Danh sách bài tập thực tế
+    const [customTasks, setCustomTasks] = useState<string>('');
+    const [initialTasks, setInitialTasks] = useState<string[]>([]);
 
-    // State của phần chấm điểm
+    // State chấm điểm
     const [taskScores, setTaskScores] = useState<TaskScores>(
         Object.fromEntries(initialTasks.map(task => [task, -1]))
     );
-    // State lưu tên học sinh được nhập (chỉ được chọn từ danh sách sau upload)
+
+    // State lưu tên học sinh nhập (chọn từ danh sách sau upload)
     const [studentName, setStudentName] = useState<string>('');
-    // State bảng kết quả hiển thị (các học sinh đã được chấm điểm)
-    const [submittedData, setSubmittedData] = useState<SubmittedData[]>([]);
-    // State lưu danh sách tên học sinh từ file Excel (chỉ chứa cột "họ và tên")
+    // Danh sách học sinh từ file Excel
     const [studentList, setStudentList] = useState<string[]>([]);
+    // Dữ liệu bảng kết quả
+    const [submittedData, setSubmittedData] = useState<SubmittedData[]>([]);
+
+    // Trình bày, kỹ năng, nhận xét (tự động sinh ra khi thay đổi score)
     const [presentation, setPresentation] = useState<string>('');
     const [skills, setSkills] = useState<string>('');
     const [comments, setComments] = useState<string>('');
 
-    // Hàm cập nhật điểm của từng bài theo cách cũ
+    // Điểm cho từng bài
     const handleScoreChange = (task: string, score: number) => {
         setTaskScores(prev => ({
             ...prev,
@@ -58,17 +61,19 @@ const ChildrenHomework = () => {
         setTaskScores(Object.fromEntries(initialTasks.map(task => [task, -1])));
     };
 
-
-    // Tính toán thông tin từ các điểm đã nhập
+    // Tính toán một số chỉ số
     const doneTasks = Object.entries(taskScores).filter(([_, score]) => score > -1);
     const totalScore = doneTasks.reduce((sum, [_, score]) => sum + score, 0);
     const incorrectTasks = doneTasks.filter(([_, score]) => score > -1 && score < 1).map(([task]) => task);
     const missingTasks = Object.entries(taskScores).filter(([_, score]) => score === -1).map(([task]) => task);
     const score = totalScore / initialTasks.length;
+
+    // Mỗi khi danh sách bài tập thay đổi -> reset điểm
     useEffect(() => {
         setTaskScores(Object.fromEntries(initialTasks.map(task => [task, -1])));
-    }, [initialTasks]); // Khi danh sách bài tập thay đổi, reset điểm
+    }, [initialTasks]);
 
+    // Auto thay đổi trình bày, kỹ năng dựa trên score
     useEffect(() => {
         if (score <= 0.3) {
             setPresentation("Khá");
@@ -82,6 +87,7 @@ const ChildrenHomework = () => {
         }
     }, [totalScore]);
 
+    // Auto sinh nhận xét
     useEffect(() => {
         if (skills === "Tốt") {
             setComments("Bài tập về nhà con làm tốt, cần tiếp tục phát huy");
@@ -94,7 +100,7 @@ const ChildrenHomework = () => {
         }
     }, [skills, presentation]);
 
-    // Xử lý upload file Excel: 
+    // Upload file Excel, parse dữ liệu
     const handleFileUpload = (file: File) => {
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -104,14 +110,12 @@ const ChildrenHomework = () => {
             const worksheet = workbook.Sheets[sheetName];
             const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
 
-            console.log("Dữ liệu từ file Excel:", jsonData); // LOG dữ liệu từ file Excel
-
             if (!jsonData || jsonData.length === 0) {
                 message.error("File Excel không chứa dữ liệu hợp lệ!");
                 return;
             }
 
-            // Map dữ liệu đúng với các cột
+            // Map dữ liệu
             const parsedData = jsonData.map((row: any, index: number) => {
                 const name = row["Họ và Tên"]?.toString().trim() || '';
 
@@ -123,7 +127,6 @@ const ChildrenHomework = () => {
                 const totalScoreParts = row["Tổng số BTVN làm đúng"]?.toString().split("/") || ["0", `${doneTasks}`];
                 const totalScore = Number(totalScoreParts[0]) || 0;
 
-                // Giữ nguyên dữ liệu bài sai và bài thiếu
                 const incorrectTasks = row["Tên bài sai"]?.toString() || '';
                 const missingTasks = row["Tên bài thiếu"]?.toString() || '';
                 const presentation = row["Trình bày"]?.toString() || '';
@@ -142,10 +145,9 @@ const ChildrenHomework = () => {
                 };
             });
 
-            console.log("Dữ liệu sau khi parse:", parsedData); // LOG dữ liệu sau khi xử lý
-
-            setStudentList(parsedData.map(item => item.name)); // Cập nhật danh sách học sinh
-            setSubmittedData(parsedData); // Hiển thị bảng dữ liệu từ file Excel
+            // Lưu danh sách tên học sinh + dữ liệu
+            setStudentList(parsedData.map(item => item.name));
+            setSubmittedData(parsedData);
             message.success('File Excel đã được tải lên thành công!');
         };
 
@@ -154,10 +156,10 @@ const ChildrenHomework = () => {
         };
 
         reader.readAsBinaryString(file);
-        return false; // Ngăn Upload tự động gửi file
+        return false;
     };
 
-    // Xử lý khi ấn Submit: kiểm tra tên có trong danh sách từ file Excel không, sau đó tính toán và thêm vào bảng kết quả
+    // Khi ấn Submit
     const handleSubmit = () => {
         if (!studentName) {
             message.error("Vui lòng nhập tên học sinh!");
@@ -168,7 +170,7 @@ const ChildrenHomework = () => {
             return;
         }
 
-        // **Cập nhật nhận xét trước khi lưu**
+        // Cập nhật nhận xét (nếu muốn logic khác, bạn sửa ở đây)
         let newComments = "";
         if (skills === "Tốt") {
             newComments = "Bài tập về nhà con làm tốt, cần tiếp tục phát huy";
@@ -202,13 +204,13 @@ const ChildrenHomework = () => {
             updatedData = [...submittedData, updatedEntry];
         }
 
-        setSubmittedData(updatedData); // Cập nhật bảng kết quả
+        setSubmittedData(updatedData);
         setStudentName('');
         resetScores();
     };
 
+    // Xuất ra Excel
     const exportToExcel = () => {
-        // Xử lý dữ liệu trước khi xuất ra file Excel
         const exportData = submittedData.map(item => ({
             'Họ và Tên': item.name,
             'Tổng số BTVN đã làm': `${item.doneTasks} / ${initialTasks.length}`,
@@ -226,10 +228,20 @@ const ChildrenHomework = () => {
         XLSX.writeFile(wb, "Homework Results.xlsx");
     };
 
-
-
-    // Các option cho AutoComplete dựa trên danh sách học sinh từ file Excel
-    const autoCompleteOptions = studentList.map(name => ({ value: name }));
+    // Tô đỏ những học sinh đã được chấm (doneTasks > 0)
+    // Để xác định, ta xem trong submittedData xem tên đó đã có record và doneTasks > 0 hay chưa
+    const autoCompleteOptions = studentList.map(name => {
+        const record = submittedData.find(r => r.name === name);
+        const isDone = record && record.doneTasks > 0;
+        return {
+            value: name,
+            label: (
+                <span style={{ color: isDone ? 'red' : 'inherit' }}>
+                    {name}
+                </span>
+            ),
+        };
+    });
 
     const columns = [
         { title: 'Họ và Tên', dataIndex: 'name', key: 'name' },
@@ -256,9 +268,7 @@ const ChildrenHomework = () => {
 
     return (
         <div className="p-4 max-w-4xl mx-auto">
-            <Title level={2} style={{ textAlign: 'center' }}>Children Homework Tracker</Title>
-
-            {/* Phần upload file Excel */}
+            {/* Upload file Excel */}
             <Card style={{ marginBottom: '20px' }}>
                 <Space direction="vertical" size="middle" style={{ width: '100%' }}>
                     <Upload beforeUpload={handleFileUpload} showUploadList={false} accept=".xlsx, .xls">
@@ -303,15 +313,21 @@ const ChildrenHomework = () => {
                                 onChange={(e) => setCustomTasks(e.target.value)}
                                 style={{ flex: 1, minWidth: '150px' }}
                             />
-                            <Button type="primary" onClick={() => {
-                                const tasks = customTasks.split(',').map(task => task.trim()).filter(task => task !== '');
-                                if (tasks.length > 0) {
-                                    setInitialTasks(tasks); // Cập nhật danh sách bài tập
-                                    setTaskScores(Object.fromEntries(tasks.map(task => [task, -1]))); // Reset điểm
-                                } else {
-                                    message.error("Danh sách bài tập không hợp lệ!");
-                                }
-                            }}>
+                            <Button
+                                type="primary"
+                                onClick={() => {
+                                    const tasks = customTasks
+                                        .split(',')
+                                        .map(task => task.trim())
+                                        .filter(task => task !== '');
+                                    if (tasks.length > 0) {
+                                        setInitialTasks(tasks);
+                                        setTaskScores(Object.fromEntries(tasks.map(task => [task, -1])));
+                                    } else {
+                                        message.error("Danh sách bài tập không hợp lệ!");
+                                    }
+                                }}
+                            >
                                 Xác nhận
                             </Button>
                         </Space>
@@ -323,7 +339,8 @@ const ChildrenHomework = () => {
                         <Text><strong>Đúng:</strong> {totalScore} / {doneTasks.length}</Text><br />
                         <Text><strong>Sai:</strong> {incorrectTasks.join(', ') || 'Không có'}</Text><br />
                         <Text><strong>Thiếu:</strong> {missingTasks.join(', ') || 'Không có'}</Text><br />
-                        {/* Dùng AutoComplete để đảm bảo chỉ được chọn tên từ danh sách file Excel */}
+
+                        {/* AutoComplete với label tô màu */}
                         <AutoComplete
                             style={{ width: '100%', margin: '10px 0' }}
                             options={autoCompleteOptions}
@@ -331,7 +348,7 @@ const ChildrenHomework = () => {
                             value={studentName}
                             onChange={setStudentName}
                             filterOption={(inputValue, option) =>
-                                option!.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
+                                (option?.value as string).toUpperCase().includes(inputValue.toUpperCase())
                             }
                         />
                         <Button type="primary" onClick={handleSubmit} style={{ width: '100%' }}>
@@ -343,6 +360,7 @@ const ChildrenHomework = () => {
                     </Card>
                 </Col>
             </Row>
+
             <Title level={3} style={{ marginLeft: '10px', marginTop: '20px' }}>Bảng Kết Quả</Title>
             <Table dataSource={submittedData} columns={columns} />
         </div>

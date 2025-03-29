@@ -5,6 +5,7 @@ import { Button, Card, Typography, message, Table, Tabs, Collapse, Input, Space,
 import { CloseOutlined } from '@ant-design/icons';
 import { AuthContext } from '@/library/authContext';
 import * as XLSX from 'xlsx';
+import { formatDate } from '@/utils/formatDate';
 
 const { Title, Text } = Typography;
 
@@ -190,7 +191,14 @@ const StudentHomework = () => {
 
 
     // Các option cho AutoComplete dựa trên danh sách học sinh lấy từ DB
-    const autoCompleteOptions = lessonPerformance.map(item => ({ value: item.fullName }));
+    const autoCompleteOptions = lessonPerformance.map(item => ({
+        value: item.fullName,
+        label: (
+            <div style={{ color: item.performance && item.performance.doneTask > 0 ? 'red' : 'black' }}>
+                {item.fullName}
+            </div>
+        )
+    }));
 
     // Hàm xử lý Submit chấm bài
     const handleSubmit = async () => {
@@ -293,14 +301,13 @@ const StudentHomework = () => {
 
     return (
         <div style={{ padding: '20px' }}>
-            <Title level={2}>Chấm bài học sinh</Title>
             <Tabs onChange={handleTabChange} activeKey={selectedClass ? selectedClass.id.toString() : undefined} type="line">
                 {assistantClasses.map(assistantClass => (
                     <Tabs.TabPane tab={`${assistantClass.className}`} key={assistantClass.id.toString()}>
                         {lessons.length > 0 ? (
                             <Collapse accordion onChange={handleLessonExpand}>
                                 {lessons.map(lesson => (
-                                    <Collapse.Panel header={`${lesson.lessonContent} (${lesson.lessonDate})`} key={lesson.id.toString()}>
+                                    <Collapse.Panel header={`${formatDate(lesson.lessonDate)}: ${lesson.lessonContent} `} key={lesson.id.toString()}>
                                         {selectedLesson && selectedLesson.id === lesson.id ? (
                                             <>
                                                 <Row gutter={24}>

@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Input, message, Modal, Form, Space, Row, Col, Select } from 'antd';
-import { PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
+import { Table, Button, Input, message, Modal, Form, Space, Row, Col } from 'antd';
+import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { SearchOutlined } from '@ant-design/icons';
 import axios from 'axios';
@@ -11,43 +11,21 @@ interface Manager {
     key: string;
     id: number;
     fullName: string;
-    gradeLevel: string; // Mỗi quản lý sẽ có gradeLevel
+    gradeLevel: string;
     phoneNumber: string;
     email: string;
 }
 
-interface ClassInfo {
-    key: string;
-    id: number;
-    teacherId: number;
-    className: string;
-    gradeLevel: string;
-    startTime: string;
-    endTime: string;
-    weekday: number;
-}
-
 const ManagerTable = () => {
-    const [expandedRowKeys, setExpandedRowKeys] = useState<React.Key[]>([]);
     const [managers, setManagers] = useState<Manager[]>([]);
-    const [classes, setClasses] = useState<ClassInfo[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [isManagerModalVisible, setIsManagerModalVisible] = useState(false);
-    const [isClassModalVisible, setIsClassModalVisible] = useState(false);
-    const [selectedManager, setSelectedManager] = useState<Manager | null>(null);
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [editingManager, setEditingManager] = useState<Manager | null>(null);
     const [formManager] = Form.useForm();
-    const [formClass] = Form.useForm();
-
-    const daysOfWeek = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'Chủ nhật'];
-    const timeSlots = ['Sáng', 'Chiều', 'Tối'];
-
-    const fetchManagersAndClasses = async () => {
-        await fetchManagers();
-        await fetchClasses();
-    };
 
     useEffect(() => {
-        fetchManagersAndClasses();
+        fetchManagers();
     }, []);
 
     const fetchManagers = async () => {
@@ -65,38 +43,7 @@ const ManagerTable = () => {
             setManagers(formattedManagers);
         } catch (error) {
             console.error('Error fetching managers:', error);
-            message.error('Failed to fetch manager data.');
-        }
-    };
-
-    // Hàm fetch thông tin lớp học
-    const fetchClasses = async () => {
-        try {
-            const response = await axios.get('http://localhost:8000/get-class-info');
-            const data = response.data;
-            const formattedClasses: ClassInfo[] = data.map((cls: any) => ({
-                key: cls.id.toString(),
-                id: cls.id,
-                teacherId: cls.teacherId,
-                className: cls.className,
-                gradeLevel: cls.gradeLevel,
-                startTime: cls.startTime,
-                endTime: cls.endTime,
-                weekday: cls.weekday,
-            }));
-            setClasses(formattedClasses);
-        } catch (error) {
-            console.error('Error fetching classes:', error);
-            message.error('Failed to fetch class data.');
-        }
-    };
-
-    const handleExpandRow = (managerId: number) => {
-        const key = managerId.toString();
-        if (expandedRowKeys.includes(key)) {
-            setExpandedRowKeys(expandedRowKeys.filter(k => k !== key));
-        } else {
-            setExpandedRowKeys([...expandedRowKeys, key]);
+            message.error('Không thể tải dữ liệu quản lý.');
         }
     };
 
@@ -107,59 +54,6 @@ const ManagerTable = () => {
     const filteredManagers = managers.filter(manager =>
         manager.fullName.toLowerCase().includes(searchTerm.toLowerCase())
     );
-
-    const formatTime = (timeStr: string): string => {
-        const date = new Date(timeStr);
-        const hours = date.getUTCHours();
-        const minutes = date.getUTCMinutes();
-        const hoursStr = hours.toString();
-        const minutesStr = minutes < 10 ? `0${minutes}` : minutes.toString();
-        return `${hoursStr}:${minutesStr}`;
-    };
-
-    const generateTimetable = (classes: ClassInfo[]): any[] => {
-        const timetable: any[] = timeSlots.map(slot => ({
-            key: slot,
-            timeSlot: slot,
-            ...daysOfWeek.reduce((acc, day) => {
-                acc[day] = '';
-                return acc;
-            }, {} as any)
-        }));
-
-        classes.forEach(cls => {
-            const dayIndex = cls.weekday - 2;
-            if (dayIndex < 0 || dayIndex >= daysOfWeek.length) return;
-            const day = daysOfWeek[dayIndex];
-
-            const startHour = new Date(cls.startTime).getUTCHours();
-            let slot = '';
-            if (startHour >= 6 && startHour < 12) {
-                slot = 'Sáng';
-            } else if (startHour >= 12 && startHour < 18) {
-                slot = 'Chiều';
-            } else if (startHour >= 18 && startHour < 24) {
-                slot = 'Tối';
-            }
-
-            if (slot) {
-                const rowIndex = timeSlots.indexOf(slot);
-                if (rowIndex !== -1) {
-                    const formattedStartTime = formatTime(cls.startTime);
-                    const formattedEndTime = formatTime(cls.endTime);
-                    const classDisplay = `${cls.className} (${formattedStartTime}-${formattedEndTime})`;
-
-                    if (timetable[rowIndex][day]) {
-                        timetable[rowIndex][day] += `, ${classDisplay}`;
-                    } else {
-                        timetable[rowIndex][day] = classDisplay;
-                    }
-                }
-            }
-        });
-
-        return timetable;
-    };
 
     const managerColumns: ColumnsType<Manager> = [
         {
@@ -172,10 +66,10 @@ const ManagerTable = () => {
             title: 'Tên Quản lý',
             dataIndex: 'fullName',
             key: 'fullName',
-            width: 100,
+            width: 150,
         },
         {
-            title: 'Khối Quản lý',
+            title: 'Khối quản lý',
             dataIndex: 'gradeLevel',
             key: 'gradeLevel',
             width: 100,
@@ -195,101 +89,115 @@ const ManagerTable = () => {
         {
             title: 'Hành động',
             key: 'action',
-            width: 300,
+            width: 150,
             render: (_, record) => (
                 <Space size="middle">
                     <Button
                         type="link"
-                        onClick={() => handleExpandRow(record.id)}
+                        icon={<EditOutlined />}
+                        onClick={() => handleEditManager(record)}
                     >
-                        {expandedRowKeys.includes(record.key) ? 'Ẩn thời gian biểu' : 'Xem thông tin lớp học'}
+                        Thay đổi
                     </Button>
                     <Button
                         type="link"
-                        onClick={() => showClassModal(record)}
+                        danger
+                        icon={<DeleteOutlined />}
+                        onClick={() => handleDeleteManager(record)}
                     >
-                        Tạo lớp học mới
+                        Xóa
                     </Button>
                 </Space>
             ),
         },
     ];
 
-    const generateTimetableColumns = (): any[] => [
-        {
-            title: 'Thời gian',
-            dataIndex: 'timeSlot',
-            key: 'timeSlot',
-            fixed: 'left',
-            width: 100,
-            render: (text: string) => <strong>{text}</strong>,
-        },
-        ...daysOfWeek.map(day => ({
-            title: day,
-            dataIndex: day,
-            key: day,
-            width: 120,
-            render: (text: string) => text || '-',
-        })),
-    ];
-
-    const expandedRowRender = (record: Manager) => {
-        const managerClasses = classes.filter(cls => cls.gradeLevel === record.gradeLevel);
-        const timetableData = generateTimetable(managerClasses);
-        const timetableColumns = generateTimetableColumns();
-
-        return (
-            <Table
-                columns={timetableColumns}
-                dataSource={timetableData}
-                pagination={false}
-                size="small"
-                bordered
-                tableLayout="fixed"
-                scroll={{ x: 'max-content' }}
-            />
-        );
+    const showManagerModal = () => {
+        setIsEditMode(false);
+        setEditingManager(null);
+        formManager.resetFields();
+        setIsManagerModalVisible(true);
     };
 
-    const showClassModal = (manager: Manager) => {
-        setSelectedManager(manager);
-        setIsClassModalVisible(true);
+    const handleManagerCancel = () => {
+        setIsManagerModalVisible(false);
+        formManager.resetFields();
+        setEditingManager(null);
     };
 
-    const handleClassCancel = () => {
-        setIsClassModalVisible(false);
-        setSelectedManager(null);
-        formClass.resetFields();
-    };
-
-    const handleClassOk = async () => {
+    const handleManagerOk = async () => {
         try {
-            const values = await formClass.validateFields();
-            const { classes: classList } = values;
+            const values = await formManager.validateFields();
+            const { fullName, gradeLevel, phoneNumber, email, password } = values;
 
-            if (!selectedManager) {
-                message.error('Không tìm thấy quản lý');
-                return;
+            if (isEditMode && editingManager) {
+                const payload: any = { fullName, gradeLevel, phoneNumber, email };
+                if (password) {
+                    payload.password = password;
+                }
+                await axios.put(`http://localhost:8000/manager-update-crud/${editingManager.id}`, payload);
+                message.success('Quản lý đã được cập nhật thành công!');
+            } else {
+                const payload = { fullName, gradeLevel, phoneNumber, email, password };
+                await axios.post('http://localhost:8000/manager-post-crud', payload);
+                message.success('Quản lý mới đã được tạo thành công!');
             }
+            setIsManagerModalVisible(false);
+            formManager.resetFields();
+            fetchManagers();
+        } catch (error: any) {
+            console.error('Error saving manager:', error);
+            if (error.response && error.response.data && error.response.data.error) {
+                message.error(error.response.data.error);
+            } else {
+                message.error('Có lỗi xảy ra khi lưu thông tin quản lý.');
+            }
+        }
+    };
 
-            await axios.post('http://localhost:8000/class-post-CRUD', {
-                managerId: selectedManager.id,
-                classes: classList,
-            });
+    const handleEditManager = (manager: Manager) => {
+        setIsEditMode(true);
+        setEditingManager(manager);
+        setIsManagerModalVisible(true);
+        formManager.setFieldsValue({
+            fullName: manager.fullName,
+            gradeLevel: manager.gradeLevel,
+            phoneNumber: manager.phoneNumber,
+            email: manager.email,
+            password: '',
+        });
+    };
 
-            setIsClassModalVisible(false);
-            message.success('Lớp học đã được tạo thành công!');
-            fetchClasses();
-        } catch (error) {
-            console.error(error);
-            message.error('Không thể tạo lớp học');
+    const handleDeleteManager = (manager: Manager) => {
+        Modal.confirm({
+            title: 'Xác nhận xóa',
+            content: `Bạn có chắc chắn muốn xóa quản lý "${manager.fullName}" không?`,
+            okText: 'Xóa',
+            okType: 'danger',
+            cancelText: 'Hủy',
+            onOk: () => performDeleteManager(manager.id),
+        });
+    };
+
+    const performDeleteManager = async (managerId: number) => {
+        try {
+            await axios.delete(`http://localhost:8000/manager-delete-crud/${managerId}`);
+            message.success('Quản lý đã được xóa thành công!');
+            fetchManagers();
+        } catch (error: any) {
+            console.error('Error deleting manager:', error);
+            if (error.response && error.response.data && error.response.data.error) {
+                message.error(error.response.data.error);
+            } else {
+                message.error('Có lỗi xảy ra khi xóa quản lý.');
+            }
         }
     };
 
     return (
         <div>
             <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
-                <Col >
+                <Col>
                     <Input
                         placeholder="Tìm kiếm quản lý"
                         prefix={<SearchOutlined />}
@@ -298,8 +206,8 @@ const ManagerTable = () => {
                         onChange={handleSearch}
                     />
                 </Col>
-                <Col span={16} style={{ textAlign: 'right' }}>
-                    <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsManagerModalVisible(true)}>
+                <Col>
+                    <Button type="primary" icon={<PlusOutlined />} onClick={showManagerModal}>
                         Thêm quản lý
                     </Button>
                 </Col>
@@ -307,35 +215,76 @@ const ManagerTable = () => {
             <Table<Manager>
                 columns={managerColumns}
                 dataSource={filteredManagers}
-                expandedRowRender={expandedRowRender}
-                expandedRowKeys={expandedRowKeys}
-                onExpand={(expanded, record) => handleExpandRow(record.id)}
+                pagination={{ pageSize: 5 }}
                 rowKey="key"
                 tableLayout="fixed"
                 scroll={{ x: 'max-content' }}
             />
 
-            {/* Modal tạo lớp học */}
             <Modal
-                title={`Tạo lớp học cho Quản lý ${selectedManager?.fullName}`}
-                visible={isClassModalVisible}
-                onCancel={handleClassCancel}
-                onOk={handleClassOk}
-                confirmLoading={false}
-                destroyOnClose
+                title={isEditMode ? "Chỉnh sửa quản lý" : "Thêm mới quản lý"}
+                visible={isManagerModalVisible}
+                onOk={handleManagerOk}
+                onCancel={handleManagerCancel}
+                width={800}
+                okText="Lưu"
+                cancelText="Hủy"
             >
-                <Form form={formClass} layout="vertical" name="classForm">
-                    <Form.Item
-                        name="classes"
-                        label="Thông tin lớp"
-                        rules={[{ required: true, message: 'Vui lòng nhập thông tin lớp' }]}
-                    >
-                        <Select
-                            mode="tags"
-                            placeholder="Nhập thông tin lớp học"
-                            allowClear
-                        />
-                    </Form.Item>
+                <Form form={formManager} layout="vertical" name="managerForm">
+                    <Row gutter={16}>
+                        <Col span={12}>
+                            <Form.Item
+                                name="fullName"
+                                label="Tên quản lý"
+                                rules={[{ required: true, message: 'Vui lòng nhập tên quản lý!' }]}
+                            >
+                                <Input placeholder="Nhập tên quản lý" />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item
+                                name="gradeLevel"
+                                label="Khối quản lý"
+                                rules={[{ required: true, message: 'Vui lòng nhập khối quản lý!' }]}
+                            >
+                                <Input placeholder="Nhập khối quản lý" />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                    <Row gutter={16}>
+                        <Col span={12}>
+                            <Form.Item
+                                name="phoneNumber"
+                                label="Số điện thoại"
+                                rules={[{ required: true, message: 'Vui lòng nhập số điện thoại!' }]}
+                            >
+                                <Input placeholder="Nhập số điện thoại" />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item
+                                name="email"
+                                label="Email"
+                                rules={[
+                                    { required: true, message: 'Vui lòng nhập email!' },
+                                    { type: 'email', message: 'Email không hợp lệ!' },
+                                ]}
+                            >
+                                <Input placeholder="Nhập email" />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                    <Row gutter={16}>
+                        <Col span={12}>
+                            <Form.Item
+                                name="password"
+                                label={isEditMode ? "Mật khẩu (để trống nếu không muốn thay đổi)" : "Mật khẩu"}
+                                rules={[{ required: !isEditMode, message: 'Vui lòng nhập mật khẩu!' }]}
+                            >
+                                <Input.Password placeholder="Nhập mật khẩu" />
+                            </Form.Item>
+                        </Col>
+                    </Row>
                 </Form>
             </Modal>
         </div>

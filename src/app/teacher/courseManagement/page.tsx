@@ -1,8 +1,8 @@
-import React from 'react'
+import CourseManagement from "@/components/teacher/courseManagement"
 
 const courseManagement = () => {
     return (
-        <div>courseManagement</div>
+        <CourseManagement />
     )
 }
 
