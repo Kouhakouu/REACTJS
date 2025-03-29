@@ -18,13 +18,6 @@ interface Course {
 const CourseManagement = () => {
     const { user, token } = useContext(AuthContext);
     const teacherId = user?.id;
-
-    if (!user || !token) {
-        return <Spin tip="Đang tải..." style={{ display: 'flex', justifyContent: 'center', marginTop: 50 }} />;
-    }
-
-    const teacherName = user?.fullName || '';
-
     const [courses, setCourses] = useState<Course[]>([]);
     const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
     const [searchText, setSearchText] = useState<string>('');
@@ -38,7 +31,7 @@ const CourseManagement = () => {
 
         if (teacherId && token) {
             axios.get("http://localhost:8000/get-teacher-courses", {
-                headers: { Authorization: `Bearer ${token}` }, // Đảm bảo có "Bearer"
+                headers: { Authorization: `Bearer ${token}` },
             })
                 .then(response => {
                     console.log("Dữ liệu khóa học từ API:", response.data);
@@ -60,6 +53,9 @@ const CourseManagement = () => {
         );
     }, [courses, searchText]);
 
+    if (!user || !token) {
+        return <Spin tip="Đang tải..." style={{ display: 'flex', justifyContent: 'center', marginTop: 50 }} />;
+    }
 
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchText(e.target.value);
@@ -79,7 +75,7 @@ const CourseManagement = () => {
                 title: values.title,
                 description: values.description,
                 price: values.price,
-                teacherId: teacherId, // Lấy từ context thay vì form
+                teacherId: teacherId,
             };
 
             const response = await axios.post(
