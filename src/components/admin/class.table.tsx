@@ -6,6 +6,13 @@ import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import type { ColumnsType } from 'antd/es/table';
 
+const http = axios.create({
+    baseURL: process.env.BACKEND_PORT,
+    headers: {
+        'Content-Type': 'application/json',
+    },
+});
+
 interface Teacher {
     id: number;
     fullName: string;
@@ -88,7 +95,7 @@ const ClassTable = () => {
 
     const fetchClasses = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/get-class-info');
+            const response = await http.get('/get-class-info');
             const data = response.data;
 
             const formattedClasses: ClassInfo[] = data.map((cls: any) => ({
@@ -115,7 +122,7 @@ const ClassTable = () => {
 
     const fetchTeachers = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/get-teacher-info');
+            const response = await http.get('/get-teacher-info');
             const data = response.data;
             const formattedTeachers: Teacher[] = data.map((teacher: any) => ({
                 id: teacher.id,
@@ -130,7 +137,7 @@ const ClassTable = () => {
 
     const fetchClassSchedules = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/get-class-schedule-info');
+            const response = await http.get('/get-class-schedule-info');
             const data = response.data;
             const formattedSchedules: ClassSchedule[] = data.map((schedule: any) => ({
                 id: schedule.id,
@@ -163,7 +170,7 @@ const ClassTable = () => {
 
     const deleteClass = async (classId: number) => {
         try {
-            await axios.post('http://localhost:8000/class-delete-crud', { id: classId });
+            await http.post('/class-delete-crud', { id: classId });
             message.success('Xóa lớp học thành công!');
             setClasses(prevClasses => prevClasses.filter(cls => cls.id !== classId));
             setFilteredClasses(prevClasses => prevClasses.filter(cls => cls.id !== classId));
@@ -186,7 +193,7 @@ const ClassTable = () => {
 
     const updateClass = async (classId: number, updatedData: any) => {
         try {
-            await axios.post('http://localhost:8000/class-update-crud', {
+            await http.post('/class-update-crud', {
                 id: classId,
                 ...updatedData,
             });
@@ -213,7 +220,7 @@ const ClassTable = () => {
             if (isUpdateMode && currentClassId !== null) {
                 await updateClass(currentClassId, updatedData);
             } else {
-                await axios.post('http://localhost:8000/class-post-crud', updatedData);
+                await http.post('/class-post-crud', updatedData);
                 message.success('Lớp học đã được tạo thành công!');
                 await fetchClasses();
             }
