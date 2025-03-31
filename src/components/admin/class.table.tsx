@@ -7,7 +7,7 @@ import axios from 'axios';
 import type { ColumnsType } from 'antd/es/table';
 
 const http = axios.create({
-    baseURL: process.env.BACKEND_PORT,
+    baseURL: process.env.NEXT_PUBLIC_BACKEND_PORT,
     headers: {
         'Content-Type': 'application/json',
     },
