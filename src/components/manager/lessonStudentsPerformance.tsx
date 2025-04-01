@@ -53,14 +53,14 @@ const StudentPerformancePage = () => {
         if (!classId || !lessonId || !token) return;
         // You might need two separate fetches or a combined endpoint
         // Fetch Class Name (Example)
-        fetch(`http://localhost:8000/manager/classes/${classId}`, { headers: { Authorization: `Bearer ${token}` } })
+        fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/manager/classes/${classId}`, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => res.ok ? res.json() : Promise.reject('Failed class fetch'))
             .then(data => setHeaderInfo(prev => ({ ...prev, className: data?.className })))
             .catch(err => console.error("Error fetching class name:", err));
 
         // Fetch Lesson Date (Example - Assuming an endpoint like /lessons/{lessonId})
         // If your lesson API is nested like /classes/{classId}/lessons/{lessonId}, use that
-        fetch(`http://localhost:8000/manager/lessons/${lessonId}`, { headers: { Authorization: `Bearer ${token}` } }) // ADJUST API ENDPOINT
+        fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/manager/lessons/${lessonId}`, { headers: { Authorization: `Bearer ${token}` } })
             .then(res => res.ok ? res.json() : Promise.reject('Failed lesson fetch'))
             .then(data => setHeaderInfo(prev => ({ ...prev, lessonDate: data?.lessonDate }))) // Assuming API returns lessonDate
             .catch(err => console.error("Error fetching lesson date:", err));
@@ -79,7 +79,7 @@ const StudentPerformancePage = () => {
 
         setLoading(true); setError(null); setStudentPerformances([]);
 
-        const apiUrl = `http://localhost:8000/manager/classes/${classId}/lessons/${lessonId}/students-performance`;
+        const apiUrl = `${process.env.NEXT_PUBLIC_BACKEND_PORT}/manager/classes/${classId}/lessons/${lessonId}/students-performance`;
 
         fetch(apiUrl, {
             headers: { Authorization: `Bearer ${token}` },

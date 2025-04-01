@@ -49,7 +49,7 @@ const StudentTable = () => {
 
     const fetchStudents = async () => {
         try {
-            const res = await fetch('http://localhost:8000/get-student-info')
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/get-student-info`)
             if (!res.ok) {
                 throw new Error('Failed to fetch students')
             }
@@ -64,7 +64,7 @@ const StudentTable = () => {
 
     const fetchClasses = async () => {
         try {
-            const res = await fetch('http://localhost:8000/get-class-info')
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/get-class-info`)
             if (!res.ok) {
                 throw new Error('Failed to fetch classes')
             }
@@ -95,7 +95,7 @@ const StudentTable = () => {
         }
 
         try {
-            const res = await fetch('http://localhost:8000/student-post-crud', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/student-post-crud`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(newStudentData),
@@ -145,7 +145,7 @@ const StudentTable = () => {
         }
 
         try {
-            const res = await fetch('http://localhost:8000/update-student-crud', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/update-student-crud`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(updatedStudentData),
@@ -166,7 +166,7 @@ const StudentTable = () => {
 
     const handleDeleteStudent = async (student: IStudent) => {
         try {
-            const res = await fetch('http://localhost:8000/student-delete-crud', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/student-delete-crud`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id: student.id }),
@@ -250,7 +250,7 @@ const StudentTable = () => {
                         Điều chỉnh
                     </Button>
                     <Popconfirm
-                        title={`Bạn có chắc muốn xóa học sinh: ${record.fullName}?`}
+                        title={`Bạn có chắc muốn xóa học sinh: ${record.fullName} ? `}
                         onConfirm={() => handleDeleteStudent(record)}
                         okText="Yes"
                         cancelText="No"

@@ -40,7 +40,7 @@ const AssistantClassPage = ({ params }: { params: { id: string } }) => {
         const fetchClassDetail = async () => {
             setLoading(true);
             try {
-                const res = await fetch(`http://localhost:8000/assistant/classes/${params.id}`);
+                const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/assistant/classes/${params.id}`);
                 const data = await res.json();
                 setClassDetail(data);
                 setFilteredStudents(data.students);
@@ -58,7 +58,7 @@ const AssistantClassPage = ({ params }: { params: { id: string } }) => {
         const fetchLessons = async () => {
             setLoadingLessons(true);
             try {
-                const res = await fetch(`http://localhost:8000/assistant/classes/${params.id}/lessons`, { credentials: 'include' });
+                const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/assistant/classes/${params.id}/lessons`, { credentials: 'include' });
                 const data = await res.json();
 
                 if (!res.ok) {
@@ -66,8 +66,6 @@ const AssistantClassPage = ({ params }: { params: { id: string } }) => {
                     setLessons([]);
                     return;
                 }
-
-                // Nếu data không phải là mảng, kiểm tra xem có chứa thuộc tính nào chứa mảng hay không
                 const lessonsArray = Array.isArray(data) ? data : data.lessons || [];
                 setLessons(lessonsArray);
             } catch (error) {

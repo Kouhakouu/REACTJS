@@ -26,7 +26,7 @@ const ManagerLessonPage = () => {
 
     useEffect(() => {
         // Lấy danh sách lớp học từ API
-        fetch("http://localhost:8000/get-class-info")
+        fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/get-class-info`)
             .then((response) => {
                 if (!response.ok) {
                     throw new Error("Network response was not ok");
@@ -43,7 +43,7 @@ const ManagerLessonPage = () => {
     }, []);
 
     useEffect(() => {
-        fetch("http://localhost:8000/manager/classes", {
+        fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/manager/classes`, {
             headers: { Authorization: `Bearer ${token}` },
         })
             .then((res) => res.json())
@@ -74,7 +74,7 @@ const ManagerLessonPage = () => {
                 classId: values.classId,
             };
 
-            const response = await fetch('http://localhost:8000/createLesson', {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/createLesson`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),

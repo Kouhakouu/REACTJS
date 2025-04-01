@@ -149,7 +149,7 @@ const ScheduleTable: React.FC = () => {
     };
 
     useEffect(() => {
-        fetch('http://localhost:8000/get-class-info')
+        fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/get-class-info`)
             .then((res) => res.json())
             .then((data: ClassInfo[]) => {
                 setClassData(data);
@@ -163,7 +163,7 @@ const ScheduleTable: React.FC = () => {
     }, []);
 
     const fetchSchedules = () => {
-        fetch('http://localhost:8000/get-schedules')
+        fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/get-schedules`)
             .then((res) => res.json())
             .then((data: ClassSchedule[]) => {
                 setScheduleData(data);
@@ -177,7 +177,7 @@ const ScheduleTable: React.FC = () => {
         try {
             if (isEditMode && editingId !== null) {
                 const response = await fetch(
-                    `http://localhost:8000/edit-schedule/${editingId}`,
+                    `${process.env.NEXT_PUBLIC_BACKEND_PORT}/edit-schedule/${editingId}`,
                     {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
@@ -191,7 +191,7 @@ const ScheduleTable: React.FC = () => {
                 }
             } else {
                 const response = await fetch(
-                    'http://localhost:8000/create-schedule',
+                    `${process.env.NEXT_PUBLIC_BACKEND_PORT}/create-schedule`,
                     {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -219,7 +219,7 @@ const ScheduleTable: React.FC = () => {
     const handleDeleteSchedule = async (id: number) => {
         try {
             const response = await fetch(
-                `http://localhost:8000/delete-schedule/${id}`,
+                `${process.env.NEXT_PUBLIC_BACKEND_PORT}/delete-schedule/${id}`,
                 {
                     method: 'DELETE',
                 }

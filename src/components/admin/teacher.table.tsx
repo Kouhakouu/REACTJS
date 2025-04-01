@@ -8,6 +8,7 @@ import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { SearchOutlined } from '@ant-design/icons';
 import axios from 'axios';
+import http from '@/utils/customAxios';
 
 interface Teacher {
     key: string;
@@ -31,7 +32,7 @@ const TeacherTable = () => {
 
     const fetchTeachers = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/get-teacher-info');
+            const response = await http.get('/get-teacher-info');
             const data = response.data;
             const formattedTeachers: Teacher[] = data.map((teacher: any) => ({
                 key: teacher.id.toString(),
@@ -128,12 +129,12 @@ const TeacherTable = () => {
                     teacherPayload.password = password;
                 }
 
-                await axios.put(`http://localhost:8000/teacher-update-crud/${editingTeacher.id}`, teacherPayload);
+                await http.put(`/teacher-update-crud/${editingTeacher.id}`, teacherPayload);
                 message.success('Giáo viên đã được cập nhật thành công!');
             } else {
                 // Create new teacher
                 const teacherPayload = { fullName, phoneNumber, email, password };
-                await axios.post('http://localhost:8000/teacher-post-crud', teacherPayload);
+                await http.post('/teacher-post-crud', teacherPayload);
                 message.success('Giáo viên mới đã được tạo thành công!');
             }
 
@@ -175,7 +176,7 @@ const TeacherTable = () => {
 
     const performDeleteTeacher = async (teacherId: number) => {
         try {
-            await axios.delete(`http://localhost:8000/teacher-delete-crud/${teacherId}`);
+            await http.delete(`/teacher-delete-crud/${teacherId}`);
             message.success('Giáo viên đã được xóa thành công!');
             await fetchTeachers();
         } catch (error: any) {

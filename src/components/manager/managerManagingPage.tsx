@@ -45,7 +45,7 @@ const ManagerManagingPage = () => {
         setLoading(true);
         setError(null);
 
-        fetch("http://localhost:8000/manager/classes", {
+        fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/manager/classes`, {
             headers: { Authorization: `Bearer ${token}` },
         })
             .then((res) => {

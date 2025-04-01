@@ -48,7 +48,7 @@ const Login = () => {
                 >
                     <legend>Đăng Nhập</legend>
                     <Form
-                        form={form} // Gắn form vào
+                        form={form}
                         name="basic"
                         onFinish={onFinish}
                         autoComplete="off"

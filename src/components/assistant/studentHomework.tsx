@@ -113,7 +113,7 @@ const StudentHomework = () => {
         }
         const fetchClasses = async () => {
             try {
-                const res = await fetch('http://localhost:8000/assistant/classes', {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/assistant/classes`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (!res.ok) throw new Error('Error fetching classes');
@@ -138,7 +138,7 @@ const StudentHomework = () => {
         setSelectedLesson(null);
         setLessonPerformance([]);
         try {
-            const res = await fetch(`http://localhost:8000/assistant/classes/${assistantClass.id}/lessons`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/assistant/classes/${assistantClass.id}/lessons`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (!res.ok) throw new Error('Error fetching lessons');
@@ -176,7 +176,7 @@ const StudentHomework = () => {
             setTaskScores(Object.fromEntries(tasks.map(task => [task, -1])));
             try {
                 const res = await fetch(
-                    `http://localhost:8000/assistant/classes/${selectedClass.id}/lessons/${lesson.id}/students-performance`,
+                    `${process.env.NEXT_PUBLIC_BACKEND_PORT}/assistant/classes/${selectedClass.id}/lessons/${lesson.id}/students-performance`,
                     { headers: { 'Authorization': `Bearer ${token}` } }
                 );
                 if (!res.ok) throw new Error('Error fetching lesson performance');
@@ -247,7 +247,7 @@ const StudentHomework = () => {
         };
         try {
             const res = await fetch(
-                `http://localhost:8000/assistant/classes/${selectedClass?.id}/lessons/${selectedLesson?.id}/students-performance/${studentRecord.id}`,
+                `${process.env.NEXT_PUBLIC_BACKEND_PORT}/assistant/classes/${selectedClass?.id}/lessons/${selectedLesson?.id}/students-performance/${studentRecord.id}`,
                 {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },

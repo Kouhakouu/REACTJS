@@ -47,7 +47,7 @@ const ManagerManagingLessonPage = () => {
         setError(null);
 
         try {
-            const response = await fetch(`http://localhost:8000/manager/classes/${classId}/lessons`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/manager/classes/${classId}/lessons`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
@@ -84,7 +84,7 @@ const ManagerManagingLessonPage = () => {
                 classId: classId,
             };
 
-            const response = await fetch('http://localhost:8000/createLesson', {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/createLesson`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
@@ -155,7 +155,8 @@ const ManagerManagingLessonPage = () => {
                                     <List.Item.Meta
                                         title={
                                             <Link href={performanceUrl} style={{ color: 'inherit' }}> {/* Wrap title in Link */}
-                                                {`Buổi học ngày: ${formatDate(lesson.lessonDate)}`}
+                                                {`Buổi học ngày: ${formatDate(lesson.lessonDate)
+                                                    }`}
                                             </Link>
                                         }
                                         description={

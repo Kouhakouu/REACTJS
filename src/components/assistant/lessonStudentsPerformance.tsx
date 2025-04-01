@@ -33,7 +33,7 @@ const LessonStudentsPerformance = ({
             setLoading(true);
             try {
                 const res = await fetch(
-                    `http://localhost:8000/assistant/classes/${params.id}/lessons/${params.lessonId}/students-performance`
+                    `${process.env.NEXT_PUBLIC_BACKEND_PORT}/assistant/classes/${params.id}/lessons/${params.lessonId}/students-performance`
                 );
                 const json = await res.json();
                 setData(json);

@@ -29,7 +29,7 @@ const Class = ({ params }: { params: { id: string } }) => {
         const fetchClassDetail = async () => {
             setLoading(true);
             try {
-                const res = await fetch(`http://localhost:8000/manager/students/${params.id}`);
+                const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/manager/students/${params.id}`);
                 const data = await res.json();
                 setClassDetail(data);
                 setFilteredStudents(data.students);

@@ -29,7 +29,7 @@ const AssistantPage = () => {
             return;
         }
 
-        fetch('http://localhost:8000/assistant/classes', {
+        fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/assistant/classes`, {
             headers: { 'Authorization': `Bearer ${token}` }
         })
             .then(res => res.json())

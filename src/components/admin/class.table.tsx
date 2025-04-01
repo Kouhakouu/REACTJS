@@ -3,15 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Input, message, Modal, Form, Space, Row, Col, Select } from 'antd';
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
-import axios from 'axios';
 import type { ColumnsType } from 'antd/es/table';
-
-const http = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_BACKEND_PORT,
-    headers: {
-        'Content-Type': 'application/json',
-    },
-});
+import http from '@/utils/customAxios';
 
 interface Teacher {
     id: number;

@@ -18,6 +18,7 @@ import {
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import type { ColumnsType } from 'antd/es/table';
+import http from '@/utils/customAxios';
 
 interface Assistant {
     key: string;
@@ -52,7 +53,7 @@ const TaTable = () => {
 
     const fetchAssistants = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/get-assistant-info');
+            const response = await http.get('/get-assistant-info');
             const data = response.data;
             const formattedAssistants: Assistant[] = data.map((assistant: any) => ({
                 key: assistant.id.toString(),
@@ -73,7 +74,7 @@ const TaTable = () => {
 
     const fetchClasses = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/get-class-info');
+            const response = await http.get('/get-class-info');
             setClasses(response.data);
         } catch (error) {
             console.error('Error fetching classes:', error);
@@ -106,7 +107,7 @@ const TaTable = () => {
     const handleAddModalOk = async () => {
         try {
             const values = await formAdd.validateFields();
-            await axios.post('http://localhost:8000/assistant-post-crud', {
+            await http.post('/assistant-post-crud', {
                 fullName: values.fullName,
                 email: values.email,
                 phoneNumber: values.phoneNumber,
@@ -151,7 +152,7 @@ const TaTable = () => {
             }
 
             await axios.put(
-                `http://localhost:8000/assistant-update-crud/${selectedAssistant.id}`,
+                `${process.env.NEXT_PUBLIC_BACKEND_PORT}/assistant-update-crud/${selectedAssistant.id}`,
                 values
             );
             message.success('Cập nhật thông tin trợ giảng thành công!');
@@ -173,7 +174,7 @@ const TaTable = () => {
                 return;
             }
 
-            await axios.post('http://localhost:8000/class-assistant-post-crud', {
+            await http.post('/class-assistant-post-crud', {
                 classId: Number(classId),
                 assistantId: selectedAssistant.id,
             });
@@ -195,7 +196,7 @@ const TaTable = () => {
         }
 
         try {
-            await axios.post('http://localhost:8000/delete-class-assistant-crud', {
+            await http.post('/delete-class-assistant-crud', {
                 classId: classId,
                 assistantId: selectedAssistant.id,
             });
@@ -212,7 +213,7 @@ const TaTable = () => {
 
     const handleDeleteAssistant = async (assistantId: number) => {
         try {
-            await axios.post('http://localhost:8000/assistant-delete-crud', { id: assistantId });
+            await http.post('/assistant-delete-crud', { id: assistantId });
             setAssistants((prev) => prev.filter((assistant) => assistant.id !== assistantId));
             setFilteredAssistants((prev) => prev.filter((assistant) => assistant.id !== assistantId));
             message.success('Đã xóa trợ giảng thành công!');

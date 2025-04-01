@@ -30,7 +30,7 @@ const CourseManagement = () => {
         console.log("TeacherId gửi lên:", teacherId);
 
         if (teacherId && token) {
-            axios.get("http://localhost:8000/get-teacher-courses", {
+            axios.get(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/get-teacher-courses`, {
                 headers: { Authorization: `Bearer ${token}` },
             })
                 .then(response => {
@@ -79,7 +79,7 @@ const CourseManagement = () => {
             };
 
             const response = await axios.post(
-                'http://localhost:8000/create-course',
+                `${process.env.NEXT_PUBLIC_BACKEND_PORT}/create-course`,
                 newCourse,
                 { headers: { Authorization: `Bearer ${token}` } }
             );

@@ -6,6 +6,7 @@ import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { SearchOutlined } from '@ant-design/icons';
 import axios from 'axios';
+import http from '@/utils/customAxios';
 
 interface Manager {
     key: string;
@@ -30,7 +31,7 @@ const ManagerTable = () => {
 
     const fetchManagers = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/get-manager-info');
+            const response = await http.get('/get-manager-info');
             const data = response.data;
             const formattedManagers: Manager[] = data.map((manager: any) => ({
                 key: manager.id.toString(),
@@ -135,11 +136,11 @@ const ManagerTable = () => {
                 if (password) {
                     payload.password = password;
                 }
-                await axios.put(`http://localhost:8000/manager-update-crud/${editingManager.id}`, payload);
+                await http.put(`/manager-update-crud/${editingManager.id}`, payload);
                 message.success('Quản lý đã được cập nhật thành công!');
             } else {
                 const payload = { fullName, gradeLevel, phoneNumber, email, password };
-                await axios.post('http://localhost:8000/manager-post-crud', payload);
+                await http.post('/manager-post-crud', payload);
                 message.success('Quản lý mới đã được tạo thành công!');
             }
             setIsManagerModalVisible(false);
@@ -181,7 +182,7 @@ const ManagerTable = () => {
 
     const performDeleteManager = async (managerId: number) => {
         try {
-            await axios.delete(`http://localhost:8000/manager-delete-crud/${managerId}`);
+            await http.delete(`/manager-delete-crud/${managerId}`);
             message.success('Quản lý đã được xóa thành công!');
             fetchManagers();
         } catch (error: any) {
