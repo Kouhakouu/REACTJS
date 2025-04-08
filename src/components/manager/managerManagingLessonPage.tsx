@@ -58,7 +58,12 @@ const ManagerManagingLessonPage = () => {
 
             const data = await response.json();
             if (Array.isArray(data)) {
-                setLessons(data);
+                const lessonsData: Lesson[] = data;
+                // Sắp xếp các bài học theo thời gian (từ cũ đến mới)
+                lessonsData.sort((a: Lesson, b: Lesson) =>
+                    new Date(a.lessonDate).getTime() - new Date(b.lessonDate).getTime()
+                );
+                setLessons(lessonsData);
             } else {
                 throw new Error("Dữ liệu buổi học không hợp lệ.");
             }
@@ -68,6 +73,7 @@ const ManagerManagingLessonPage = () => {
             setLoading(false);
         }
     };
+
 
     // Sử dụng useEffect gọi fetchLessons
     useEffect(() => {

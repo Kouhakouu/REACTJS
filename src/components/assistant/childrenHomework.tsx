@@ -1,3 +1,5 @@
+//đây là component chỉ dùng excel, không liên quan đến database 
+
 'use client'
 import { useEffect, useState } from 'react';
 import { Button, Card, Typography, Space, Row, Col, Input, Table, Upload, message, AutoComplete } from 'antd';

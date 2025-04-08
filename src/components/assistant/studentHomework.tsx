@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useContext } from 'react';
-import { Button, Card, Typography, message, Table, Tabs, Collapse, Input, Space, AutoComplete, Row, Col, Divider } from 'antd';
+import { Button, Card, Typography, message, Table, Tabs, Collapse, Input, Space, Row, Col, AutoComplete } from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
 import { AuthContext } from '@/library/authContext';
 import * as XLSX from 'xlsx';
@@ -62,14 +62,14 @@ const StudentHomework = () => {
 
     // Khi danh sách bài tập thay đổi, reset điểm của từng bài
     useEffect(() => {
-        setTaskScores(Object.fromEntries(initialTasks.map(task => [task, -1])));
+        setTaskScores(Object.fromEntries(initialTasks.map((task: string) => [task, -1])));
     }, [initialTasks]);
 
     // Tính toán thông tin chấm bài
-    const doneTasks = Object.entries(taskScores).filter(([_, score]) => score > -1);
-    const totalScore = doneTasks.reduce((sum, [_, score]) => sum + score, 0);
-    const incorrectTasks = doneTasks.filter(([_, score]) => score > -1 && score < 1).map(([task]) => task);
-    const missingTasks = Object.entries(taskScores).filter(([_, score]) => score === -1).map(([task]) => task);
+    const doneTasks = Object.entries(taskScores).filter(([_key, score]) => score > -1);
+    const totalScore = doneTasks.reduce((sum, [_key, score]) => sum + score, 0);
+    const incorrectTasks = doneTasks.filter(([_key, score]) => score > -1 && score < 1).map(([task]) => task);
+    const missingTasks = Object.entries(taskScores).filter(([_key, score]) => score === -1).map(([task]) => task);
 
     // Các hàm xử lý chấm bài
     const handleScoreChange = (task: string, score: number) => {
@@ -84,20 +84,34 @@ const StudentHomework = () => {
     };
 
     const resetScores = () => {
-        setTaskScores(Object.fromEntries(initialTasks.map(task => [task, -1])));
+        setTaskScores(Object.fromEntries(initialTasks.map((task: string) => [task, -1])));
     };
 
     // Hàm xuất dữ liệu ra Excel (giữ lại theo bố cục cũ)
     const exportToExcel = () => {
-        const exportData = lessonPerformance.map(item => ({
-            'Họ và Tên': item.fullName,
-            'Tổng số BTVN đã làm': item.performance ? `${item.performance.doneTask} / ${initialTasks.length}` : `0 / ${initialTasks.length}`,
-            'Tổng số BTVN làm đúng': item.performance ? `${item.performance.totalScore} / ${item.performance.doneTask}` : '0 / 0',
-            'Tên bài sai': item.performance ? item.performance.incorrectTasks : '',
-            'Tên bài thiếu': item.performance ? item.performance.missingTasks : '',
-            'Trình bày': item.performance ? item.performance.presentation : '',
-            'Kĩ năng': item.performance ? item.performance.skills : '',
-            'Nhận xét': item.performance ? item.performance.comment : ''
+        const exportData = lessonPerformance.map((item: StudentPerformance) => ({
+            'Họ và Tên': item.fullName.replace(/"/g, ''),
+            'Tổng số BTVN đã làm': item.performance
+                ? `${item.performance.doneTask} / ${initialTasks.length}`.replace(/"/g, '')
+                : `0 / ${initialTasks.length}`,
+            'Tổng số BTVN làm đúng': item.performance
+                ? `${item.performance.totalScore} / ${item.performance.doneTask}`.replace(/"/g, '')
+                : '0 / 0',
+            'Tên bài sai': item.performance && item.performance.incorrectTasks
+                ? item.performance.incorrectTasks.replace(/"/g, '')
+                : '',
+            'Tên bài thiếu': item.performance && item.performance.missingTasks
+                ? item.performance.missingTasks.replace(/"/g, '')
+                : '',
+            'Trình bày': item.performance && item.performance.presentation
+                ? item.performance.presentation.replace(/"/g, '')
+                : '',
+            'Kĩ năng': item.performance && item.performance.skills
+                ? item.performance.skills.replace(/"/g, '')
+                : '',
+            'Nhận xét': item.performance && item.performance.comment
+                ? item.performance.comment.replace(/"/g, '')
+                : ''
         }));
         const ws = XLSX.utils.json_to_sheet(exportData);
         const wb = XLSX.utils.book_new();
@@ -107,10 +121,6 @@ const StudentHomework = () => {
 
     // Lấy danh sách lớp học từ API
     useEffect(() => {
-        if (!token) {
-            message.error('Không tìm thấy token, không thể gọi API!');
-            return;
-        }
         const fetchClasses = async () => {
             try {
                 const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/assistant/classes`, {
@@ -125,7 +135,6 @@ const StudentHomework = () => {
                 }
             } catch (error) {
                 console.error(error);
-                message.error('Không thể lấy danh sách lớp học');
             }
         };
         fetchClasses();
@@ -150,30 +159,52 @@ const StudentHomework = () => {
         }
     };
 
+    // Hàm fetch danh sách bài tập của lesson từ DB
+    const loadHomeworkList = async (lesson: Lesson): Promise<string[]> => {
+        try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/lessons/${lesson.id}/homeworklist`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                if (data.homeworkList && data.homeworkList.trim() !== '') {
+                    // Tách chuỗi thành mảng, giả sử các bài được phân tách bởi dấu phẩy
+                    return data.homeworkList.split(',').map((task: string) => task.trim());
+                }
+            }
+        } catch (err) {
+            console.error("Error fetching homework list", err);
+        }
+        // Nếu không có danh sách bài tập trong DB, tạo mặc định theo tổng số bài của lesson
+        return Array.from({ length: lesson.totalTaskLength }, (_, i: number) => `Bài ${i + 1}`);
+    };
+
     // Xử lý chuyển tab (chọn lớp)
     const handleTabChange = (activeKey: string) => {
-        const classId = Number(activeKey);
-        const assistantClass = assistantClasses.find(item => item.id === classId);
+        const classId: number = Number(activeKey);
+        const assistantClass = assistantClasses.find((item: AssistantClass) => item.id === classId);
         if (assistantClass) {
             fetchLessonsForClass(assistantClass);
         }
     };
 
-    // Khi mở một panel (buổi học) trong Collapse, gọi API lấy dữ liệu học sinh từ DB
+    // Khi mở một panel (buổi học) trong Collapse, gọi API lấy dữ liệu học sinh từ DB và fetch danh sách bài tập từ DB
     const handleLessonExpand = async (activeKey: string | string[] | null) => {
         if (!activeKey) {
             setSelectedLesson(null);
             setLessonPerformance([]);
             return;
         }
-        const lessonId = Number(activeKey as string);
-        const lesson = lessons.find(item => item.id === lessonId);
+        const lessonId: number = Number(activeKey as string);
+        const lesson = lessons.find((item: Lesson) => item.id === lessonId);
         if (lesson && selectedClass) {
             setSelectedLesson(lesson);
-            // Tạo mảng tasks dựa trên totalTaskLength từ database
-            const tasks = Array.from({ length: lesson.totalTaskLength }, (_, i) => `Bài ${i + 1}`);
+            // Fetch danh sách bài tập từ DB (hoặc tạo danh sách mặc định nếu chưa có)
+            const tasks: string[] = await loadHomeworkList(lesson);
             setInitialTasks(tasks);
-            setTaskScores(Object.fromEntries(tasks.map(task => [task, -1])));
+            setTaskScores(Object.fromEntries(tasks.map((task: string) => [task, -1])));
             try {
                 const res = await fetch(
                     `${process.env.NEXT_PUBLIC_BACKEND_PORT}/assistant/classes/${selectedClass.id}/lessons/${lesson.id}/students-performance`,
@@ -189,9 +220,8 @@ const StudentHomework = () => {
         }
     };
 
-
     // Các option cho AutoComplete dựa trên danh sách học sinh lấy từ DB
-    const autoCompleteOptions = lessonPerformance.map(item => ({
+    const autoCompleteOptions = lessonPerformance.map((item: StudentPerformance) => ({
         value: item.fullName,
         label: (
             <div style={{ color: item.performance && item.performance.doneTask > 0 ? 'red' : 'black' }}>
@@ -207,15 +237,15 @@ const StudentHomework = () => {
             return;
         }
         // Tìm học sinh theo tên trong danh sách của buổi học
-        const studentRecord = lessonPerformance.find(item => item.fullName === studentName);
+        const studentRecord = lessonPerformance.find((item: StudentPerformance) => item.fullName === studentName);
         if (!studentRecord) {
             message.error("Học sinh không tồn tại trong danh sách buổi học!");
             return;
         }
-        // Tính điểm trung bình và xác định trình bày, kỹ năng
-        const avgScore = initialTasks.length > 0 ? totalScore / initialTasks.length : 0;
-        let presentation = "";
-        let skills = "";
+        // Tính điểm trung bình và xác định trình bày, kỹ năng (giữ nguyên logic tính như cũ)
+        const avgScore: number = initialTasks.length > 0 ? totalScore / initialTasks.length : 0;
+        let presentation: string = "";
+        let skills: string = "";
         if (avgScore <= 0.3) {
             presentation = "Khá";
             skills = "Trung bình";
@@ -226,7 +256,7 @@ const StudentHomework = () => {
             presentation = "Tốt";
             skills = "Tốt";
         }
-        let comment = "";
+        let comment: string = "";
         if (skills === "Tốt") {
             comment = "Bài tập về nhà con làm tốt, cần tiếp tục phát huy";
         } else if (skills === "Tốt" && presentation === "Khá") {
@@ -236,42 +266,80 @@ const StudentHomework = () => {
         } else if (skills === "Trung bình") {
             comment = "Bài tập về nhà con chưa làm được nhiều, cần đầu tư nhiều thời gian suy nghĩ bài hơn, chú ý đọc kĩ vở ghi của thầy trước khi làm để nắm chắc kiến thức, cố gắng hoàn thiện các bài tập tương tự trên lớp";
         }
-        const updatedPerformance: Performance = {
+        const updatedPerformance = {
             doneTask: doneTasks.length,
             totalScore: totalScore,
-            incorrectTasks: incorrectTasks.length > 0 ? incorrectTasks.join('; ') : "0",
-            missingTasks: missingTasks.length > 0 ? missingTasks.join('; ') : "0",
+            incorrectTasks: incorrectTasks.length > 0 ? incorrectTasks.join("; ") : "",
+            missingTasks: missingTasks.length > 0 ? missingTasks.join("; ") : "",
             presentation,
             skills,
             comment,
         };
         try {
             const res = await fetch(
-                `${process.env.NEXT_PUBLIC_BACKEND_PORT}/assistant/classes/${selectedClass?.id}/lessons/${selectedLesson?.id}/students-performance/${studentRecord.id}`,
+                `${process.env.NEXT_PUBLIC_BACKEND_PORT}/assistant/classes/${selectedClass?.id}/lessons/${selectedLesson?.id}/students-performance`,
                 {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                    body: JSON.stringify({ performance: updatedPerformance })
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        studentId: studentRecord.id,
+                        lessonId: selectedLesson?.id,
+                        performance: updatedPerformance
+                    })
                 }
             );
-            if (!res.ok) throw new Error("Lỗi khi cập nhật chấm bài");
-            // Cập nhật lại lessonPerformance sau khi chấm bài thành công
-            const updatedList = lessonPerformance.map(item => {
+            if (!res.ok) throw new Error("Lỗi khi lưu kết quả chấm bài");
+            const data = await res.json();
+            // Cập nhật lại danh sách hiệu suất với kết quả mới trả về từ API
+            const updatedList = lessonPerformance.map((item: StudentPerformance) => {
                 if (item.id === studentRecord.id) {
-                    return { ...item, performance: updatedPerformance };
+                    return { ...item, performance: data.studentPerformance };
                 }
                 return item;
             });
             setLessonPerformance(updatedList);
-            message.success("Chấm bài thành công!");
+            message.success("Lưu kết quả chấm bài thành công!");
             // Reset lại giao diện chấm bài
             setStudentName('');
             resetScores();
-            setCustomTasks('');
-            setInitialTasks([]);
         } catch (error) {
             console.error(error);
-            message.error("Không thể cập nhật chấm bài");
+            message.error("Không thể lưu kết quả chấm bài");
+        }
+    };
+
+    // Hàm xử lý khi người dùng xác nhận danh sách bài tập mới nhập
+    const handleHomeworkConfirm = async () => {
+        const tasks: string[] = customTasks
+            .split(',')
+            .map((task: string) => task.trim())
+            .filter((task: string) => task !== '');
+        if (tasks.length > 0 && selectedLesson) {
+            setInitialTasks(tasks); // Cập nhật danh sách bài tập hiển thị
+            setTaskScores(Object.fromEntries(tasks.map((task: string) => [task, -1]))); // Reset điểm cho mỗi bài
+            try {
+                // Gọi API để lưu danh sách bài tập vào DB (thay thế danh sách cũ nếu đã tồn tại)
+                const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/lessons/${selectedLesson.id}/homeworklist`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ homeworkList: customTasks })
+                });
+                if (!res.ok) {
+                    throw new Error('Cập nhật danh sách bài tập thất bại');
+                }
+                message.success("Danh sách bài tập được cập nhật thành công!");
+            } catch (error) {
+                console.error(error);
+                message.error("Lỗi khi cập nhật danh sách bài tập!");
+            }
+        } else {
+            message.error("Danh sách bài tập không hợp lệ!");
         }
     };
 
@@ -292,8 +360,20 @@ const StudentHomework = () => {
             render: (value: any, record: StudentPerformance) =>
                 record.performance ? `${record.performance.totalScore} / ${record.performance.doneTask}` : '0 / 0'
         },
-        { title: 'Tên bài sai', dataIndex: ['performance', 'incorrectTasks'], key: 'incorrectTasks' },
-        { title: 'Tên bài thiếu', dataIndex: ['performance', 'missingTasks'], key: 'missingTasks' },
+        {
+            title: 'Tên bài sai',
+            dataIndex: ['performance', 'incorrectTasks'],
+            key: 'incorrectTasks',
+            render: (tasks: string) =>
+                tasks && tasks.trim() !== "" ? tasks.replace(/"/g, '') : 'Không có'
+        },
+        {
+            title: 'Tên bài thiếu',
+            dataIndex: ['performance', 'missingTasks'],
+            key: 'missingTasks',
+            render: (tasks: string) =>
+                tasks && tasks.trim() !== "" ? tasks.replace(/"/g, '') : 'Không có'
+        },
         { title: 'Trình bày', dataIndex: ['performance', 'presentation'], key: 'presentation' },
         { title: 'Kĩ năng', dataIndex: ['performance', 'skills'], key: 'skills' },
         { title: 'Nhận xét', dataIndex: ['performance', 'comment'], key: 'comment' },
@@ -302,18 +382,18 @@ const StudentHomework = () => {
     return (
         <div style={{ padding: '20px' }}>
             <Tabs onChange={handleTabChange} activeKey={selectedClass ? selectedClass.id.toString() : undefined} type="line">
-                {assistantClasses.map(assistantClass => (
+                {assistantClasses.map((assistantClass: AssistantClass) => (
                     <Tabs.TabPane tab={`${assistantClass.className}`} key={assistantClass.id.toString()}>
                         {lessons.length > 0 ? (
                             <Collapse accordion onChange={handleLessonExpand}>
-                                {lessons.map(lesson => (
+                                {lessons.map((lesson: Lesson) => (
                                     <Collapse.Panel header={`${formatDate(lesson.lessonDate)}: ${lesson.lessonContent} `} key={lesson.id.toString()}>
                                         {selectedLesson && selectedLesson.id === lesson.id ? (
                                             <>
                                                 <Row gutter={24}>
                                                     <Col span={12}>
                                                         <Space direction="vertical" size={0} style={{ width: '100%' }}>
-                                                            {initialTasks.map(task => (
+                                                            {initialTasks.map((task: string) => (
                                                                 <Card key={task} size="small" style={{ width: '100%', height: '50px' }}>
                                                                     <Space size="middle" style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
                                                                         <Text strong>{task}</Text>
@@ -321,7 +401,7 @@ const StudentHomework = () => {
                                                                             {taskScores[task] > -1 && (
                                                                                 <Button type="text" danger icon={<CloseOutlined />} onClick={() => resetScoreForTask(task)} />
                                                                             )}
-                                                                            {scores.map(score => (
+                                                                            {scores.map((score: number) => (
                                                                                 <Button
                                                                                     key={score}
                                                                                     type={taskScores[task] === score ? 'primary' : 'default'}
@@ -341,22 +421,12 @@ const StudentHomework = () => {
                                                             <Title level={4}>Nhập danh sách bài tập (cách nhau bằng dấu phẩy)</Title>
                                                             <Space direction="horizontal" style={{ width: '100%' }}>
                                                                 <Input
-                                                                    placeholder="Nhập bài tập: 1a, 2,..."
+                                                                    placeholder="Nhập bài tập: 1a, 2a,..."
                                                                     value={customTasks}
                                                                     onChange={(e) => setCustomTasks(e.target.value)}
                                                                     style={{ flex: 1, minWidth: '150px' }}
                                                                 />
-                                                                <Button type="primary" onClick={() => {
-                                                                    const tasks = customTasks.split(',')
-                                                                        .map(task => task.trim())
-                                                                        .filter(task => task !== '');
-                                                                    if (tasks.length > 0) {
-                                                                        setInitialTasks(tasks); // Cập nhật danh sách bài tập
-                                                                        setTaskScores(Object.fromEntries(tasks.map(task => [task, -1]))); // Reset điểm
-                                                                    } else {
-                                                                        message.error("Danh sách bài tập không hợp lệ!");
-                                                                    }
-                                                                }}>
+                                                                <Button type="primary" onClick={handleHomeworkConfirm}>
                                                                     Xác nhận
                                                                 </Button>
                                                             </Space>
@@ -374,7 +444,7 @@ const StudentHomework = () => {
                                                                 placeholder="Nhập tên học sinh"
                                                                 value={studentName}
                                                                 onChange={setStudentName}
-                                                                filterOption={(inputValue, option) =>
+                                                                filterOption={(inputValue: string, option) =>
                                                                     option!.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
                                                                 }
                                                             />
