@@ -230,7 +230,23 @@ const StudentHomework = () => {
         )
     }));
 
-    // Hàm xử lý Submit chấm bài
+    // Hàm lấy dữ liệu kết quả học tập
+    const fetchStudentPerformance = async () => {
+        if (!selectedLesson || !selectedClass) return;
+        try {
+            const res = await fetch(
+                `${process.env.NEXT_PUBLIC_BACKEND_PORT}/assistant/classes/${selectedClass.id}/lessons/${selectedLesson.id}/students-performance`,
+                { headers: { 'Authorization': `Bearer ${token}` } }
+            );
+            if (!res.ok) throw new Error('Error fetching lesson performance');
+            const data: StudentPerformance[] = await res.json();
+            setLessonPerformance(data);
+        } catch (error) {
+            console.error(error);
+            message.error('Không thể cập nhật dữ liệu hiệu suất học sinh');
+        }
+    };
+    // Hàm xử lý khi người dùng nhấn nút Submit
     const handleSubmit = async () => {
         if (!studentName) {
             message.error("Vui lòng nhập tên học sinh!");
@@ -242,7 +258,7 @@ const StudentHomework = () => {
             message.error("Học sinh không tồn tại trong danh sách buổi học!");
             return;
         }
-        // Tính điểm trung bình và xác định trình bày, kỹ năng (giữ nguyên logic tính như cũ)
+        // Tính điểm trung bình dựa trên tổng số bài làm và tính các chỉ số khác
         const avgScore: number = initialTasks.length > 0 ? totalScore / initialTasks.length : 0;
         let presentation: string = "";
         let skills: string = "";
@@ -292,15 +308,8 @@ const StudentHomework = () => {
                 }
             );
             if (!res.ok) throw new Error("Lỗi khi lưu kết quả chấm bài");
-            const data = await res.json();
-            // Cập nhật lại danh sách hiệu suất với kết quả mới trả về từ API
-            const updatedList = lessonPerformance.map((item: StudentPerformance) => {
-                if (item.id === studentRecord.id) {
-                    return { ...item, performance: data.studentPerformance };
-                }
-                return item;
-            });
-            setLessonPerformance(updatedList);
+            // Sau khi lưu thành công, gọi lại API để lấy lại dữ liệu mới nhất
+            await fetchStudentPerformance();
             message.success("Lưu kết quả chấm bài thành công!");
             // Reset lại giao diện chấm bài
             setStudentName('');

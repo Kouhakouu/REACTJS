@@ -67,7 +67,7 @@ const AssistantClassPage = ({ params }: { params: { id: string } }) => {
                     return;
                 }
                 const lessonsArray = Array.isArray(data) ? data : data.lessons || [];
-                // Sắp xếp các bài giảng theo thời gian (giả sử lessonDate có thể parse được bởi Date hoặc dayjs)
+                // Sắp xếp các bài giảng theo thời gian 
                 lessonsArray.sort((a: Lesson, b: Lesson) => new Date(a.lessonDate).getTime() - new Date(b.lessonDate).getTime());
                 setLessons(lessonsArray);
             } catch (error) {
