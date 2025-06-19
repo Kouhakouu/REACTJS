@@ -119,6 +119,16 @@ const StudentPerformancePage = () => {
             sorter: (a, b) => a.fullName.localeCompare(b.fullName), // Enable sorting
         },
         {
+            title: 'Email phụ huynh',
+            dataIndex: 'parentEmail',
+            key: 'parentEmail',
+            align: 'center',
+            render: (email: string | null) =>
+                email
+                    ? <a href={`mailto:${email}`}>{email}</a>
+                    : <Text type="secondary">-</Text>
+        },
+        {
             title: 'Điểm danh',
             dataIndex: 'attendance',
             key: 'attendance',
@@ -153,14 +163,17 @@ const StudentPerformancePage = () => {
             title: 'Tên bài sai',
             dataIndex: ['performance', 'incorrectTasks'],
             key: 'incorrectTasks',
-            render: (tasks: string | null) => tasks || <Text type="secondary">-</Text>,
+            render: (value: string) =>
+                value ? value.replace(/"/g, '') : ''
         },
         {
             title: 'Tên bài thiếu',
             dataIndex: ['performance', 'missingTasks'],
             key: 'missingTasks',
-            render: (tasks: string | null) => tasks || <Text type="secondary">-</Text>,
+            render: (value: string) =>
+                value ? value.replace(/"/g, '') : '-'
         },
+
         {
             title: 'Trình bày',
             dataIndex: ['performance', 'presentation'],

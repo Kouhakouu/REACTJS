@@ -8,6 +8,7 @@ interface User {
     email: string;
     role: string;
     fullName: string;
+    gradeLevel?: string;
 }
 
 interface AuthContextType {
@@ -52,15 +53,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         Cookies.set("token", token, { expires: 1 });
 
         // Điều hướng dựa trên vai trò
-        if (user.role === "Admin") {
+        if (user.role === "ADMIN") {
             router.push("/dashboard");
-        } else if (user.role === "Assistant") {
-            router.push("/assistant");
-        } else if (user.role === "Teacher") {
+        } else if (user.role === "TEACHER") {
             router.push("/teacher");
-        } else if (user.role === "Manager") {
+        } else if (user.role === "MANAGER") {
             router.push("/manager");
+        } else if (user.role === "ASSISTANT") {
+            router.push("/assistant");
         }
+
     };
 
 

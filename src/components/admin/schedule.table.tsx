@@ -62,7 +62,7 @@ const renderScheduleContent = (
     day: string,
     timeSlot: string
 ) => {
-    const filteredClasses = classData.filter((classInfo) => {
+    const filteredClasses = classData?.filter((classInfo) => {
         if (!classInfo.classSchedule) return false;
 
         const { study_day, start_time } = classInfo.classSchedule;

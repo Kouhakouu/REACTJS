@@ -1,3 +1,4 @@
+// class.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -6,12 +7,14 @@ import { SearchOutlined } from '@ant-design/icons';
 
 const { Title } = Typography;
 
+// Mở rộng thêm DOB và parentPhoneNumber
 interface Student {
     id: number;
     fullName: string;
     school: string;
-    parentPhone: string;
+    parentPhoneNumber: string;
     parentEmail: string;
+    DOB: string;             // YYYY-MM-DD
 }
 
 interface ClassDetail {
@@ -29,8 +32,10 @@ const Class = ({ params }: { params: { id: string } }) => {
         const fetchClassDetail = async () => {
             setLoading(true);
             try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/manager/students/${params.id}`);
-                const data = await res.json();
+                const res = await fetch(
+                    `${process.env.NEXT_PUBLIC_BACKEND_PORT}/manager/students/${params.id}`
+                );
+                const data: ClassDetail = await res.json();
                 setClassDetail(data);
                 setFilteredStudents(data.students);
             } catch (error) {
@@ -39,23 +44,28 @@ const Class = ({ params }: { params: { id: string } }) => {
                 setLoading(false);
             }
         };
-
         fetchClassDetail();
     }, [params.id]);
 
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const filtered = classDetail?.students.filter(student =>
-            student.fullName.toLowerCase().includes(e.target.value.toLowerCase())
+        const q = e.target.value.toLowerCase();
+        const filtered = classDetail?.students.filter(s =>
+            s.fullName.toLowerCase().includes(q)
         ) || [];
         setFilteredStudents(filtered);
     };
 
     if (loading || !classDetail) {
-        return <Spin tip="Đang tải..." style={{ display: 'flex', justifyContent: 'center', padding: 20 }} />;
+        return (
+            <Spin
+                tip="Đang tải..."
+                style={{ display: 'flex', justifyContent: 'center', padding: 20 }}
+            />
+        );
     }
 
     return (
-        <div style={{ padding: '20px' }}>
+        <div style={{ padding: 20 }}>
             <Title level={2}>{classDetail.className}</Title>
 
             <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
@@ -73,14 +83,24 @@ const Class = ({ params }: { params: { id: string } }) => {
                 dataSource={filteredStudents}
                 columns={[
                     { title: 'Họ và tên', dataIndex: 'fullName', key: 'fullName' },
+                    {
+                        title: 'Ngày sinh',
+                        dataIndex: 'DOB',
+                        key: 'DOB',
+                        render: (dob: string) => new Date(dob).toLocaleDateString('vi-VN')
+                    },
                     { title: 'Trường', dataIndex: 'school', key: 'school' },
-                    { title: 'Email phụ huynh', dataIndex: 'parentEmail', key: 'parentEmail' },
+                    {
+                        title: 'SĐT phụ huynh',
+                        dataIndex: 'parentPhoneNumber',
+                        key: 'parentPhoneNumber'
+                    },
+                    { title: 'Email phụ huynh', dataIndex: 'parentEmail', key: 'parentEmail' }
                 ]}
                 rowKey="id"
                 pagination={{ pageSize: 10 }}
                 scroll={{ x: 'max-content' }}
             />
-
         </div>
     );
 };

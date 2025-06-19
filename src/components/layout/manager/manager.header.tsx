@@ -1,42 +1,51 @@
-'use client'
+// manager.header.tsx
+'use client';
+import { useContext, useMemo } from 'react';
+import { Layout, Button, Dropdown, Space } from 'antd';
+import {
+    MenuFoldOutlined,
+    MenuUnfoldOutlined,
+    DownOutlined,
+    SmileOutlined,
+} from '@ant-design/icons';
+import type { MenuProps } from 'antd';
 import { AdminContext } from '@/library/admin.context';
 import { AuthContext } from '@/library/authContext';
-import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
-import { Button, Layout } from 'antd';
-import { useContext } from 'react';
-import { DownOutlined, SmileOutlined } from '@ant-design/icons';
-import type { MenuProps } from 'antd';
-import { Dropdown, Space } from 'antd';
 
-const ManagerHeader = () => {
+const ManagerHeader: React.FC = () => {
     const { Header } = Layout;
     const { collapseMenu, setCollapseMenu } = useContext(AdminContext)!;
     const { user, logout } = useContext(AuthContext);
 
-    const items: MenuProps['items'] = [
+    const displayName = useMemo(() => {
+        if (!user) return 'Guest';
+        return user.fullName?.trim() || user.email;
+    }, [user]);
+
+    const menuItems: MenuProps['items'] = [
         {
             key: '1',
             label: (
-                <a target="_blank" rel="noopener noreferrer" href="https://www.antgroup.com">
-                    1st menu item
+                <a href="https://www.antgroup.com" target="_blank" rel="noopener noreferrer">
+                    Hồ sơ
                 </a>
             ),
         },
         {
             key: '2',
+            icon: <SmileOutlined />,
             label: (
-                <a target="_blank" rel="noopener noreferrer" href="https://www.aliyun.com">
-                    2nd menu item (disabled)
+                <a href="https://www.aliyun.com" target="_blank" rel="noopener noreferrer">
+                    Đổi mật khẩu
                 </a>
             ),
-            icon: <SmileOutlined />,
             disabled: true,
         },
         {
             key: '3',
             label: (
-                <a target="_blank" rel="noopener noreferrer" href="https://www.luohanacademy.com">
-                    3rd menu item (disabled)
+                <a href="https://www.luohanacademy.com" target="_blank" rel="noopener noreferrer">
+                    Cài đặt
                 </a>
             ),
             disabled: true,
@@ -45,44 +54,40 @@ const ManagerHeader = () => {
             key: '4',
             danger: true,
             label: 'Đăng xuất',
-            onClick: () => logout()
+            onClick: logout,
         },
     ];
 
     return (
-        <>
-            <Header
-                style={{
-                    padding: 0,
-                    display: "flex",
-                    background: "#f5f5f5",
-                    justifyContent: "space-between",
-                    alignItems: "center"
-                }}
-            >
-                <Button
-                    type="text"
-                    icon={collapseMenu ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-                    onClick={() => setCollapseMenu(!collapseMenu)}
-                    style={{
-                        fontSize: '16px',
-                        width: 64,
-                        height: 64,
-                    }}
-                />
-                <Dropdown menu={{ items }}>
-                    <a onClick={(e) => e.preventDefault()}
-                        style={{ color: "unset", lineHeight: "0 !important", marginRight: 20 }}
-                    >
-                        <Space>
-                            Welcome {user ? user.fullName : "Guest"}
-                            <DownOutlined />
-                        </Space>
-                    </a>
-                </Dropdown>
-            </Header>
-        </>
-    )
-}
+        <Header
+            style={{
+                padding: 0,
+                display: 'flex',
+                background: '#f5f5f5',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+            }}
+        >
+            <Button
+                type="text"
+                icon={collapseMenu ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+                onClick={() => setCollapseMenu(!collapseMenu)}
+                style={{ fontSize: 16, width: 64, height: 64 }}
+            />
+
+            <Dropdown menu={{ items: menuItems }} trigger={['click']}>
+                <a
+                    onClick={(e) => e.preventDefault()}
+                    style={{ marginRight: 20, cursor: 'pointer' }}
+                >
+                    <Space>
+                        Welcome, {displayName}
+                        <DownOutlined />
+                    </Space>
+                </a>
+            </Dropdown>
+        </Header>
+    );
+};
 
 export default ManagerHeader;

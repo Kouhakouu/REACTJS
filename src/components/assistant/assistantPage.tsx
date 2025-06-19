@@ -2,72 +2,82 @@
 
 import { useEffect, useState, useContext } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';   // không cần router.push thủ công nữa
 import { AuthContext } from '@/library/authContext';
-import { Card, Row, Col, Typography, Spin, Alert, Tag } from 'antd';
-import { FileTextOutlined } from '@ant-design/icons';
+import { Row, Col, Card, Tag, Typography, Spin, Alert } from 'antd';
+import { formatTime, formatWeekday } from '@/utils/formatDate';
 
 const { Title, Text } = Typography;
 
-interface Class {
+interface ClassSchedule {
+    study_day: string;
+    start_time: string;
+    end_time: string;
+}
+
+interface ClassSummary {
     id: number;
     className: string;
     gradeLevel: string;
-    assignmentsCount: number;
     studentsCount: number;
+    assignmentsCount: number;
+    schedule: ClassSchedule | null;
 }
 
-const AssistantPage = () => {
+export default function AssistantPage() {
     const { token } = useContext(AuthContext);
-    const [classes, setClasses] = useState<Class[]>([]);
+    const [classes, setClasses] = useState<ClassSummary[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         if (!token) {
-            setError("Không tìm thấy token, không thể gọi API!");
+            setError('Không tìm thấy token, không thể gọi API!');
             setLoading(false);
             return;
         }
 
         fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/assistant/classes`, {
-            headers: { 'Authorization': `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` }
         })
-            .then(res => res.json())
-            .then(data => {
-                if (Array.isArray(data)) {
-                    setClasses(data);
-                } else {
-                    setError("Dữ liệu trả về không hợp lệ.");
-                }
-            })
-            .catch(error => setError("Lỗi khi gọi API: " + error.message))
+            .then(r => r.json())
+            .then(data => Array.isArray(data) ? setClasses(data) : setError('Dữ liệu trả về không hợp lệ.'))
+            .catch(e => setError('Lỗi khi gọi API: ' + e.message))
             .finally(() => setLoading(false));
     }, [token]);
 
+    if (loading) return <Spin size="large" style={{ display: 'block', marginTop: 50 }} />;
+    if (error) return <Alert type="error" message={error} />;
+
     return (
-        <div style={{ padding: '20px' }}>
+        <div style={{ padding: 20 }}>
             <Title level={2}>Danh sách lớp học</Title>
-            {loading ? (
-                <Spin size="large" style={{ display: 'block', textAlign: 'center', marginTop: 50 }} />
-            ) : (
-                <Row gutter={[16, 16]}>
-                    {classes.map(cls => (
-                        <Col xs={24} sm={12} md={8} lg={6} key={cls.id}>
+
+            <Row gutter={[16, 16]}>
+                {classes.map(cls => (
+                    <Col xs={24} sm={12} md={8} lg={6} key={cls.id}>
+                        <Link href={`/assistant/classes/${cls.id}`} style={{ display: 'block' }}>
                             <Card
-                                title={<Link href={`/assistant/classes/${cls.id}`}>{cls.className}</Link>}
-                                bordered
+                                hoverable
+                                title={cls.className}
                                 extra={<Tag color="blue">Lớp {cls.gradeLevel}</Tag>}
+                                style={{ height: '100%', cursor: 'pointer' }}
                             >
-                                <Text><FileTextOutlined /> Số bài tập: {cls.assignmentsCount}</Text>
-                                <br />
-                                <Text><FileTextOutlined /> Sĩ số: {cls.studentsCount}</Text>
+                                <Text>Sĩ số: {cls.studentsCount}</Text><br />
+                                <Text>Số buổi: {cls.assignmentsCount}</Text><br />
+                                <Text>Lịch học: {cls.schedule ? (
+                                    <Tag color="green" style={{ marginTop: 8 }}>
+                                        {formatWeekday(cls.schedule.study_day)} • {formatTime(cls.schedule.start_time)} – {formatTime(cls.schedule.end_time)}
+                                    </Tag>
+                                ) : (
+                                    <Tag color="red" style={{ marginTop: 8 }}>Chưa có lịch học</Tag>
+                                )}</Text><br />
+
                             </Card>
-                        </Col>
-                    ))}
-                </Row>
-            )}
+                        </Link>
+                    </Col>
+                ))}
+            </Row>
         </div>
     );
-};
-
-export default AssistantPage;
+}

@@ -12,6 +12,8 @@ interface Student {
     id: number;
     fullName: string;
     school: string;
+    DOB: string;
+    parentPhoneNumber: string;
     parentPhone: string;
     parentEmail: string;
 }
@@ -113,6 +115,17 @@ const AssistantClassPage = ({ params }: { params: { id: string } }) => {
                 columns={[
                     { title: 'Họ và tên', dataIndex: 'fullName', key: 'fullName' },
                     { title: 'Trường', dataIndex: 'school', key: 'school' },
+                    {
+                        title: 'Ngày sinh',
+                        dataIndex: 'DOB',
+                        key: 'DOB',
+                        render: (dob: string) => dayjs(dob).format('DD/MM/YYYY')
+                    },
+                    {
+                        title: 'SĐT phụ huynh',
+                        dataIndex: 'parentPhoneNumber',
+                        key: 'parentPhoneNumber'
+                    },
                     { title: 'Email phụ huynh', dataIndex: 'parentEmail', key: 'parentEmail' },
                 ]}
                 rowKey="id"

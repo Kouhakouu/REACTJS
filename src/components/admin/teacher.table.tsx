@@ -1,13 +1,10 @@
-// teacher.table.tsx
+// components/teacher.table.tsx
 
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Input, message, Modal, Form, Space, Row, Col } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import type { ColumnsType } from 'antd/es/table';
-import { SearchOutlined } from '@ant-design/icons';
-import axios from 'axios';
+import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import http from '@/utils/customAxios';
 
 interface Teacher {
@@ -18,13 +15,13 @@ interface Teacher {
     email: string;
 }
 
-const TeacherTable = () => {
+const TeacherTable: React.FC = () => {
     const [teachers, setTeachers] = useState<Teacher[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [isTeacherModalVisible, setIsTeacherModalVisible] = useState(false);
+    const [isModalVisible, setIsModalVisible] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
     const [editingTeacher, setEditingTeacher] = useState<Teacher | null>(null);
-    const [formTeacher] = Form.useForm();
+    const [form] = Form.useForm();
 
     useEffect(() => {
         fetchTeachers();
@@ -32,217 +29,173 @@ const TeacherTable = () => {
 
     const fetchTeachers = async () => {
         try {
-            const response = await http.get('/get-teacher-info');
-            const data = response.data;
-            const formattedTeachers: Teacher[] = data.map((teacher: any) => ({
-                key: teacher.id.toString(),
-                id: teacher.id,
-                fullName: teacher.fullName,
-                phoneNumber: teacher.phoneNumber,
-                email: teacher.email,
+            const { data } = await http.get('/get-teacher-info');
+            const formatted: Teacher[] = data.map((t: any) => ({
+                key: t.userId.toString(),
+                id: t.userId,
+                fullName: t.fullName,
+                phoneNumber: t.phoneNumber,
+                email: t.email
             }));
-            setTeachers(formattedTeachers);
-        } catch (error) {
-            console.error('Error fetching teachers:', error);
+            setTeachers(formatted);
+        } catch (err) {
+            console.error('Error fetching teachers:', err);
             message.error('Failed to fetch teacher data.');
         }
     };
 
-    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchTerm(e.target.value);
-    };
-
-    const filteredTeachers = teachers.filter(teacher =>
-        teacher.fullName.toLowerCase().includes(searchTerm.toLowerCase())
+    const filtered = teachers.filter(t =>
+        t.fullName.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const teacherColumns: ColumnsType<Teacher> = [
-        {
-            title: 'ID Giáo viên',
-            dataIndex: 'id',
-            key: 'id',
-            width: 100,
-        },
-        {
-            title: 'Tên Giáo viên',
-            dataIndex: 'fullName',
-            key: 'fullName',
-            width: 200,
-        },
-        {
-            title: 'Số điện thoại',
-            dataIndex: 'phoneNumber',
-            key: 'phoneNumber',
-            width: 150,
-        },
-        {
-            title: 'Email',
-            dataIndex: 'email',
-            key: 'email',
-            width: 250,
-        },
+    const columns = [
+        { title: 'ID Giáo viên', dataIndex: 'id', key: 'id', width: 100 },
+        { title: 'Tên Giáo viên', dataIndex: 'fullName', key: 'fullName', width: 200 },
+        { title: 'Số điện thoại', dataIndex: 'phoneNumber', key: 'phoneNumber', width: 150 },
+        { title: 'Email', dataIndex: 'email', key: 'email', width: 250 },
         {
             title: 'Hành động',
             key: 'action',
             width: 150,
-            render: (_, record) => (
+            render: (_: any, record: Teacher) => (
                 <Space size="middle">
-                    <Button
-                        type="link"
-                        onClick={() => handleEditTeacher(record)}
-                    >
-                        Thay đổi
-                    </Button>
-                    <Button
-                        type="link"
-                        danger
-                        onClick={() => handleDeleteTeacher(record)}
-                    >
-                        Xóa
-                    </Button>
+                    <Button type="link" onClick={() => onEdit(record)}>Thay đổi</Button>
+                    <Button type="link" danger onClick={() => onDelete(record)}>Xóa</Button>
                 </Space>
-            ),
-        },
+            )
+        }
     ];
 
-    const showTeacherModal = () => {
+    const openModal = () => {
         setIsEditMode(false);
         setEditingTeacher(null);
-        setIsTeacherModalVisible(true);
+        form.resetFields();
+        setIsModalVisible(true);
     };
 
-    const handleTeacherCancel = () => {
-        setIsTeacherModalVisible(false);
-        formTeacher.resetFields();
+    const closeModal = () => {
+        setIsModalVisible(false);
+        form.resetFields();
         setEditingTeacher(null);
     };
 
-    const handleTeacherOk = async () => {
+    const onSave = async () => {
         try {
-            const values = await formTeacher.validateFields();
-            const { fullName, phoneNumber, email, password } = values;
-
+            const vals = await form.validateFields();
             if (isEditMode && editingTeacher) {
-                // Update existing teacher
-                const teacherPayload: any = { fullName, phoneNumber, email };
-                if (password) {
-                    teacherPayload.password = password;
-                }
-
-                await http.put(`/teacher-update-crud/${editingTeacher.id}`, teacherPayload);
-                message.success('Giáo viên đã được cập nhật thành công!');
+                const payload: any = {
+                    fullName: vals.fullName,
+                    phoneNumber: vals.phoneNumber,
+                    email: vals.email
+                };
+                if (vals.password) payload.password = vals.password;
+                await http.put(`/teacher-update-crud/${editingTeacher.id}`, payload);
+                message.success('Giáo viên đã được cập nhật!');
             } else {
-                // Create new teacher
-                const teacherPayload = { fullName, phoneNumber, email, password };
-                await http.post('/teacher-post-crud', teacherPayload);
-                message.success('Giáo viên mới đã được tạo thành công!');
+                const payload = {
+                    fullName: vals.fullName,
+                    phoneNumber: vals.phoneNumber,
+                    email: vals.email,
+                    password: vals.password
+                };
+                await http.post('/teacher-post-crud', payload);
+                message.success('Giáo viên mới đã được tạo!');
             }
-
-            setIsTeacherModalVisible(false);
-            formTeacher.resetFields();
-            await fetchTeachers();
-        } catch (error: any) {
-            console.error('Error saving teacher:', error);
-            if (error.response && error.response.data && error.response.data.error) {
-                message.error(error.response.data.error);
-            } else {
-                message.error('Có lỗi xảy ra khi lưu thông tin giáo viên.');
-            }
+            closeModal();
+            fetchTeachers();
+        } catch (err: any) {
+            console.error('Error saving teacher:', err);
+            const errMsg = err.response?.data?.error || 'Có lỗi xảy ra khi lưu.';
+            message.error(errMsg);
         }
     };
 
-    const handleEditTeacher = (teacher: Teacher) => {
+    const onEdit = (t: Teacher) => {
         setIsEditMode(true);
-        setEditingTeacher(teacher);
-        setIsTeacherModalVisible(true);
-        formTeacher.setFieldsValue({
-            fullName: teacher.fullName,
-            phoneNumber: teacher.phoneNumber,
-            email: teacher.email,
-            password: '',
+        setEditingTeacher(t);
+        form.setFieldsValue({
+            fullName: t.fullName,
+            phoneNumber: t.phoneNumber,
+            email: t.email,
+            password: ''
         });
+        setIsModalVisible(true);
     };
 
-    const handleDeleteTeacher = (teacher: Teacher) => {
+    const onDelete = (t: Teacher) => {
         Modal.confirm({
             title: 'Xác nhận xóa',
-            content: `Bạn có chắc chắn muốn xóa giáo viên "${teacher.fullName}" không?`,
+            content: `Bạn có chắc muốn xóa giáo viên "${t.fullName}"?`,
             okText: 'Xóa',
             okType: 'danger',
             cancelText: 'Hủy',
-            onOk: () => performDeleteTeacher(teacher.id),
-        });
-    };
-
-    const performDeleteTeacher = async (teacherId: number) => {
-        try {
-            await http.delete(`/teacher-delete-crud/${teacherId}`);
-            message.success('Giáo viên đã được xóa thành công!');
-            await fetchTeachers();
-        } catch (error: any) {
-            console.error('Error deleting teacher:', error);
-            if (error.response && error.response.data && error.response.data.error) {
-                message.error(error.response.data.error);
-            } else {
-                message.error('Có lỗi xảy ra khi xóa giáo viên.');
+            onOk: async () => {
+                try {
+                    await http.delete(`/teacher-delete-crud/${t.id}`);
+                    message.success('Giáo viên đã được xóa!');
+                    fetchTeachers();
+                } catch (err: any) {
+                    console.error('Error deleting teacher:', err);
+                    message.error(err.response?.data?.error || 'Có lỗi khi xóa.');
+                }
             }
-        }
+        });
     };
 
     return (
         <div>
-            <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
+            <Row justify="space-between" style={{ marginBottom: 16 }}>
                 <Col>
                     <Input
                         placeholder="Tìm kiếm giáo viên"
                         prefix={<SearchOutlined />}
                         style={{ width: 300 }}
                         value={searchTerm}
-                        onChange={handleSearch}
+                        onChange={e => setSearchTerm(e.target.value)}
                     />
                 </Col>
                 <Col>
-                    <Button type="primary" icon={<PlusOutlined />} onClick={showTeacherModal}>
+                    <Button type="primary" icon={<PlusOutlined />} onClick={openModal}>
                         Thêm mới giáo viên
                     </Button>
                 </Col>
             </Row>
-            <Table<Teacher>
-                columns={teacherColumns}
-                dataSource={filteredTeachers}
+
+            <Table
+                columns={columns}
+                dataSource={filtered}
                 pagination={{ pageSize: 5 }}
                 rowKey="key"
-                tableLayout="fixed"
                 scroll={{ x: 'max-content' }}
             />
 
             <Modal
                 title={isEditMode ? "Chỉnh sửa giáo viên" : "Thêm mới giáo viên"}
-                visible={isTeacherModalVisible}
-                onOk={handleTeacherOk}
-                onCancel={handleTeacherCancel}
+                visible={isModalVisible}
+                onOk={onSave}
+                onCancel={closeModal}
                 width={800}
                 okText="Lưu"
                 cancelText="Hủy"
             >
-                <Form form={formTeacher} layout="vertical" name="teacherForm">
+                <Form form={form} layout="vertical">
                     <Row gutter={16}>
                         <Col span={12}>
                             <Form.Item
                                 name="fullName"
                                 label="Tên giáo viên"
-                                rules={[{ required: true, message: 'Vui lòng nhập tên giáo viên!' }]}
+                                rules={[{ required: true, message: 'Nhập tên giáo viên!' }]}
                             >
-                                <Input placeholder="Nhập tên giáo viên" />
+                                <Input placeholder="Tên giáo viên" />
                             </Form.Item>
                         </Col>
                         <Col span={12}>
                             <Form.Item
                                 name="phoneNumber"
                                 label="Số điện thoại"
-                                rules={[{ required: true, message: 'Vui lòng nhập số điện thoại!' }]}
+                                rules={[{ required: true, message: 'Nhập số điện thoại!' }]}
                             >
-                                <Input placeholder="Nhập số điện thoại" />
+                                <Input placeholder="Số điện thoại" />
                             </Form.Item>
                         </Col>
                     </Row>
@@ -252,22 +205,20 @@ const TeacherTable = () => {
                                 name="email"
                                 label="Email"
                                 rules={[
-                                    { required: true, message: 'Vui lòng nhập email!' },
-                                    { type: 'email', message: 'Email không hợp lệ!' },
+                                    { required: true, message: 'Nhập email!' },
+                                    { type: 'email', message: 'Email không hợp lệ!' }
                                 ]}
                             >
-                                <Input placeholder="Nhập email" />
+                                <Input placeholder="Email" />
                             </Form.Item>
                         </Col>
                         <Col span={12}>
                             <Form.Item
                                 name="password"
-                                label={isEditMode ? "Mật khẩu (để trống nếu không muốn thay đổi)" : "Mật khẩu"}
-                                rules={[
-                                    { required: !isEditMode, message: 'Vui lòng nhập mật khẩu!' },
-                                ]}
+                                label={isEditMode ? "Mật khẩu (để trống nếu không đổi)" : "Mật khẩu"}
+                                rules={[{ required: !isEditMode, message: 'Nhập mật khẩu!' }]}
                             >
-                                <Input.Password placeholder="Nhập mật khẩu" />
+                                <Input.Password placeholder="Mật khẩu" />
                             </Form.Item>
                         </Col>
                     </Row>

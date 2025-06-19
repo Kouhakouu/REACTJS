@@ -1,9 +1,9 @@
-import React from 'react'
+import TeacherClassesPage from '@/components/teacher/teacherClassesPage'
 
-const AssistantClassesPage = () => {
+const TeacherClasses = () => {
     return (
-        <div>page</div>
+        <TeacherClassesPage />
     )
 }
 
-export default AssistantClassesPage
+export default TeacherClasses

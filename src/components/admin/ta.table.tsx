@@ -16,19 +16,8 @@ import {
     Popconfirm,
 } from 'antd';
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
-import axios from 'axios';
-import type { ColumnsType } from 'antd/es/table';
 import http from '@/utils/customAxios';
-
-interface Assistant {
-    key: string;
-    id: number;
-    fullName: string;
-    email: string;
-    phoneNumber: string;
-    password: string;
-    classes?: ClassInfo[];
-}
+import type { ColumnsType } from 'antd/es/table';
 
 interface ClassInfo {
     id: number;
@@ -36,49 +25,55 @@ interface ClassInfo {
     gradeLevel: string;
 }
 
+interface Assistant {
+    key: string;
+    id: number;
+    fullName: string;
+    email: string;
+    phoneNumber: string;
+    classes?: ClassInfo[];
+}
+
 const { Option } = Select;
 
-const TaTable = () => {
-    // State 
+const TaTable: React.FC = () => {
     const [assistants, setAssistants] = useState<Assistant[]>([]);
     const [classes, setClasses] = useState<ClassInfo[]>([]);
+    const [filtered, setFiltered] = useState<Assistant[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [filteredAssistants, setFilteredAssistants] = useState<Assistant[]>([]);
-    const [isAdjustModalVisible, setIsAdjustModalVisible] = useState(false);
+    const [isAddModalVisible, setAddModalVisible] = useState(false);
+    const [isAdjustModalVisible, setAdjustModalVisible] = useState(false);
     const [selectedAssistant, setSelectedAssistant] = useState<Assistant | null>(null);
-    const [formAdjust] = Form.useForm();
-    const [formAssignClass] = Form.useForm();
-    const [isAddModalVisible, setIsAddModalVisible] = useState(false);
-    const [formAdd] = Form.useForm();
 
+    const [formAdd] = Form.useForm();
+    const [formAdjust] = Form.useForm();
+    const [formAssign] = Form.useForm();
+
+    // Load all assistants + classes
     const fetchAssistants = async () => {
         try {
-            const response = await http.get('/get-assistant-info');
-            const data = response.data;
-            const formattedAssistants: Assistant[] = data.map((assistant: any) => ({
-                key: assistant.id.toString(),
-                id: assistant.id,
-                fullName: assistant.fullName,
-                email: assistant.email,
-                phoneNumber: assistant.phoneNumber,
-                password: assistant.password,
-                classes: assistant.classes || [],
+            const { data } = await http.get('/get-assistant-info');
+            const arr: Assistant[] = data.map((a: any) => ({
+                key: a.userId.toString(),
+                id: a.userId,
+                fullName: a.fullName,
+                email: a.email,
+                phoneNumber: a.phoneNumber,
+                classes: a.classes || [],    // if your API returns classes
             }));
-            setAssistants(formattedAssistants);
-            setFilteredAssistants(formattedAssistants);
-        } catch (error) {
-            console.error('Error fetching assistants:', error);
-            message.error('Failed to fetch assistant data.');
+            setAssistants(arr);
+            setFiltered(arr);
+        } catch {
+            message.error('Không thể tải danh sách trợ giảng.');
         }
     };
 
     const fetchClasses = async () => {
         try {
-            const response = await http.get('/get-class-info');
-            setClasses(response.data);
-        } catch (error) {
-            console.error('Error fetching classes:', error);
-            message.error('Failed to fetch class data.');
+            const { data } = await http.get('/get-class-info');
+            setClasses(data);
+        } catch {
+            message.error('Không thể tải danh sách lớp.');
         }
     };
 
@@ -87,175 +82,126 @@ const TaTable = () => {
         fetchClasses();
     }, []);
 
-    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchTerm(e.target.value);
-        const searchFiltered = assistants.filter((assistant) =>
-            assistant.fullName.toLowerCase().includes(e.target.value.toLowerCase())
+    // Search filter
+    const onSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const term = e.target.value;
+        setSearchTerm(term);
+        setFiltered(
+            assistants.filter(a =>
+                a.fullName.toLowerCase().includes(term.toLowerCase())
+            )
         );
-        setFilteredAssistants(searchFiltered);
     };
 
-    const showAddModal = () => {
-        setIsAddModalVisible(true);
-    };
+    // — Add Assistant —
+    const openAdd = () => { setAddModalVisible(true); };
+    const closeAdd = () => { setAddModalVisible(false); formAdd.resetFields(); };
 
-    const handleAddModalCancel = () => {
-        setIsAddModalVisible(false);
-        formAdd.resetFields();
-    };
-
-    const handleAddModalOk = async () => {
+    const handleAdd = async () => {
         try {
-            const values = await formAdd.validateFields();
+            const vals = await formAdd.validateFields();
             await http.post('/assistant-post-crud', {
-                fullName: values.fullName,
-                email: values.email,
-                phoneNumber: values.phoneNumber,
-                password: values.password,
+                fullName: vals.fullName,
+                email: vals.email,
+                phoneNumber: vals.phoneNumber,
+                password: vals.password,
             });
-
             message.success('Thêm trợ giảng thành công!');
-            await fetchAssistants();
-            handleAddModalCancel();
-        } catch (error: any) {
-            console.error('Error adding assistant:', error);
-            if (!error.errorFields) {
-                message.error('Không thể thêm trợ giảng.');
-            }
+            closeAdd();
+            fetchAssistants();
+        } catch {
+            message.error('Thêm trợ giảng thất bại.');
         }
     };
 
-    const showAdjustModal = (assistant: Assistant) => {
-        setSelectedAssistant(assistant);
-        setIsAdjustModalVisible(true);
-
+    // — Adjust Assistant —
+    const openAdjust = (a: Assistant) => {
+        setSelectedAssistant(a);
         formAdjust.setFieldsValue({
-            fullName: assistant.fullName,
-            email: assistant.email,
-            phoneNumber: assistant.phoneNumber,
+            fullName: a.fullName,
+            email: a.email,
+            phoneNumber: a.phoneNumber,
         });
+        setAdjustModalVisible(true);
     };
-
-    const handleAdjustModalCancel = () => {
-        setIsAdjustModalVisible(false);
+    const closeAdjust = () => {
         setSelectedAssistant(null);
+        setAdjustModalVisible(false);
         formAdjust.resetFields();
-        formAssignClass.resetFields();
+        formAssign.resetFields();
     };
 
-    const handleAdjustModalOk = async () => {
+    const handleUpdateInfo = async () => {
+        if (!selectedAssistant) return;
         try {
-            const values = await formAdjust.validateFields();
-            if (!selectedAssistant) {
-                message.error('Không tìm thấy trợ giảng để cập nhật.');
-                return;
-            }
-
-            await axios.put(
-                `${process.env.NEXT_PUBLIC_BACKEND_PORT}/assistant-update-crud/${selectedAssistant.id}`,
-                values
-            );
-            message.success('Cập nhật thông tin trợ giảng thành công!');
-            await fetchAssistants();
-            handleAdjustModalCancel();
-        } catch (error) {
-            console.error('Error updating assistant:', error);
-            message.error('Không thể cập nhật trợ giảng.');
+            const vals = await formAdjust.validateFields();
+            await http.put(`/assistant-update-crud/${selectedAssistant.id}`, vals);
+            message.success('Cập nhật trợ giảng thành công!');
+            closeAdjust();
+            fetchAssistants();
+        } catch {
+            message.error('Cập nhật thất bại.');
         }
     };
 
-    const handleAssignClassOk = async () => {
+    // — Assign Class —
+    const handleAssignClass = async () => {
+        if (!selectedAssistant) return;
         try {
-            const values = await formAssignClass.validateFields();
-            const { classId } = values;
-
-            if (!selectedAssistant) {
-                message.error('Không tìm thấy trợ giảng để gán lớp.');
-                return;
-            }
-
+            const { classId } = await formAssign.validateFields();
             await http.post('/class-assistant-post-crud', {
                 classId: Number(classId),
                 assistantId: selectedAssistant.id,
             });
-
-            message.success('Đã gán lớp cho trợ giảng thành công!');
-            await fetchAssistants();
-
-            handleAdjustModalCancel();
-        } catch (error) {
-            console.error('Error assigning class:', error);
-            message.error('Không thể gán lớp cho trợ giảng.');
+            message.success('Gán lớp thành công!');
+            closeAdjust();
+            fetchAssistants();
+        } catch {
+            message.error('Gán lớp thất bại.');
         }
     };
 
-    const handleDeleteClassFromAssistant = async (classId: number) => {
-        if (!selectedAssistant) {
-            message.error('Không tìm thấy trợ giảng.');
-            return;
-        }
-
+    // — Remove Class —
+    const handleRemoveClass = async (classId: number) => {
+        if (!selectedAssistant) return;
         try {
             await http.post('/delete-class-assistant-crud', {
-                classId: classId,
+                classId,
                 assistantId: selectedAssistant.id,
             });
-
-            message.success('Đã xóa lớp khỏi trợ giảng thành công!');
-            await fetchAssistants();
-
-            handleAdjustModalCancel();
-        } catch (error) {
-            console.error('Error removing class from assistant:', error);
-            message.error('Không thể xóa lớp khỏi trợ giảng.');
+            message.success('Xóa lớp khỏi trợ giảng thành công!');
+            closeAdjust();
+            fetchAssistants();
+        } catch {
+            message.error('Xóa lớp thất bại.');
         }
     };
 
-    const handleDeleteAssistant = async (assistantId: number) => {
+    // — Delete Assistant —
+    const handleDelete = async (assistantId: number) => {
         try {
-            await http.post('/assistant-delete-crud', { id: assistantId });
-            setAssistants((prev) => prev.filter((assistant) => assistant.id !== assistantId));
-            setFilteredAssistants((prev) => prev.filter((assistant) => assistant.id !== assistantId));
-            message.success('Đã xóa trợ giảng thành công!');
-        } catch (error) {
-            console.error('Error deleting assistant:', error);
-            message.error('Không thể xóa trợ giảng. Vui lòng thử lại sau.');
+            await http.delete(`/assistant-delete-crud/${assistantId}`);
+            message.success('Xóa trợ giảng thành công!');
+            setAssistants(prev => prev.filter(a => a.id !== assistantId));
+            setFiltered(prev => prev.filter(a => a.id !== assistantId));
+        } catch {
+            message.error('Xóa trợ giảng thất bại.');
         }
     };
 
-
+    // Columns
     const columns: ColumnsType<Assistant> = [
-        {
-            title: 'ID Trợ Giảng',
-            dataIndex: 'id',
-            key: 'id',
-            width: 100,
-        },
-        {
-            title: 'Họ và Tên',
-            dataIndex: 'fullName',
-            key: 'fullName',
-            width: 150,
-        },
-        {
-            title: 'Email',
-            dataIndex: 'email',
-            key: 'email',
-            width: 200,
-        },
-        {
-            title: 'Số điện thoại',
-            dataIndex: 'phoneNumber',
-            key: 'phoneNumber',
-            width: 150,
-        },
+        { title: 'ID', dataIndex: 'id', key: 'id', width: 80 },
+        { title: 'Họ tên', dataIndex: 'fullName', key: 'fullName', width: 150 },
+        { title: 'Email', dataIndex: 'email', key: 'email', width: 200 },
+        { title: 'Điện thoại', dataIndex: 'phoneNumber', key: 'phoneNumber', width: 140 },
         {
             title: 'Lớp',
             dataIndex: 'classes',
             key: 'classes',
-            render: (classes: ClassInfo[]) =>
-                classes && classes.length > 0
-                    ? classes.map((cls) => cls.className).join(', ')
+            render: (clsList: ClassInfo[]) =>
+                clsList && clsList.length
+                    ? clsList.map(c => c.className).join(', ')
                     : '-',
             width: 200,
         },
@@ -263,13 +209,13 @@ const TaTable = () => {
             title: 'Hành động',
             key: 'action',
             render: (_, record) => (
-                <Space size="middle">
-                    <Button type="link" onClick={() => showAdjustModal(record)}>
+                <Space>
+                    <Button type="link" onClick={() => openAdjust(record)}>
                         Điều chỉnh
                     </Button>
                     <Popconfirm
-                        title="Bạn có chắc chắn muốn xóa trợ giảng này?"
-                        onConfirm={() => handleDeleteAssistant(record.id)}
+                        title="Bạn có chắc chắn muốn xóa?"
+                        onConfirm={() => handleDelete(record.id)}
                         okText="Xóa"
                         cancelText="Hủy"
                     >
@@ -279,54 +225,50 @@ const TaTable = () => {
                     </Popconfirm>
                 </Space>
             ),
-            width: 200,
+            width: 140,
         },
     ];
 
     return (
-        <div>
-            <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
+        <>
+            <Row justify="space-between" style={{ marginBottom: 16 }}>
                 <Col>
                     <Input
-                        placeholder="Tìm kiếm trợ giảng"
+                        placeholder="Tìm trợ giảng"
+                        value={searchTerm}
+                        onChange={onSearch}
                         prefix={<SearchOutlined />}
                         style={{ width: 300 }}
-                        value={searchTerm}
-                        onChange={handleSearch}
                     />
                 </Col>
                 <Col>
-                    <Button
-                        type="primary"
-                        icon={<PlusOutlined />}
-                        onClick={showAddModal}
-                    >
-                        Thêm Trợ Giảng
+                    <Button type="primary" icon={<PlusOutlined />} onClick={openAdd}>
+                        Thêm trợ giảng
                     </Button>
                 </Col>
             </Row>
 
             <Table
                 columns={columns}
-                dataSource={filteredAssistants}
+                dataSource={filtered}
                 rowKey="key"
                 pagination={{ pageSize: 5 }}
-                tableLayout="fixed"
                 scroll={{ x: 'max-content' }}
             />
 
+            {/* Thêm trợ giảng */}
             <Modal
-                title="Thêm Trợ Giảng"
+                title="Thêm trợ giảng"
                 visible={isAddModalVisible}
-                onCancel={handleAddModalCancel}
-                onOk={handleAddModalOk}
+                onCancel={closeAdd}
+                onOk={handleAdd}
                 destroyOnClose
             >
                 <Form form={formAdd} layout="vertical">
                     <Form.Item
                         name="fullName"
-                        label="Họ và Tên"
-                        rules={[{ required: true, message: 'Họ và Tên không được để trống!' }]}
+                        label="Họ và tên"
+                        rules={[{ required: true, message: 'Vui lòng nhập họ và tên' }]}
                     >
                         <Input />
                     </Form.Item>
@@ -334,51 +276,50 @@ const TaTable = () => {
                         name="email"
                         label="Email"
                         rules={[
-                            { required: true, message: 'Email không được để trống!' },
-                            { type: 'email', message: 'Email không hợp lệ!' },
+                            { required: true, message: 'Vui lòng nhập email' },
+                            { type: 'email', message: 'Email không hợp lệ' },
                         ]}
                     >
                         <Input />
                     </Form.Item>
                     <Form.Item
                         name="phoneNumber"
-                        label="Số điện thoại"
-                        rules={[{ required: true, message: 'Số điện thoại không được để trống!' }]}
+                        label="Điện thoại"
+                        rules={[{ required: true, message: 'Vui lòng nhập số điện thoại' }]}
                     >
                         <Input />
                     </Form.Item>
                     <Form.Item
                         name="password"
                         label="Mật khẩu"
-                        rules={[{ required: true, message: 'Mật khẩu không được để trống!' }]}
+                        rules={[{ required: true, message: 'Vui lòng nhập mật khẩu' }]}
                     >
                         <Input.Password />
                     </Form.Item>
                 </Form>
             </Modal>
 
+            {/* Điều chỉnh trợ giảng */}
             <Modal
-                title={`Điều chỉnh thông tin trợ giảng: ${selectedAssistant?.fullName}`}
+                title={`Điều chỉnh: ${selectedAssistant?.fullName}`}
                 visible={isAdjustModalVisible}
-                onCancel={handleAdjustModalCancel}
+                onCancel={closeAdjust}
                 footer={[
-                    <Button key="cancel" onClick={handleAdjustModalCancel}>
-                        Hủy
-                    </Button>,
-                    <Button key="update" type="primary" onClick={handleAdjustModalOk}>
-                        Cập nhật Thông tin
+                    <Button key="cancel" onClick={closeAdjust}>Hủy</Button>,
+                    <Button key="update" type="primary" onClick={handleUpdateInfo}>
+                        Cập nhật
                     </Button>,
                 ]}
-                destroyOnClose
                 width={800}
+                destroyOnClose
             >
-                <Form form={formAdjust} layout="vertical" name="formAdjustAssistant">
+                <Form form={formAdjust} layout="vertical">
                     <Row gutter={16}>
                         <Col span={12}>
                             <Form.Item
                                 name="fullName"
-                                label="Họ và Tên"
-                                rules={[{ required: true, message: 'Họ và Tên không được để trống!' }]}
+                                label="Họ và tên"
+                                rules={[{ required: true, message: 'Vui lòng nhập họ và tên' }]}
                             >
                                 <Input />
                             </Form.Item>
@@ -388,8 +329,8 @@ const TaTable = () => {
                                 name="email"
                                 label="Email"
                                 rules={[
-                                    { required: true, message: 'Email không được để trống!' },
-                                    { type: 'email', message: 'Email không hợp lệ!' },
+                                    { required: true, message: 'Vui lòng nhập email' },
+                                    { type: 'email', message: 'Email không hợp lệ' },
                                 ]}
                             >
                                 <Input />
@@ -400,8 +341,8 @@ const TaTable = () => {
                         <Col span={12}>
                             <Form.Item
                                 name="phoneNumber"
-                                label="Số điện thoại"
-                                rules={[{ required: true, message: 'Số điện thoại không được để trống!' }]}
+                                label="Điện thoại"
+                                rules={[{ required: true, message: 'Vui lòng nhập số điện thoại' }]}
                             >
                                 <Input />
                             </Form.Item>
@@ -409,76 +350,57 @@ const TaTable = () => {
                     </Row>
 
                     <div style={{ marginTop: 24 }}>
-                        <h3>Danh sách lớp hiện tại</h3>
+                        <h4>Lớp hiện tại</h4>
                         <List
                             bordered
                             dataSource={selectedAssistant?.classes || []}
-                            renderItem={(item) => (
+                            renderItem={item => (
                                 <List.Item
                                     actions={[
                                         <Popconfirm
-                                            key={item.id}
-                                            title="Bạn có chắc chắn muốn xóa lớp này khỏi trợ giảng?"
-                                            onConfirm={() => handleDeleteClassFromAssistant(item.id)}
+                                            key="remove"
+                                            title="Xóa lớp này?"
+                                            onConfirm={() => handleRemoveClass(item.id)}
                                             okText="Xóa"
                                             cancelText="Hủy"
                                         >
-                                            <a href="#">Xóa</a>
-                                        </Popconfirm>,
+                                            <a>Xóa</a>
+                                        </Popconfirm>
                                     ]}
                                 >
-                                    {item.className} - {item.gradeLevel}
+                                    {item.className} ({item.gradeLevel})
                                 </List.Item>
                             )}
                         />
-                        <Button
-                            type="dashed"
-                            style={{ width: '100%', marginTop: 16 }}
-                            icon={<PlusOutlined />}
-                            onClick={() => {
-                                Modal.confirm({
-                                    title: 'Gán lớp mới',
-                                    content: (
-                                        <Form
-                                            form={formAssignClass}
-                                            layout="vertical"
-                                            name="assignClassForm"
-                                        >
-                                            <Form.Item
-                                                name="classId"
-                                                label="Chọn lớp"
-                                                rules={[{ required: true, message: 'Vui lòng chọn một lớp!' }]}
-                                            >
-                                                <Select placeholder="Chọn lớp">
-                                                    {classes
-                                                        .filter(
-                                                            (cls) =>
-                                                                !selectedAssistant?.classes?.some(
-                                                                    (ac) => ac.id === cls.id
-                                                                )
-                                                        )
-                                                        .map((cls) => (
-                                                            <Option key={cls.id} value={cls.id}>
-                                                                {cls.className}
-                                                            </Option>
-                                                        ))}
-                                                </Select>
-                                            </Form.Item>
-                                        </Form>
-                                    ),
-                                    onOk: handleAssignClassOk,
-                                    onCancel: () => formAssignClass.resetFields(),
-                                    okText: 'Gán',
-                                    cancelText: 'Hủy',
-                                });
-                            }}
-                        >
-                            Thêm lớp mới
-                        </Button>
+
+                        <Form form={formAssign} layout="inline" style={{ marginTop: 16 }}>
+                            <Form.Item
+                                name="classId"
+                                rules={[{ required: true, message: 'Chọn lớp để gán' }]}
+                            >
+                                <Select placeholder="Chọn lớp" style={{ width: 200 }}>
+                                    {classes
+                                        .filter(c =>
+                                            !selectedAssistant?.classes?.find(ac => ac.id === c.id)
+                                        )
+                                        .map(c => (
+                                            <Option key={c.id} value={c.id}>
+                                                {c.className}
+                                            </Option>
+                                        ))
+                                    }
+                                </Select>
+                            </Form.Item>
+                            <Form.Item>
+                                <Button type="dashed" onClick={handleAssignClass}>
+                                    Gán lớp mới
+                                </Button>
+                            </Form.Item>
+                        </Form>
                     </div>
                 </Form>
             </Modal>
-        </div>
+        </>
     );
 };
 

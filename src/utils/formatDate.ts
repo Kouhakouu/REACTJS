@@ -21,7 +21,16 @@ export const formatWeekday = (weekday: string): string => {
 
 export const formatTime = (time: string): string => {
     if (!time) return "Không có dữ liệu";
-    const date = new Date(time);
-    return date.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
+
+    // Nếu có 'T', bỏ hết trước 'T'
+    const t = time.includes("T") ? time.split("T")[1] : time;
+    // Lấy giờ và phút
+    const [hourStr, minuteStr] = t.split(":");
+    // Loại bỏ số 0 đứng đầu
+    const hour = String(parseInt(hourStr, 10));
+    // Lấy đúng hai chữ số phút
+    const minute = minuteStr.padStart(2, "0");
+
+    return `${hour}:${minute}`;
 };
 

@@ -49,7 +49,7 @@ const LessonStudentsPerformance = ({
 
     return (
         <div style={{ padding: '20px' }}>
-            <Title level={2}>Thông tin buổi học ngày ...</Title>
+            <Title level={2}>Thông tin buổi học</Title>
             {loading ? (
                 <Spin tip="Đang tải..." style={{ display: 'flex', justifyContent: 'center', padding: 20 }} />
             ) : (
@@ -61,12 +61,25 @@ const LessonStudentsPerformance = ({
                             title: 'Tham gia',
                             dataIndex: 'attendance',
                             key: 'attendance',
-                            render: (value: boolean) => (value ? "Có" : "Không")
+                            render: (value: boolean) => (value ? 'Có' : 'Không')
                         },
                         { title: 'Tổng số BTVN đã làm', dataIndex: ['performance', 'doneTask'], key: 'doneTask' },
                         { title: 'Tổng số BTVN làm đúng', dataIndex: ['performance', 'totalScore'], key: 'totalScore' },
-                        { title: 'Tên bài sai', dataIndex: ['performance', 'incorrectTasks'], key: 'incorrectTasks' },
-                        { title: 'Tên bài thiếu', dataIndex: ['performance', 'missingTasks'], key: 'missingTasks' },
+                        {
+                            title: 'Tên bài sai',
+                            dataIndex: ['performance', 'incorrectTasks'],
+                            key: 'incorrectTasks',
+                            render: (value: string) =>
+                                // nếu null/undefined thì trả về rỗng, còn thì loại bỏ hết dấu "
+                                value ? value.replace(/"/g, '') : ''
+                        },
+                        {
+                            title: 'Tên bài thiếu',
+                            dataIndex: ['performance', 'missingTasks'],
+                            key: 'missingTasks',
+                            render: (value: string) =>
+                                value ? value.replace(/"/g, '') : ''
+                        },
                         { title: 'Trình bày', dataIndex: ['performance', 'presentation'], key: 'presentation' },
                         { title: 'Kỹ năng', dataIndex: ['performance', 'skills'], key: 'skills' },
                         { title: 'Nhận xét', dataIndex: ['performance', 'comment'], key: 'comment' },
