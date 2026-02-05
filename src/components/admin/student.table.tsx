@@ -209,7 +209,7 @@ const StudentTable = () => {
             width: 50,
         },
         {
-            title: 'Họ và tên',
+            title: 'Tên Học sinh',
             dataIndex: 'fullName',
             key: 'fullName',
         },

@@ -141,7 +141,7 @@ const ManagerTable: React.FC = () => {
 
     const columns: ColumnsType<Manager> = [
         { title: 'ID', dataIndex: 'id', key: 'id', width: 80 },
-        { title: 'Tên', dataIndex: 'fullName', key: 'fullName', width: 200 },
+        { title: 'Tên Phụ trách khối', dataIndex: 'fullName', key: 'fullName', width: 200 },
         { title: 'Khối', dataIndex: 'gradeLevel', key: 'gradeLevel', width: 120 },
         { title: 'Điện thoại', dataIndex: 'phoneNumber', key: 'phoneNumber', width: 150 },
         { title: 'Email', dataIndex: 'email', key: 'email', width: 200 },

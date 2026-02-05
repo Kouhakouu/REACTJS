@@ -49,7 +49,7 @@ const TeacherTable: React.FC = () => {
     );
 
     const columns = [
-        { title: 'ID Giáo viên', dataIndex: 'id', key: 'id', width: 100 },
+        { title: 'ID', dataIndex: 'id', key: 'id', width: 100 },
         { title: 'Tên Giáo viên', dataIndex: 'fullName', key: 'fullName', width: 200 },
         { title: 'Số điện thoại', dataIndex: 'phoneNumber', key: 'phoneNumber', width: 150 },
         { title: 'Email', dataIndex: 'email', key: 'email', width: 250 },

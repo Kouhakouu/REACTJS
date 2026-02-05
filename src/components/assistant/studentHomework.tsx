@@ -239,7 +239,14 @@ const StudentHomework = () => {
                     body: JSON.stringify({ lessonContent: editedLessonContent })
                 }
             );
-            if (!res.ok) throw new Error('Error updating lesson content');
+
+            // Đọc data để lấy message lỗi từ backend (nếu có)
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.message || 'Error updating lesson content');
+            }
+
             setLessons(ls =>
                 ls.map(l =>
                     l.id === selectedLesson.id
@@ -248,9 +255,15 @@ const StudentHomework = () => {
                 )
             );
             message.success('Cập nhật nội dung buổi học thành công');
-        } catch (err) {
+        } catch (err: any) {
             console.error(err);
-            message.error('Không lưu được nội dung buổi học');
+            message.error(err.message || 'Không lưu được nội dung buổi học');
+
+            // === RESET STATE KHI LỖI ===
+            // Quay về nội dung cũ của buổi học đang chọn
+            if (selectedLesson) {
+                setEditedLessonContent(selectedLesson.lessonContent);
+            }
         }
     };
 
@@ -296,18 +309,16 @@ const StudentHomework = () => {
             message.error("Học sinh không tồn tại trong danh sách buổi học!");
             return;
         }
+
         const avgScore: number = initialTasks.length > 0 ? totalScore / initialTasks.length : 0;
         let presentation = "";
         let skills = "";
         if (avgScore <= 0.3) {
-            presentation = "Khá";
-            skills = "Trung bình";
+            presentation = "Khá"; skills = "Trung bình";
         } else if (avgScore > 0.3 && avgScore < 0.7) {
-            presentation = "Khá";
-            skills = "Khá";
+            presentation = "Khá"; skills = "Khá";
         } else {
-            presentation = "Tốt";
-            skills = "Tốt";
+            presentation = "Tốt"; skills = "Tốt";
         }
         let comment = "";
         if (skills === "Tốt") {
@@ -346,14 +357,23 @@ const StudentHomework = () => {
                     })
                 }
             );
-            if (!res.ok) throw new Error("Lỗi khi lưu kết quả chấm bài");
+
+            // Đọc message lỗi từ backend
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || "Lỗi khi lưu kết quả chấm bài");
+
             await fetchStudentPerformance();
             message.success("Lưu kết quả chấm bài thành công!");
             setStudentName('');
             resetScores();
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
-            message.error("Không thể lưu kết quả chấm bài");
+            message.error(error.message || "Không thể lưu kết quả chấm bài");
+
+            // === RESET STATE KHI LỖI ===
+            // Xóa tên học sinh và reset bảng điểm để tránh người dùng tưởng đã lưu rồi
+            setStudentName('');
+            resetScores();
         }
     };
 
@@ -363,9 +383,8 @@ const StudentHomework = () => {
             .split(',')
             .map((task) => task.trim())
             .filter((task) => task !== '');
+
         if (tasks.length > 0 && selectedLesson) {
-            setInitialTasks(tasks);
-            setTaskScores(Object.fromEntries(tasks.map((task) => [task, -1])));
             try {
                 const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/lessons/${selectedLesson.id}/homeworklist`, {
                     method: 'POST',
@@ -373,13 +392,36 @@ const StudentHomework = () => {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify({ homeworkList: customTasks })
+                    body: JSON.stringify({
+                        homeworkList: customTasks
+                    })
                 });
-                if (!res.ok) throw new Error('Cập nhật danh sách bài tập thất bại');
-                message.success("Danh sách bài tập được cập nhật thành công!");
-            } catch (error) {
+
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.message || 'Cập nhật danh sách bài tập thất bại');
+
+                // === THÀNH CÔNG THÌ MỚI CẬP NHẬT STATE ===
+                const newTaskLength = data.totalTaskLength || tasks.length;
+
+                setInitialTasks(tasks);
+                setTaskScores(Object.fromEntries(tasks.map((task) => [task, -1])));
+
+                setLessons(prevLessons =>
+                    prevLessons.map(l =>
+                        l.id === selectedLesson.id
+                            ? { ...l, totalTaskLength: newTaskLength }
+                            : l
+                    )
+                );
+                setSelectedLesson(prev => prev ? { ...prev, totalTaskLength: newTaskLength } : null);
+
+                message.success(`Đã cập nhật danh sách và tổng số bài tập (${newTaskLength} bài)!`);
+            } catch (error: any) {
                 console.error(error);
-                message.error("Lỗi khi cập nhật danh sách bài tập!");
+                message.error(error.message || "Lỗi khi cập nhật danh sách bài tập!");
+
+                // === RESET STATE KHI LỖI, Quay về danh sách cũ đang có
+                setCustomTasks(initialTasks.join(', '));
             }
         } else {
             message.error("Danh sách bài tập không hợp lệ!");

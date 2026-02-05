@@ -16,7 +16,7 @@
     "@ant-design/nextjs-registry": "1.0.0",
     "antd": "^5.19.3",
     "axios": "^1.7.8",
-    "dayjs": "^1.11.13",
+    "dayjs": "^1.11.19",
     "dotenv": "^16.4.7",
     "jquery": "^3.7.1",
     "next": "^14.2.18",

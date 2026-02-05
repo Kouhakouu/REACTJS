@@ -114,9 +114,7 @@ export default function TeacherClassesPage() {
 
     // 5) Main UI
     return (
-        <div style={{ padding: 20 }}>
-            <Title level={2}>Danh sách lớp học</Title>
-
+        <div style={{ padding: 0 }}>
             {classes.length === 0 && (
                 <Alert
                     message="Thông báo"

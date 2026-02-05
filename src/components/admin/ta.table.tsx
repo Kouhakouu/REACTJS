@@ -192,7 +192,7 @@ const TaTable: React.FC = () => {
     // Columns
     const columns: ColumnsType<Assistant> = [
         { title: 'ID', dataIndex: 'id', key: 'id', width: 80 },
-        { title: 'Họ tên', dataIndex: 'fullName', key: 'fullName', width: 150 },
+        { title: 'Tên Trợ giảng', dataIndex: 'fullName', key: 'fullName', width: 150 },
         { title: 'Email', dataIndex: 'email', key: 'email', width: 200 },
         { title: 'Điện thoại', dataIndex: 'phoneNumber', key: 'phoneNumber', width: 140 },
         {
