@@ -51,7 +51,7 @@ export default function Page() {
             },
             {
                 id: "q4",
-                text: "Lưu ý nào sau đây về Zalo là đúng?",
+                text: "Lưu ý nào sau đây về Zalo trợ giảng là đúng?",
                 options: [
                     { id: "a", text: "Được để chế độ chặn tin nhắn người lạ" },
                     { id: "b", text: "Chỉ mở tin nhắn vào cuối tuần" },
@@ -131,7 +131,7 @@ export default function Page() {
                 text: "Ngay sau giờ học, trợ giảng cần làm gì với đồ học sinh để quên?",
                 options: [
                     { id: "a", text: "Mang về nhà giữ hộ" },
-                    { id: "b", text: "Chụp lại, gửi lên nhóm lớp và để đúng vị trí trong tủ để đồ" },
+                    { id: "b", text: "Chụp lại, gửi lên nhóm lớp và để đồ vào đúng vị trí trong tủ để đồ" },
                     { id: "c", text: "Để nguyên tại lớp học" },
                     { id: "d", text: "Giao cho học sinh gần nhất giữ hộ" },
                 ],
@@ -175,7 +175,7 @@ export default function Page() {
                 text: "Một ngày trước buổi học mới, trợ giảng cần hoàn thiện việc nào sau đây?",
                 options: [
                     { id: "a", text: "Chỉ cần nhắc học sinh làm bài tập" },
-                    { id: "b", text: "Hoàn thiện đáp án bài tập về nhà theo template CMATH, ghi họ tên người soạn và gửi giáo viên kiểm tra" },
+                    { id: "b", text: "Hoàn thiện đáp án bài tập về nhà theo template CMATH, ghi họ tên người soạn và gửi lên link nộp đáp án" },
                     { id: "c", text: "Chỉ gửi file cho quản lý khối, không cần giáo viên" },
                     { id: "d", text: "Không cần làm gì nếu lớp đông" },
                 ],
@@ -190,18 +190,18 @@ export default function Page() {
                     { id: "c", text: "Thứ bảy đầu tiên hàng tháng" },
                     { id: "d", text: "Chủ nhật đầu tiên hàng tháng" },
                 ],
-                correctOptionId: "b",
+                correctOptionId: "c",
             },
             {
                 id: "q17",
-                text: "Mức phạt với trợ giảng nghỉ họp không phép ở lần thứ 3 trong cùng 1 năm là bao nhiêu",
+                text: "Mức phạt với trợ giảng nghỉ họp không phép ở lần thứ 3 trong cùng 1 năm là bao nhiêu?",
                 options: [
                     { id: "a", text: "50.000 VNĐ" },
                     { id: "b", text: "100.000 VNĐ" },
                     { id: "c", text: "150.000 VNĐ" },
                     { id: "d", text: "200.000 VNĐ" },
                 ],
-                correctOptionId: "b",
+                correctOptionId: "c",
             },
             {
                 id: "q18",
@@ -212,7 +212,7 @@ export default function Page() {
                     { id: "c", text: "Đáp án đúng theo template và watermark của câu lạc bộ" },
                     { id: "d", text: "Đáp án đúng theo phong cách mình thích" },
                 ],
-                correctOptionId: "b",
+                correctOptionId: "a",
             },
             {
                 id: "q19",
@@ -223,7 +223,7 @@ export default function Page() {
                     { id: "c", text: "Điểm danh vào trong file điểm danh và tiếp tục chấm bài tập về nhà" },
                     { id: "d", text: "Cho học sinh về vì đến quá muộn" },
                 ],
-                correctOptionId: "c",
+                correctOptionId: "b",
             },
             {
                 id: "q20",
@@ -245,7 +245,7 @@ export default function Page() {
                     { id: "c", text: "Bảo giáo viên tự làm đáp án" },
                     { id: "d", text: "Nhắn cho quản lí khối rằng em có việc bận nên chưa kịp hoàn thiện và cố gắng làm xong sớm nhất có thể" },
                 ],
-                correctOptionId: "b",
+                correctOptionId: "d",
             },
             {
                 id: "q22",
@@ -262,7 +262,7 @@ export default function Page() {
                 id: "q23",
                 text: "Tình huống: Khi chấm kiểm tra trên Google Sheet, bạn thấy có các ô màu vàng. Điều nào sau đây là đúng?",
                 options: [
-                    { id: "a", text: "Điền thằng vào các ô đó vì nó không khác gì các ô khác" },
+                    { id: "a", text: "Điền thẳng vào các ô đó vì nó không khác gì các ô khác" },
                     { id: "b", text: "Không chỉnh sửa các ô màu vàng; chỉ điền điểm/nhận xét ở đúng ô được quy định" },
                     { id: "c", text: "Xóa sheet cũ và tạo sheet mới, chuyển tất cả các ô về màu trắng cho dễ chấm" },
                     { id: "d", text: "Điền điểm trực tiếp vào giấy bài trước rồi gửi quản lí danh sách điểm mới" },
@@ -303,7 +303,7 @@ export default function Page() {
         if (!API_BASE) {
             setStatus({
                 type: "error",
-                message: "Thiếu NEXT_PUBLIC_BACKEND_URL trong .env.local (Next.js).",
+                message: "Thiếu NEXT_PUBLIC_BACKEND_PORT trong .env.local (Next.js).",
             });
             return;
         }
@@ -407,7 +407,8 @@ export default function Page() {
                             <input
                                 value={contact}
                                 onChange={(e) => setContact(e.target.value)}
-                                placeholder="Email/SĐT"
+                                placeholder="Email nhận kết quả (vd: cmath@gmail.com)"
+                                required
                                 style={{
                                     padding: 12,
                                     borderRadius: 12,
