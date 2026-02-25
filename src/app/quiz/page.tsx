@@ -387,11 +387,12 @@ export default function Page() {
                         }}
                     >
                         <div style={{ display: "grid", gap: 6 }}>
-                            <label style={{ fontWeight: 700 }}>Họ và tên (tuỳ chọn)</label>
+                            <label style={{ fontWeight: 700 }}>Họ và tên</label>
                             <input
                                 value={fullName}
                                 onChange={(e) => setFullName(e.target.value)}
-                                placeholder="Nguyễn Văn A"
+                                placeholder="Nguyễn Bảo Châu"
+                                required
                                 style={{
                                     padding: 12,
                                     borderRadius: 12,
@@ -402,7 +403,7 @@ export default function Page() {
                         </div>
 
                         <div style={{ display: "grid", gap: 6 }}>
-                            <label style={{ fontWeight: 700 }}>Liên hệ (tuỳ chọn)</label>
+                            <label style={{ fontWeight: 700 }}>Liên hệ</label>
                             <input
                                 value={contact}
                                 onChange={(e) => setContact(e.target.value)}
