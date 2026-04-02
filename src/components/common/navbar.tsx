@@ -48,9 +48,17 @@ const NavbarComponent = () => {
                 >
                     <Link href="/courses">Khóa học</Link>
                 </Menu.Item>
-                <Menu.Item key="4" icon={<SolutionOutlined />}>
-                    <Link href="/admission">Tuyển sinh</Link>
-                </Menu.Item>
+                <SubMenu key="4" icon={<SolutionOutlined />} title="Tuyển sinh">
+                    <Menu.Item key="login" icon={<LoginOutlined />}>
+                        <Link href="/admission/primary">Khối Tiểu học</Link>
+                    </Menu.Item>
+                    <Menu.Item key="register" icon={<UserAddOutlined />}>
+                        <Link href="/admission/secondary">Khối THCS</Link>
+                    </Menu.Item>
+                    <Menu.Item key="register" icon={<UserAddOutlined />}>
+                        <Link href="/admission/high">Khối THPT</Link>
+                    </Menu.Item>
+                </SubMenu>
                 <Menu.Item key="5" icon={<FileTextOutlined />}>
                     <Link href="/documents">Tài liệu</Link>
                 </Menu.Item>
