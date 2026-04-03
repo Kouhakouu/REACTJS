@@ -1,9 +1,9 @@
-import React from 'react'
+import Secondary from "@/components/admission/secondary/secondary"
 
-const page = () => {
+const ManageSecondary = () => {
     return (
-        <div>page</div>
+        <Secondary />
     )
 }
 
-export default page
+export default ManageSecondary

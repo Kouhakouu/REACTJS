@@ -269,17 +269,17 @@ export default function Page() {
                 ],
                 correctOptionId: "b",
             },
-            {
-                id: "q24",
-                text: `Phương trình $\\sqrt{\\left(\\frac{x^2+1}{x^2-1}\\right)^2-1}+\\sqrt{\\left(\\frac{x^2-1}{x^2+1}\\right)^2+3}=2\\sqrt{2}$ có nghiệm là `,
-                options: [
-                    { id: "a", text: "1" },
-                    { id: "b", text: "2" },
-                    { id: "c", text: "3" },
-                    { id: "d", text: "4" },
-                ],
-                correctOptionId: "b",
-            },
+            // {
+            //     id: "q24",
+            //     text: `Phương trình $\\sqrt{\\left(\\frac{x^2+1}{x^2-1}\\right)^2-1}+\\sqrt{\\left(\\frac{x^2-1}{x^2+1}\\right)^2+3}=2\\sqrt{2}$ có nghiệm là `,
+            //     options: [
+            //         { id: "a", text: "1" },
+            //         { id: "b", text: "2" },
+            //         { id: "c", text: "3" },
+            //         { id: "d", text: "4" },
+            //     ],
+            //     correctOptionId: "b",
+            // },
         ],
         []
     );

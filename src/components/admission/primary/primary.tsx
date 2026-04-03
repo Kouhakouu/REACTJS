@@ -61,7 +61,7 @@ const Primary = () => {
                                         width: 'fit-content',
                                     }}
                                 >
-                                    Chương trình dành cho học sinh tiểu học
+                                    Chương trình Tiểu học
                                 </div>
 
                                 <Title
@@ -72,7 +72,7 @@ const Primary = () => {
                                         lineHeight: 1.15,
                                     }}
                                 >
-                                    Học Toán Tiểu Học
+                                    Toán Tiểu Học
                                     <br />
                                     <span
                                         style={{

@@ -1,9 +1,9 @@
-import React from 'react'
+import High from '@/components/admission/high/high'
 
-const page = () => {
+const ManageHigh = () => {
     return (
-        <div>page</div>
+        <High />
     )
 }
 
-export default page
+export default ManageHigh

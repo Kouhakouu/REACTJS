@@ -1,7 +1,7 @@
 'use client';
 import React from "react";
 import { Layout, Menu } from "antd";
-import { HomeOutlined, InfoCircleOutlined, TrophyOutlined, BookOutlined, SolutionOutlined, FileTextOutlined, ReadOutlined, PhoneOutlined, LoginOutlined, UserAddOutlined } from "@ant-design/icons";
+import { HomeOutlined, InfoCircleOutlined, TrophyOutlined, BookOutlined, SolutionOutlined, FileTextOutlined, ReadOutlined, PhoneOutlined, LoginOutlined, UserAddOutlined, SmileOutlined } from "@ant-design/icons";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -49,13 +49,15 @@ const NavbarComponent = () => {
                     <Link href="/courses">Khóa học</Link>
                 </Menu.Item>
                 <SubMenu key="4" icon={<SolutionOutlined />} title="Tuyển sinh">
-                    <Menu.Item key="login" icon={<LoginOutlined />}>
+                    <Menu.Item key="primary" icon={<SmileOutlined />}>
                         <Link href="/admission/primary">Khối Tiểu học</Link>
                     </Menu.Item>
-                    <Menu.Item key="register" icon={<UserAddOutlined />}>
+
+                    <Menu.Item key="secondary" icon={<ReadOutlined />}>
                         <Link href="/admission/secondary">Khối THCS</Link>
                     </Menu.Item>
-                    <Menu.Item key="register" icon={<UserAddOutlined />}>
+
+                    <Menu.Item key="high" icon={<TrophyOutlined />}>
                         <Link href="/admission/high">Khối THPT</Link>
                     </Menu.Item>
                 </SubMenu>

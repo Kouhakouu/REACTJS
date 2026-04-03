@@ -31,7 +31,7 @@ const currentStudents: Student[] = [
         id: 1,
         name: 'Đỗ Ngân Giang',
         achievement:
-            'cute',
+            'Huy chương Bạc kỳ thi Toán học trẻ quốc tế IMC 2025',
         image: '/images/do-ngan-giang.jpg',
     },
     {
@@ -239,9 +239,8 @@ const Achievement = () => {
                                 maxWidth: 760,
                             }}
                         >
-                            Hành trình học tập nghiêm túc, bền bỉ và những kết quả đáng tự hào của
-                            các học sinh đang theo học cũng như các cựu học sinh đã trưởng thành từ
-                            câu lạc bộ.
+                            Những kết quả đáng tự hào của các học sinh đang theo học cũng như
+                            các cựu học sinh đã trưởng thành từ câu lạc bộ.
                         </Paragraph>
                     </div>
                 </div>
