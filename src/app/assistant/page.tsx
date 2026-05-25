@@ -1,8 +1,7 @@
+import AssistantDashboard from '@/components/assistant/assistantDashboard';
 
-const assistantPage = () => {
-    return (
-        <div>hello</div>
-    )
-}
+const AssistantPage = () => {
+    return <AssistantDashboard />;
+};
 
-export default assistantPage
+export default AssistantPage;

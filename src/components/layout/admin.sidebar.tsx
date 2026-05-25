@@ -54,6 +54,11 @@ const AdminSideBar = () => {
                     label: <Link href={"/dashboard/student"}>QL học sinh</Link>,
                     icon: <TeamOutlined />,
                 },
+                {
+                    key: "courses",
+                    label: <Link href={"/dashboard/courses"}>QL khóa học</Link>,
+                    icon: <AppstoreOutlined />,
+                },
             ],
         },
     ];

@@ -1,9 +1,10 @@
 //đây là component chỉ dùng excel, không liên quan đến database 
 
 'use client'
-import { useEffect, useState } from 'react';
-import { Button, Card, Typography, Space, Row, Col, Input, Table, Upload, message, AutoComplete } from 'antd';
-import { CloseOutlined, UploadOutlined } from '@ant-design/icons';
+import { useEffect, useState, useContext } from 'react';
+import { Button, Card, Typography, Space, Row, Col, Input, Table, Upload, message, AutoComplete, Tooltip, Popconfirm } from 'antd';
+import { CloseOutlined, UploadOutlined, RobotOutlined, ThunderboltOutlined } from '@ant-design/icons';
+import { AuthContext } from '@/library/authContext';
 import * as XLSX from 'xlsx';
 
 const { Title, Text } = Typography;
@@ -27,8 +28,14 @@ interface SubmittedData {
 }
 
 const ChildrenHomework = () => {
+    const { token } = useContext(AuthContext);
+
     const [customTasks, setCustomTasks] = useState<string>('');
     const [initialTasks, setInitialTasks] = useState<string[]>([]);
+
+    // State cho AI nhận xét
+    const [aiLoadingKeys, setAiLoadingKeys] = useState<Set<number>>(new Set());
+    const [aiBulkLoading, setAiBulkLoading] = useState<boolean>(false);
 
     // State chấm điểm
     const [taskScores, setTaskScores] = useState<TaskScores>(
@@ -211,6 +218,98 @@ const ChildrenHomework = () => {
         resetScores();
     };
 
+    // Gọi backend sinh nhận xét AI cho 1 dòng dữ liệu
+    const callAiComment = async (record: SubmittedData) => {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/assistant/ai-comment`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                totalTaskLength: initialTasks.length,
+                doneTask: record.doneTasks,
+                totalScore: record.totalScore,
+                incorrectTasks: record.incorrectTasks,
+                missingTasks: record.missingTasks,
+                presentation: record.presentation,
+                skills: record.skills,
+                attendance: true
+            })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || 'Lỗi khi tạo nhận xét AI');
+        return data.comment as string;
+    };
+
+    // Sinh AI cho 1 học sinh
+    const handleAiCommentSingle = async (record: SubmittedData) => {
+        if (record.doneTasks === 0) {
+            message.warning('Học sinh này chưa có bài chấm, hãy Submit trước.');
+            return;
+        }
+        setAiLoadingKeys(prev => {
+            const next = new Set(prev);
+            next.add(record.key);
+            return next;
+        });
+        try {
+            const newComment = await callAiComment(record);
+            setSubmittedData(prev => prev.map(r =>
+                r.key === record.key ? { ...r, comments: newComment } : r
+            ));
+            message.success(`Đã tạo nhận xét AI cho ${record.name}`);
+        } catch (err: any) {
+            console.error(err);
+            message.error(err.message || 'Không tạo được nhận xét AI');
+        } finally {
+            setAiLoadingKeys(prev => {
+                const next = new Set(prev);
+                next.delete(record.key);
+                return next;
+            });
+        }
+    };
+
+    // Sinh AI cho toàn bộ học sinh đã chấm
+    const handleAiCommentBulk = async () => {
+        const targets = submittedData.filter(r => r.doneTasks > 0);
+        if (targets.length === 0) {
+            message.warning('Chưa có học sinh nào được chấm bài.');
+            return;
+        }
+        setAiBulkLoading(true);
+        try {
+            const settled = await Promise.allSettled(
+                targets.map(async (r) => {
+                    const comment = await callAiComment(r);
+                    return { key: r.key, comment };
+                })
+            );
+            const updates: Record<number, string> = {};
+            let failedCount = 0;
+            settled.forEach(s => {
+                if (s.status === 'fulfilled') {
+                    updates[s.value.key] = s.value.comment;
+                } else {
+                    failedCount += 1;
+                }
+            });
+            setSubmittedData(prev => prev.map(r =>
+                updates[r.key] !== undefined ? { ...r, comments: updates[r.key] } : r
+            ));
+            message.success(`Đã tạo ${targets.length - failedCount}/${targets.length} nhận xét AI`);
+            if (failedCount > 0) {
+                message.warning(`Có ${failedCount} nhận xét không tạo được, vui lòng thử lại từng học sinh.`);
+            }
+        } catch (err: any) {
+            console.error(err);
+            message.error(err.message || 'Không tạo được nhận xét AI cho cả lớp');
+        } finally {
+            setAiBulkLoading(false);
+        }
+    };
+
     // Xuất ra Excel
     const exportToExcel = () => {
         const exportData = submittedData.map(item => ({
@@ -264,8 +363,34 @@ const ChildrenHomework = () => {
         { title: 'Trình bày', dataIndex: 'presentation', key: 'presentation' },
         { title: 'Kĩ năng', dataIndex: 'skills', key: 'skills' },
         {
-            title: 'Nhận xét', dataIndex: 'comments', key: 'comments', ellipsis: false
+            title: 'Nhận xét',
+            dataIndex: 'comments',
+            key: 'comments',
+            ellipsis: false,
+            render: (value: string) => (
+                <div style={{ whiteSpace: 'pre-wrap', minWidth: 240 }}>{value || ''}</div>
+            )
         },
+        {
+            title: 'AI',
+            key: 'ai',
+            width: 70,
+            align: 'center' as const,
+            render: (_: any, record: SubmittedData) => {
+                const hasData = record.doneTasks > 0;
+                return (
+                    <Tooltip title={hasData ? 'Dùng AI làm nhận xét cho học sinh này' : 'Hãy Submit chấm bài trước'}>
+                        <Button
+                            type="text"
+                            icon={<RobotOutlined style={{ color: hasData ? '#722ed1' : '#bfbfbf' }} />}
+                            loading={aiLoadingKeys.has(record.key)}
+                            disabled={!hasData}
+                            onClick={() => handleAiCommentSingle(record)}
+                        />
+                    </Tooltip>
+                );
+            }
+        }
     ];
 
     return (
@@ -356,6 +481,23 @@ const ChildrenHomework = () => {
                         <Button type="primary" onClick={handleSubmit} style={{ width: '100%' }}>
                             Submit
                         </Button>
+                        <Popconfirm
+                            title="Sinh nhận xét AI cho cả lớp?"
+                            description="Hệ thống sẽ gọi AI cho từng học sinh đã chấm bài và ghi đè nhận xét cũ."
+                            okText="Đồng ý"
+                            cancelText="Huỷ"
+                            onConfirm={handleAiCommentBulk}
+                        >
+                            <Button
+                                type="primary"
+                                ghost
+                                icon={<ThunderboltOutlined />}
+                                loading={aiBulkLoading}
+                                style={{ width: '100%', marginTop: '10px' }}
+                            >
+                                Sinh AI nhận xét cho cả lớp
+                            </Button>
+                        </Popconfirm>
                         <Button type="default" onClick={exportToExcel} style={{ width: '100%', marginTop: '10px' }}>
                             Xuất Excel
                         </Button>

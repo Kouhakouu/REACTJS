@@ -1,8 +1,8 @@
 'use client'
 
 import { useEffect, useState, useContext } from 'react';
-import { Button, Card, Typography, message, Table, Tabs, Collapse, Input, Space, Row, Col, AutoComplete } from 'antd';
-import { CloseOutlined } from '@ant-design/icons';
+import { Button, Card, Typography, message, Table, Tabs, Collapse, Input, Space, Row, Col, AutoComplete, Tooltip, Popconfirm } from 'antd';
+import { CloseOutlined, RobotOutlined, ThunderboltOutlined } from '@ant-design/icons';
 import { AuthContext } from '@/library/authContext';
 import * as XLSX from 'xlsx';
 import { formatDate } from '@/utils/formatDate';
@@ -62,6 +62,10 @@ const StudentHomework = () => {
     const [initialTasks, setInitialTasks] = useState<string[]>([]);
     const [taskScores, setTaskScores] = useState<Record<string, number>>({});
     const [studentName, setStudentName] = useState<string>('');
+
+    // State cho AI nhận xét
+    const [aiLoadingIds, setAiLoadingIds] = useState<Set<number>>(new Set());
+    const [aiBulkLoading, setAiBulkLoading] = useState<boolean>(false);
 
     // Khi danh sách bài tập thay đổi, reset điểm của từng bài
     useEffect(() => {
@@ -428,6 +432,73 @@ const StudentHomework = () => {
         }
     };
 
+    // Gọi AI sinh nhận xét cho 1 học sinh
+    const handleAiCommentSingle = async (student: StudentPerformance) => {
+        if (!selectedClass || !selectedLesson) return;
+        if (!student.performance) {
+            message.warning('Học sinh này chưa có dữ liệu chấm bài, hãy Submit trước.');
+            return;
+        }
+        setAiLoadingIds(prev => {
+            const next = new Set(prev);
+            next.add(student.id);
+            return next;
+        });
+        try {
+            const res = await fetch(
+                `${process.env.NEXT_PUBLIC_BACKEND_PORT}/assistant/classes/${selectedClass.id}/lessons/${selectedLesson.id}/students/${student.id}/ai-comment`,
+                {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                }
+            );
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || 'Lỗi khi tạo nhận xét AI');
+            setLessonPerformance(prev => prev.map(s =>
+                s.id === student.id && s.performance
+                    ? { ...s, performance: { ...s.performance, comment: data.comment } }
+                    : s
+            ));
+            message.success(`Đã tạo nhận xét AI cho ${student.fullName}`);
+        } catch (err: any) {
+            console.error(err);
+            message.error(err.message || 'Không tạo được nhận xét AI');
+        } finally {
+            setAiLoadingIds(prev => {
+                const next = new Set(prev);
+                next.delete(student.id);
+                return next;
+            });
+        }
+    };
+
+    // Gọi AI sinh nhận xét cho toàn bộ học sinh đã chấm
+    const handleAiCommentBulk = async () => {
+        if (!selectedClass || !selectedLesson) return;
+        setAiBulkLoading(true);
+        try {
+            const res = await fetch(
+                `${process.env.NEXT_PUBLIC_BACKEND_PORT}/assistant/classes/${selectedClass.id}/lessons/${selectedLesson.id}/ai-comment-all`,
+                {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                }
+            );
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || 'Lỗi khi tạo nhận xét AI hàng loạt');
+            await fetchStudentPerformance();
+            message.success(data.message || 'Đã tạo nhận xét AI cho cả lớp');
+            if (data.failed && data.failed.length > 0) {
+                message.warning(`Có ${data.failed.length} nhận xét không tạo được, vui lòng thử lại từng học sinh.`);
+            }
+        } catch (err: any) {
+            console.error(err);
+            message.error(err.message || 'Không tạo được nhận xét AI cho cả lớp');
+        } finally {
+            setAiBulkLoading(false);
+        }
+    };
+
     // Định nghĩa columns cho bảng kết quả (Summary)
     const columns = [
         { title: 'Họ và Tên', dataIndex: 'fullName', key: 'fullName' },
@@ -459,7 +530,34 @@ const StudentHomework = () => {
         },
         { title: 'Trình bày', dataIndex: ['performance', 'presentation'], key: 'presentation' },
         { title: 'Kĩ năng', dataIndex: ['performance', 'skills'], key: 'skills' },
-        { title: 'Nhận xét', dataIndex: ['performance', 'comment'], key: 'comment' },
+        {
+            title: 'Nhận xét',
+            dataIndex: ['performance', 'comment'],
+            key: 'comment',
+            render: (value: string) => (
+                <div style={{ whiteSpace: 'pre-wrap', minWidth: 240 }}>{value || ''}</div>
+            )
+        },
+        {
+            title: 'AI',
+            key: 'ai',
+            width: 70,
+            align: 'center' as const,
+            render: (_: any, record: StudentPerformance) => {
+                const hasPerformance = !!record.performance;
+                return (
+                    <Tooltip title={hasPerformance ? 'Dùng AI làm nhận xét cho học sinh này' : 'Hãy Submit chấm bài trước'}>
+                        <Button
+                            type="text"
+                            icon={<RobotOutlined style={{ color: hasPerformance ? '#722ed1' : '#bfbfbf' }} />}
+                            loading={aiLoadingIds.has(record.id)}
+                            disabled={!hasPerformance}
+                            onClick={() => handleAiCommentSingle(record)}
+                        />
+                    </Tooltip>
+                );
+            }
+        }
     ];
 
     return (
@@ -562,6 +660,23 @@ const StudentHomework = () => {
                                                             <Button type="primary" onClick={handleSubmit} style={{ width: '100%' }}>
                                                                 Submit
                                                             </Button>
+                                                            <Popconfirm
+                                                                title="Sinh nhận xét AI cho cả lớp?"
+                                                                description="Hệ thống sẽ gọi AI cho từng học sinh đã chấm bài và ghi đè nhận xét cũ."
+                                                                okText="Đồng ý"
+                                                                cancelText="Huỷ"
+                                                                onConfirm={handleAiCommentBulk}
+                                                            >
+                                                                <Button
+                                                                    type="primary"
+                                                                    ghost
+                                                                    icon={<ThunderboltOutlined />}
+                                                                    loading={aiBulkLoading}
+                                                                    style={{ width: '100%', marginTop: '10px' }}
+                                                                >
+                                                                    Sinh AI nhận xét cho cả lớp
+                                                                </Button>
+                                                            </Popconfirm>
                                                             <Button type="default" onClick={exportToExcel} style={{ width: '100%', marginTop: '10px' }}>
                                                                 Xuất Excel
                                                             </Button>

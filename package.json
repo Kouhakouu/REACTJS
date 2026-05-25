@@ -26,6 +26,7 @@
     "react-dom": "18.3.1",
     "react-helmet": "^6.1.0",
     "react-p5": "^1.4.1",
+    "recharts": "^3.8.1",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {

@@ -16,6 +16,7 @@ interface AuthContextType {
     token: string | null;
     login: (userData: { user: User, token: string }) => void;
     logout: () => void;
+    updateUser: (updated: User) => void;
 }
 
 export const AuthContext = createContext<AuthContextType>({
@@ -23,6 +24,7 @@ export const AuthContext = createContext<AuthContextType>({
     token: null,
     login: () => { },
     logout: () => { },
+    updateUser: () => { },
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -61,10 +63,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             router.push("/manager");
         } else if (user.role === "ASSISTANT") {
             router.push("/assistant");
+        } else if (user.role === "STUDENT") {
+            router.push("/student");
         }
 
     };
 
+
+    const updateUser = (updated: User) => {
+        setUser(updated);
+        localStorage.setItem("user", JSON.stringify(updated));
+    };
 
     const logout = () => {
         setUser(null);
@@ -75,7 +84,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, token, login, logout }}>
+        <AuthContext.Provider value={{ user, token, login, logout, updateUser }}>
             {children}
         </AuthContext.Provider>
     );

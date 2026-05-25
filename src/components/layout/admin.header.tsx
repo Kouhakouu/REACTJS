@@ -6,9 +6,11 @@ import {
     MenuFoldOutlined,
     MenuUnfoldOutlined,
     DownOutlined,
-    SmileOutlined,
+    UserOutlined,
+    LockOutlined,
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
+import { useRouter } from 'next/navigation';
 import { AdminContext } from '@/library/admin.context';
 import { AuthContext } from '@/library/authContext';
 
@@ -16,8 +18,8 @@ const AdminHeader = () => {
     const { Header } = Layout;
     const { collapseMenu, setCollapseMenu } = useContext(AdminContext)!;
     const { user, logout } = useContext(AuthContext);
+    const router = useRouter();
 
-    // Compute a display name: prefer fullName, then email, then “Guest”
     const displayName = useMemo(() => {
         if (!user) return 'Guest';
         return user.fullName?.trim() || user.email;
@@ -25,46 +27,20 @@ const AdminHeader = () => {
 
     const menuItems: MenuProps['items'] = [
         {
-            key: '1',
-            label: (
-                <a
-                    href="https://www.antgroup.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    Hồ sơ
-                </a>
-            ),
+            key: 'profile',
+            icon: <UserOutlined />,
+            label: 'Hồ sơ của tôi',
+            onClick: () => router.push('/dashboard/profile'),
         },
         {
-            key: '2',
-            icon: <SmileOutlined />,
-            label: (
-                <a
-                    href="https://www.aliyun.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    Đổi mật khẩu
-                </a>
-            ),
-            disabled: true,
+            key: 'password',
+            icon: <LockOutlined />,
+            label: 'Đổi mật khẩu',
+            onClick: () => router.push('/dashboard/profile?tab=password'),
         },
+        { type: 'divider' },
         {
-            key: '3',
-            label: (
-                <a
-                    href="https://www.luohanacademy.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    Cài đặt
-                </a>
-            ),
-            disabled: true,
-        },
-        {
-            key: '4',
+            key: 'logout',
             danger: true,
             label: 'Đăng xuất',
             onClick: logout,
