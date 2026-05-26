@@ -80,7 +80,7 @@ const HomePage = () => {
 
             <Content>
                 <div>
-                    <img src="/HAPPY NEW YEAR.png" alt="Hero" style={{ width: "100%", height: "auto" }} />
+                    <img src="/banner2627.jpg" alt="Hero" style={{ width: "100%", height: "auto" }} />
                 </div>
 
                 <div style={{ textAlign: "center", padding: "50px 10%", background: "#fff" }}>
