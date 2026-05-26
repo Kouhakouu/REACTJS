@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import { AuthProvider } from '@/library/authContext'; // Import AuthProvider
+import ChatbotMount from '@/components/chatbot/ChatbotMount';
 
 import '@/app/globals.css';
 
@@ -23,6 +24,7 @@ export default function RootLayout({
         <AntdRegistry>
           <AuthProvider>
             {children}
+            <ChatbotMount />
           </AuthProvider>
         </AntdRegistry>
       </body>

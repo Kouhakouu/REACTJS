@@ -360,7 +360,6 @@ const AdminDashboard = () => {
                     rowKey="id"
                     size="small"
                     pagination={{ pageSize: 10, showSizeChanger: false }}
-                    defaultSortOrder={undefined}
                     sortDirections={['ascend', 'descend']}
                 />
             </Card>

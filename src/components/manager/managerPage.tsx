@@ -30,8 +30,8 @@ interface DashboardData {
         overallAvgScore: number | null;
     };
     classNames: string[];
-    scoreData: Array<{ week: string; [cls: string]: number | null | string }>;
-    attendanceData: Array<{ week: string; [cls: string]: number | null | string }>;
+    scoreData: Array<{ week: string;[cls: string]: number | null | string }>;
+    attendanceData: Array<{ week: string;[cls: string]: number | null | string }>;
 }
 
 const CLASS_COLORS = [
@@ -84,11 +84,10 @@ const ManagerPage = () => {
 
     return (
         <div style={{ padding: 24 }}>
-            <Title level={2} style={{ marginBottom: 24 }}>Tổng Quan Quản Lý</Title>
 
             {/* Summary cards */}
             <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
-                <Col xs={12} sm={6}>
+                <Col xs={24} sm={12}>
                     <Card bordered={false} style={{ background: "#e6f4ff" }}>
                         <Statistic
                             title="Số lớp quản lý"
@@ -98,34 +97,13 @@ const ManagerPage = () => {
                         />
                     </Card>
                 </Col>
-                <Col xs={12} sm={6}>
+                <Col xs={24} sm={12}>
                     <Card bordered={false} style={{ background: "#f6ffed" }}>
                         <Statistic
-                            title="Tổng học sinh"
+                            title="Tổng số lượt học sinh"
                             value={summary.totalStudents}
                             prefix={<TeamOutlined />}
                             valueStyle={{ color: "#52c41a" }}
-                        />
-                    </Card>
-                </Col>
-                <Col xs={12} sm={6}>
-                    <Card bordered={false} style={{ background: "#fff7e6" }}>
-                        <Statistic
-                            title="Buổi học (2 tuần)"
-                            value={summary.totalLessons}
-                            prefix={<CheckCircleOutlined />}
-                            valueStyle={{ color: "#fa8c16" }}
-                        />
-                    </Card>
-                </Col>
-                <Col xs={12} sm={6}>
-                    <Card bordered={false} style={{ background: "#fff0f6" }}>
-                        <Statistic
-                            title="Điểm TB chung"
-                            value={summary.overallAvgScore !== null ? summary.overallAvgScore : "—"}
-                            prefix={<TrophyOutlined />}
-                            valueStyle={{ color: "#eb2f96" }}
-                            suffix={summary.overallAvgScore !== null ? "điểm" : ""}
                         />
                     </Card>
                 </Col>
@@ -137,7 +115,7 @@ const ManagerPage = () => {
                 <Row gutter={[16, 16]}>
                     {/* Điểm trung bình */}
                     <Col xs={24} xl={12}>
-                        <Card title="Điểm trung bình từng lớp (2 tuần gần nhất)" size="small">
+                        <Card title="Điểm trung bình bài tập về nhà trong 2 tuần gần nhất" size="small">
                             <ResponsiveContainer width="100%" height={300}>
                                 <LineChart data={scoreData} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
                                     <CartesianGrid strokeDasharray="3 3" />
@@ -157,7 +135,7 @@ const ManagerPage = () => {
 
                     {/* Tỉ lệ điểm danh */}
                     <Col xs={24} xl={12}>
-                        <Card title="Tỉ lệ điểm danh từng lớp (2 tuần gần nhất)" size="small">
+                        <Card title="Tỉ lệ số học sinh đi học trong 2 tuần gần nhất" size="small">
                             <ResponsiveContainer width="100%" height={300}>
                                 <LineChart data={attendanceData} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
                                     <CartesianGrid strokeDasharray="3 3" />

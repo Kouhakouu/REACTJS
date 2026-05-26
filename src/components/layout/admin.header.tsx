@@ -70,7 +70,7 @@ const AdminHeader = () => {
                     style={{ marginRight: 20, cursor: 'pointer' }}
                 >
                     <Space>
-                        Welcome, {displayName}
+                        Xin chào, {displayName}
                         <DownOutlined />
                     </Space>
                 </a>

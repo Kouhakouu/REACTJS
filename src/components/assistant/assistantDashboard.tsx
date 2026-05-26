@@ -376,7 +376,7 @@ const AssistantDashboard = () => {
                 <Col xs={24} sm={8}>
                     <Card>
                         <Statistic
-                            title="Buổi hỗ trợ hôm nay"
+                            title="Buổi trợ giảng hôm nay"
                             value={todayClassCount}
                             prefix={<CalendarOutlined />}
                             valueStyle={{ color: todayClassCount > 0 ? '#fa8c16' : '#8c8c8c' }}
@@ -495,7 +495,7 @@ const AssistantDashboard = () => {
                 {/* Right: Stats */}
                 <Col xs={24} lg={10}>
                     <Card
-                        title="Kỹ năng học sinh theo lớp (theo tuần)"
+                        title="Kết quả chấm bài về nhà"
                         extra={statsLoading ? <Spin size="small" /> : null}
                     >
                         <StackedBarChart data={barData} />
