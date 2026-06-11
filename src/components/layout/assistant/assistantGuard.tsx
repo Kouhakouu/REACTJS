@@ -5,30 +5,24 @@ import { useRouter } from 'next/navigation';
 import { Spin } from 'antd';
 import { AuthContext } from '@/library/authContext';
 
-// Chặn truy cập khu vực trợ giảng nếu chưa đăng nhập hoặc tài khoản chưa kích hoạt (status !== 1)
+// Việc chặn khi CHƯA đăng nhập (không có token) đã do middleware.ts xử lý.
+// Guard này chỉ lo phần middleware không làm được: chặn trợ giảng CHƯA kích hoạt
+// (status !== 1) và đẩy về trang làm test /quiz.
 const AssistantGuard = ({ children }: { children: React.ReactNode }) => {
-    const { user, token, initialized } = useContext(AuthContext);
+    const { user, initialized } = useContext(AuthContext);
     const router = useRouter();
+
+    const notActivated = user?.role === 'ASSISTANT' && user.status !== 1;
 
     useEffect(() => {
         if (!initialized) return; // đợi đọc xong localStorage
-
-        if (!token || !user) {
-            router.replace('/auth/login');
-            return;
-        }
-        if (user.role !== 'ASSISTANT') {
-            router.replace('/auth/login');
-            return;
-        }
-        if (user.status !== 1) {
-            // Chưa kích hoạt -> quay về trang làm test
+        if (notActivated) {
             router.replace('/quiz');
         }
-    }, [initialized, token, user, router]);
+    }, [initialized, notActivated, router]);
 
-    // Trong lúc chờ xác định / đang điều hướng thì hiển thị loading
-    if (!initialized || !token || !user || user.role !== 'ASSISTANT' || user.status !== 1) {
+    // Trong lúc chờ hydrate hoặc đang điều hướng về /quiz thì hiển thị loading
+    if (!initialized || notActivated) {
         return <Spin size="large" style={{ display: 'block', marginTop: 80 }} />;
     }
 
