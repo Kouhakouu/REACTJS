@@ -9,11 +9,13 @@ interface User {
     role: string;
     fullName: string;
     gradeLevel?: string;
+    status?: number; // chỉ áp dụng cho trợ giảng: 0 = chưa kích hoạt, 1 = đã kích hoạt
 }
 
 interface AuthContextType {
     user: User | null;
     token: string | null;
+    initialized: boolean; // đã đọc xong user/token từ localStorage chưa
     login: (userData: { user: User, token: string }) => void;
     logout: () => void;
     updateUser: (updated: User) => void;
@@ -22,6 +24,7 @@ interface AuthContextType {
 export const AuthContext = createContext<AuthContextType>({
     user: null,
     token: null,
+    initialized: false,
     login: () => { },
     logout: () => { },
     updateUser: () => { },
@@ -30,6 +33,7 @@ export const AuthContext = createContext<AuthContextType>({
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
     const [token, setToken] = useState<string | null>(null);
+    const [initialized, setInitialized] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
@@ -45,6 +49,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         } else {
             console.warn("⚠ Không tìm thấy user hoặc token trong LocalStorage.");
         }
+        setInitialized(true);
     }, []);
 
 
@@ -62,7 +67,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         } else if (user.role === "MANAGER") {
             router.push("/manager");
         } else if (user.role === "ASSISTANT") {
-            router.push("/assistant");
+            // Chưa kích hoạt (status !== 1) -> phải làm test + nhập mã ở /quiz
+            if (user.status === 1) {
+                router.push("/assistant");
+            } else {
+                router.push("/quiz");
+            }
         } else if (user.role === "STUDENT") {
             router.push("/student");
         }
@@ -84,7 +94,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, token, login, logout, updateUser }}>
+        <AuthContext.Provider value={{ user, token, initialized, login, logout, updateUser }}>
             {children}
         </AuthContext.Provider>
     );

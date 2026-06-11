@@ -1,6 +1,8 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { AuthContext } from "@/library/authContext";
 
 type Option = { id: string; text: string };
 type Question = {
@@ -12,6 +14,12 @@ type Question = {
 export default function Page() {
     // ====== CONFIG ======
     const API_BASE = process.env.NEXT_PUBLIC_BACKEND_PORT || "";
+
+    // ====== AUTH / ONBOARDING TRỢ GIẢNG ======
+    const { user, token, updateUser } = useContext(AuthContext);
+    const router = useRouter();
+    // Trợ giảng đã đăng nhập nhưng chưa kích hoạt -> dùng /quiz để làm test + nhập mã
+    const isOnboarding = user?.role === "ASSISTANT" && user?.status !== 1;
 
     // ====== QUESTIONS (bạn sửa nội dung ở đây) ======
     const questions: Question[] = useMemo(
@@ -292,7 +300,20 @@ export default function Page() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [status, setStatus] = useState<null | { type: "ok" | "error"; message: string }>(null);
 
+    // Onboarding: trạng thái đã gửi mã + ô nhập mã
+    const [codeSent, setCodeSent] = useState(false);
+    const [code, setCode] = useState("");
+    const [verifying, setVerifying] = useState(false);
+
     const allAnswered = questions.every((q) => Boolean(answers[q.id]));
+
+    // Tự điền họ tên từ tài khoản trợ giảng đang đăng nhập
+    useEffect(() => {
+        if (isOnboarding && user?.fullName && !fullName) {
+            setFullName(user.fullName);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isOnboarding, user?.fullName]);
 
     // ====== HANDLERS ======
     const onSelect = (questionId: string, optionId: string) => {
@@ -302,8 +323,83 @@ export default function Page() {
         }));
     };
 
+    const isEmailValid = (s: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
+
+    // Onboarding bước 1: nộp bài test -> gửi mã về email tuỳ chọn
+    const handleRequestCode = async () => {
+        setStatus(null);
+
+        if (!allAnswered) {
+            setStatus({ type: "error", message: "Bạn cần trả lời tất cả câu hỏi trước khi nộp." });
+            return;
+        }
+        if (!isEmailValid(contact.trim())) {
+            setStatus({ type: "error", message: "Vui lòng nhập email hợp lệ để nhận mã kích hoạt." });
+            return;
+        }
+
+        setIsSubmitting(true);
+        try {
+            const res = await fetch(`${API_BASE}/assistant/onboarding/request-code`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ email: contact.trim() }),
+            });
+            const data = await res.json().catch(() => null);
+            if (!res.ok) throw new Error(data?.message || "Gửi mã thất bại.");
+
+            setCodeSent(true);
+            setStatus({ type: "ok", message: data?.message || "Đã gửi mã xác thực về email của bạn." });
+        } catch (err: any) {
+            setStatus({ type: "error", message: err?.message || "Có lỗi xảy ra. Vui lòng thử lại." });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    // Onboarding bước 2: nhập mã -> kích hoạt tài khoản (status = 1)
+    const handleVerifyCode = async () => {
+        setStatus(null);
+        if (!code.trim()) {
+            setStatus({ type: "error", message: "Vui lòng nhập mã xác thực." });
+            return;
+        }
+
+        setVerifying(true);
+        try {
+            const res = await fetch(`${API_BASE}/assistant/onboarding/verify-code`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ code: code.trim() }),
+            });
+            const data = await res.json().catch(() => null);
+            if (!res.ok) throw new Error(data?.message || "Xác thực thất bại.");
+
+            // Cập nhật status trong context + localStorage rồi vào khu vực trợ giảng
+            if (user) updateUser({ ...user, status: 1 });
+            router.push("/assistant");
+        } catch (err: any) {
+            setStatus({ type: "error", message: err?.message || "Có lỗi xảy ra. Vui lòng thử lại." });
+        } finally {
+            setVerifying(false);
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        // Luồng kích hoạt tài khoản trợ giảng đi theo nhánh riêng
+        if (isOnboarding) {
+            await handleRequestCode();
+            return;
+        }
+
         setStatus(null);
 
         if (!allAnswered) {
@@ -378,10 +474,17 @@ export default function Page() {
                     }}
                 >
                     <h1 style={{ fontSize: 26, fontWeight: 800, margin: 0 }}>Quiz Nội Quy Trung Tâm</h1>
-                    <p style={{ marginTop: 8, marginBottom: 0, opacity: 0.8 }}>
-                        Chọn đáp án và bấm <b>Nộp đáp án</b>. Hệ thống chỉ ghi nhận và gửi về email quản lý,{" "}
-                        <b>không hiển thị kết quả đúng/sai</b>.
-                    </p>
+                    {isOnboarding ? (
+                        <p style={{ marginTop: 8, marginBottom: 0, opacity: 0.85 }}>
+                            Tài khoản trợ giảng của bạn <b>chưa được kích hoạt</b>. Hãy hoàn thành bài test,
+                            nhập email để nhận <b>mã kích hoạt</b>, sau đó nhập mã để bắt đầu sử dụng tài khoản.
+                        </p>
+                    ) : (
+                        <p style={{ marginTop: 8, marginBottom: 0, opacity: 0.8 }}>
+                            Chọn đáp án và bấm <b>Nộp đáp án</b>. Hệ thống chỉ ghi nhận và gửi về email quản lý,{" "}
+                            <b>không hiển thị kết quả đúng/sai</b>.
+                        </p>
+                    )}
                 </div>
 
                 {/* Form */}
@@ -414,11 +517,18 @@ export default function Page() {
                         </div>
 
                         <div style={{ display: "grid", gap: 6 }}>
-                            <label style={{ fontWeight: 700 }}>Liên hệ</label>
+                            <label style={{ fontWeight: 700 }}>
+                                {isOnboarding ? "Email nhận mã kích hoạt" : "Liên hệ"}
+                            </label>
                             <input
                                 value={contact}
                                 onChange={(e) => setContact(e.target.value)}
-                                placeholder="Email nhận kết quả (vd: cmath@gmail.com)"
+                                placeholder={
+                                    isOnboarding
+                                        ? "Email của bạn để nhận mã (vd: cmath@gmail.com)"
+                                        : "Email nhận kết quả (vd: cmath@gmail.com)"
+                                }
+                                disabled={isOnboarding && codeSent}
                                 required
                                 style={{
                                     padding: 12,
@@ -513,20 +623,90 @@ export default function Page() {
 
                         <button
                             type="submit"
-                            disabled={isSubmitting}
+                            disabled={isSubmitting || (isOnboarding && codeSent)}
                             style={{
                                 padding: "12px 16px",
                                 borderRadius: 14,
                                 border: "1px solid #ddd",
                                 fontWeight: 800,
-                                cursor: isSubmitting ? "not-allowed" : "pointer",
-                                opacity: isSubmitting ? 0.7 : 1,
+                                cursor: isSubmitting || (isOnboarding && codeSent) ? "not-allowed" : "pointer",
+                                opacity: isSubmitting || (isOnboarding && codeSent) ? 0.7 : 1,
                                 background: "#ffffff",
                             }}
                         >
-                            {isSubmitting ? "Đang nộp..." : "Nộp đáp án"}
+                            {isOnboarding
+                                ? (isSubmitting ? "Đang gửi mã..." : codeSent ? "Đã gửi mã" : "Nộp bài & nhận mã")
+                                : (isSubmitting ? "Đang nộp..." : "Nộp đáp án")}
                         </button>
                     </div>
+
+                    {/* Onboarding: nhập mã xác thực sau khi đã gửi mã về email */}
+                    {isOnboarding && codeSent && (
+                        <div
+                            style={{
+                                background: "white",
+                                border: "1px solid #adc6ff",
+                                borderRadius: 18,
+                                padding: 16,
+                                display: "grid",
+                                gap: 12,
+                            }}
+                        >
+                            <div style={{ fontWeight: 800 }}>Nhập mã kích hoạt</div>
+                            <div style={{ fontSize: 14, opacity: 0.75 }}>
+                                Mã gồm 6 chữ số đã được gửi tới email <b>{contact.trim()}</b>. Nhập mã để kích hoạt tài khoản.
+                            </div>
+                            <input
+                                value={code}
+                                onChange={(e) => setCode(e.target.value)}
+                                placeholder="Nhập mã 6 chữ số"
+                                inputMode="numeric"
+                                style={{
+                                    padding: 12,
+                                    borderRadius: 12,
+                                    border: "1px solid #ddd",
+                                    outline: "none",
+                                    letterSpacing: 4,
+                                    fontWeight: 700,
+                                }}
+                            />
+                            <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                                <button
+                                    type="button"
+                                    onClick={handleVerifyCode}
+                                    disabled={verifying}
+                                    style={{
+                                        padding: "12px 16px",
+                                        borderRadius: 14,
+                                        border: "1px solid #1d39c4",
+                                        fontWeight: 800,
+                                        cursor: verifying ? "not-allowed" : "pointer",
+                                        opacity: verifying ? 0.7 : 1,
+                                        background: "#1d39c4",
+                                        color: "#fff",
+                                    }}
+                                >
+                                    {verifying ? "Đang xác thực..." : "Xác thực & kích hoạt"}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleRequestCode}
+                                    disabled={isSubmitting}
+                                    style={{
+                                        padding: "12px 16px",
+                                        borderRadius: 14,
+                                        border: "1px solid #ddd",
+                                        fontWeight: 700,
+                                        cursor: isSubmitting ? "not-allowed" : "pointer",
+                                        opacity: isSubmitting ? 0.7 : 1,
+                                        background: "#ffffff",
+                                    }}
+                                >
+                                    Gửi lại mã
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </form>
             </div>
         </div>

@@ -2,6 +2,7 @@ import AssistantContent from '@/components/layout/assistant/assistant.content';
 import AssistantFooter from '@/components/layout/assistant/assistant.footer';
 import AssistantHeader from '@/components/layout/assistant/assistant.header';
 import AssistantSideBar from '@/components/layout/assistant/assistant.sidebar';
+import AssistantGuard from '@/components/layout/assistant/assistantGuard';
 import { AdminContextProvider } from '@/library/admin.context';
 
 const AssistantLayout = ({
@@ -18,7 +19,9 @@ const AssistantLayout = ({
                 <div className='right-side' style={{ flex: 1 }}>
                     <AssistantHeader />
                     <AssistantContent>
-                        {children}
+                        <AssistantGuard>
+                            {children}
+                        </AssistantGuard>
                     </AssistantContent>
                     <AssistantFooter />
                 </div>
