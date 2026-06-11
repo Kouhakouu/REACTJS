@@ -10,7 +10,7 @@ import Link from 'next/link'
 type MenuItem = Required<MenuProps>['items'][number];
 const TeacherSideBar = () => {
     const { Sider } = Layout;
-    const { collapseMenu } = useContext(AdminContext)!;
+    const { collapseMenu, setCollapseMenu } = useContext(AdminContext)!;
 
     const items: MenuItem[] = [
 
@@ -46,6 +46,10 @@ const TeacherSideBar = () => {
     return (
         <Sider
             collapsed={collapseMenu}
+            breakpoint="lg"
+            collapsedWidth={0}
+            trigger={null}
+            onBreakpoint={(broken) => setCollapseMenu(broken)}
         >
 
             <Menu

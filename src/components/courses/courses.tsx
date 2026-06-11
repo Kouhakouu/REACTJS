@@ -57,19 +57,27 @@ const Courses = () => {
         <Layout>
             <NavbarComponent />
             <Layout>
-                <Sider width={300} style={{ background: '#fff', padding: '20px', borderRadius: '10px' }}>
-                    <Title level={4}>Danh mục khóa học</Title>
-                    <Menu
-                        mode="inline"
-                        selectedKeys={[pathname]}
-                        style={{ borderRight: 0 }}
-                    >
-                        {sidebarItems.map((item) => (
-                            <Menu.Item key={item.path}>
-                                <Link href={item.path}>{item.label}</Link>
-                            </Menu.Item>
-                        ))}
-                    </Menu>
+                <Sider
+                    width={300}
+                    breakpoint="lg"
+                    collapsedWidth={0}
+                    zeroWidthTriggerStyle={{ top: 12 }}
+                    style={{ background: '#fff', borderRadius: '10px' }}
+                >
+                    <div style={{ padding: '20px' }}>
+                        <Title level={4}>Danh mục khóa học</Title>
+                        <Menu
+                            mode="inline"
+                            selectedKeys={[pathname]}
+                            style={{ borderRight: 0 }}
+                        >
+                            {sidebarItems.map((item) => (
+                                <Menu.Item key={item.path}>
+                                    <Link href={item.path}>{item.label}</Link>
+                                </Menu.Item>
+                            ))}
+                        </Menu>
+                    </div>
                 </Sider>
 
                 <Content style={{ padding: '24px', minHeight: '80vh', background: '#f5f5f5' }}>

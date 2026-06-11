@@ -84,7 +84,7 @@ const HomePage = () => {
                 </div>
 
                 <div style={{ textAlign: "center", padding: "50px 10%", background: "#fff" }}>
-                    <Title level={1} style={{ fontSize: "50px" }}>Vì sao chọn chúng tôi</Title>
+                    <Title level={1} style={{ fontSize: "clamp(28px, 5vw, 50px)" }}>Vì sao chọn chúng tôi</Title>
                     <div style={{ width: "80px", height: "3px", background: "#f4c20d", margin: "auto" }}></div>
 
                     <Row gutter={[32, 32]} justify="center">

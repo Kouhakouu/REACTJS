@@ -447,8 +447,7 @@ const Info = () => {
                                     margin: '0 auto 40px',
                                     fontSize: 16,
                                     lineHeight: 1.8,
-                                    whiteSpace: 'nowrap',
-                                    maxWidth: 'none',
+                                    maxWidth: 820,
                                 }}
                             >
                                 CMATH hướng đến một môi trường học tập nghiêm túc, nhân văn, giàu cảm hứng và luôn đặt sự tiến bộ của học sinh làm trung tâm.

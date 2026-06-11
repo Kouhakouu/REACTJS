@@ -349,7 +349,6 @@ const Primary = () => {
                             style={{
                                 color: 'rgba(255,255,255,0.92)',
                                 fontSize: 17,
-                                minWidth: 700,
                                 maxWidth: 760,
                                 margin: '0 auto 28px',
                             }}

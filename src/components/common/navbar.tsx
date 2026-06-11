@@ -1,85 +1,143 @@
 'use client';
-import React from "react";
-import { Layout, Menu } from "antd";
-import { HomeOutlined, InfoCircleOutlined, TrophyOutlined, BookOutlined, SolutionOutlined, FileTextOutlined, ReadOutlined, PhoneOutlined, LoginOutlined, UserAddOutlined, SmileOutlined } from "@ant-design/icons";
+import React, { useState } from "react";
+import { Layout, Menu, Button, Drawer } from "antd";
+import { InfoCircleOutlined, TrophyOutlined, BookOutlined, SolutionOutlined, FileTextOutlined, ReadOutlined, PhoneOutlined, LoginOutlined, UserAddOutlined, SmileOutlined, MenuOutlined, UserOutlined } from "@ant-design/icons";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { MenuProps } from "antd";
 
 const { Header } = Layout;
-const { SubMenu } = Menu;
+
+const menuItems: MenuProps['items'] = [
+    {
+        key: "/info",
+        icon: <InfoCircleOutlined />,
+        label: <Link href="/info">Giới thiệu</Link>,
+    },
+    {
+        key: "/achievements",
+        icon: <TrophyOutlined />,
+        label: <Link href="/achievements">Bảng vàng thành tích</Link>,
+    },
+    {
+        key: "/courses",
+        icon: <BookOutlined />,
+        label: <Link href="/courses">Khóa học</Link>,
+    },
+    {
+        key: "admission",
+        icon: <SolutionOutlined />,
+        label: "Tuyển sinh",
+        children: [
+            {
+                key: "/admission/primary",
+                icon: <SmileOutlined />,
+                label: <Link href="/admission/primary">Khối Tiểu học</Link>,
+            },
+            {
+                key: "/admission/secondary",
+                icon: <ReadOutlined />,
+                label: <Link href="/admission/secondary">Khối THCS</Link>,
+            },
+            {
+                key: "/admission/high",
+                icon: <TrophyOutlined />,
+                label: <Link href="/admission/high">Khối THPT</Link>,
+            },
+        ],
+    },
+    {
+        key: "/documents",
+        icon: <FileTextOutlined />,
+        label: <Link href="/documents">Tài liệu</Link>,
+    },
+    {
+        key: "/news",
+        icon: <ReadOutlined />,
+        label: <Link href="/news">Tin tức</Link>,
+    },
+    {
+        key: "/contact",
+        icon: <PhoneOutlined />,
+        label: <Link href="/contact">Liên hệ</Link>,
+    },
+    {
+        key: "member",
+        icon: <UserOutlined />,
+        label: "Khu vực thành viên",
+        children: [
+            {
+                key: "/auth/login",
+                icon: <LoginOutlined />,
+                label: <Link href="/auth/login">Đăng nhập</Link>,
+            },
+            {
+                key: "/auth/register",
+                icon: <UserAddOutlined />,
+                label: <Link href="/auth/register">Đăng ký</Link>,
+            },
+        ],
+    },
+];
 
 const NavbarComponent = () => {
-    const pathname = usePathname()
+    const pathname = usePathname();
+    const [drawerOpen, setDrawerOpen] = useState(false);
+
     return (
         <Header style={{
             position: "sticky",
             top: 0,
             width: "100%",
-            alignItems: "center",
-            justifyContent: "space-between",
             zIndex: 1000,
+            display: "flex",
+            alignItems: "center",
+            paddingInline: 16,
         }}>
-            <div className="logo" style={{ float: "left" }}>
-                <Link href="/homepage">
-                    <img src="/logo.png" alt="Logo" style={{ height: "65px", maxWidth: "150px", cursor: "pointer" }} />
-                </Link>
-            </div>
+            <Link href="/homepage" style={{ display: "flex", alignItems: "center", flexShrink: 0 }}>
+                <img src="/logo.png" alt="Logo" style={{ height: "48px", maxWidth: "150px", cursor: "pointer" }} />
+            </Link>
 
+            {/* Menu ngang — chỉ hiện trên màn hình lớn (ẩn bằng CSS trong globals.css) */}
             <Menu
+                className="navbar-menu-desktop"
                 theme="dark"
                 mode="horizontal"
+                selectedKeys={[pathname]}
+                items={menuItems}
                 style={{
                     flex: 1,
+                    minWidth: 0,
                     justifyContent: "flex-end",
-                    overflow: "visible",
-                    whiteSpace: "nowrap"
                 }}
+            />
+
+            {/* Nút mở menu — chỉ hiện trên màn hình nhỏ */}
+            <Button
+                className="navbar-mobile-trigger"
+                type="text"
+                aria-label="Mở menu"
+                icon={<MenuOutlined style={{ color: "#fff", fontSize: 20 }} />}
+                onClick={() => setDrawerOpen(true)}
+                style={{ marginLeft: "auto" }}
+            />
+
+            <Drawer
+                title="CMATH"
+                placement="right"
+                width={280}
+                open={drawerOpen}
+                onClose={() => setDrawerOpen(false)}
+                styles={{ body: { padding: 0 } }}
             >
-                <Menu.Item key="1" icon={<InfoCircleOutlined />}>
-                    <Link href="/info">Giới thiệu</Link>
-                </Menu.Item>
-                <Menu.Item key="2" icon={<TrophyOutlined />}>
-                    <Link href="/achievements">Bảng vàng thành tích</Link>
-                </Menu.Item>
-                <Menu.Item
-                    key="/courses"
-                    icon={<BookOutlined />}
-                    style={pathname === "/courses" ? { backgroundColor: "#2A95DB", color: "#fff" } : {}}
-                >
-                    <Link href="/courses">Khóa học</Link>
-                </Menu.Item>
-                <SubMenu key="4" icon={<SolutionOutlined />} title="Tuyển sinh">
-                    <Menu.Item key="primary" icon={<SmileOutlined />}>
-                        <Link href="/admission/primary">Khối Tiểu học</Link>
-                    </Menu.Item>
-
-                    <Menu.Item key="secondary" icon={<ReadOutlined />}>
-                        <Link href="/admission/secondary">Khối THCS</Link>
-                    </Menu.Item>
-
-                    <Menu.Item key="high" icon={<TrophyOutlined />}>
-                        <Link href="/admission/high">Khối THPT</Link>
-                    </Menu.Item>
-                </SubMenu>
-                <Menu.Item key="5" icon={<FileTextOutlined />}>
-                    <Link href="/documents">Tài liệu</Link>
-                </Menu.Item>
-                <Menu.Item key="6" icon={<ReadOutlined />}>
-                    <Link href="/news">Tin tức</Link>
-                </Menu.Item>
-                <Menu.Item key="7" icon={<PhoneOutlined />}>
-                    <Link href="/contact">Liên hệ</Link>
-                </Menu.Item>
-
-                <SubMenu key="8" title="Khu vực thành viên">
-                    <Menu.Item key="login" icon={<LoginOutlined />}>
-                        <Link href="/auth/login">Đăng nhập</Link>
-                    </Menu.Item>
-                    <Menu.Item key="register" icon={<UserAddOutlined />}>
-                        <Link href="/auth/register">Đăng ký</Link>
-                    </Menu.Item>
-                </SubMenu>
-            </Menu>
+                <Menu
+                    mode="inline"
+                    selectedKeys={[pathname]}
+                    items={menuItems}
+                    onClick={() => setDrawerOpen(false)}
+                    style={{ borderRight: 0 }}
+                />
+            </Drawer>
         </Header>
     );
 };

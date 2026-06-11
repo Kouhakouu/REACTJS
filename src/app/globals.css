@@ -1,3 +1,26 @@
 * {
   margin: 0;
 }
+
+/* Ảnh không bao giờ tràn ngang khỏi khung chứa */
+img {
+  max-width: 100%;
+}
+
+/* Navbar: menu ngang trên desktop, nút hamburger trên mobile */
+@media (max-width: 991px) {
+  .navbar-menu-desktop {
+    display: none !important;
+  }
+}
+
+@media (min-width: 992px) {
+  .navbar-mobile-trigger {
+    display: none !important;
+  }
+}
+
+/* Bảng Ant Design: cuộn ngang thay vì vỡ layout trên màn hình hẹp */
+.ant-table-content {
+  overflow-x: auto;
+}
