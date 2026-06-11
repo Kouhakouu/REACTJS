@@ -68,7 +68,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
 
     return (
         <Layout style={{ minHeight: '100vh' }}>
-            <Sider collapsible theme="light">
+            <Sider collapsible theme="light" breakpoint="lg" collapsedWidth={0}>
                 <div
                     style={{
                         height: 32,

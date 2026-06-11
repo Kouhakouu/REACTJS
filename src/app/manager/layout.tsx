@@ -13,10 +13,10 @@ const ManagerLayout = ({
     return (
         <AdminContextProvider>
             <div style={{ display: "flex" }}>
-                <div className='left-side' style={{ minWidth: 80 }}>
+                <div className='left-side'>
                     <ManagerSideBar />
                 </div>
-                <div className='right-side' style={{ flex: 1 }}>
+                <div className='right-side' style={{ flex: 1, minWidth: 0 }}>
                     <ManagerHeader />
                     <ManagerContent>
                         {children}
