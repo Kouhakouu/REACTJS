@@ -152,6 +152,7 @@ const AdminCourseManagement = () => {
                 rowKey="id"
                 loading={loading}
                 pagination={{ pageSize: 10 }}
+                scroll={{ x: 'max-content' }}
             />
 
             <Modal

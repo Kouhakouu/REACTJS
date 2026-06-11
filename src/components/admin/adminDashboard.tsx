@@ -359,6 +359,7 @@ const AdminDashboard = () => {
                     columns={tableColumns}
                     rowKey="id"
                     size="small"
+                    scroll={{ x: 'max-content' }}
                     pagination={{ pageSize: 10, showSizeChanger: false }}
                     sortDirections={['ascend', 'descend']}
                 />

@@ -4,18 +4,18 @@ import { Card, Col, Row } from "antd";
 
 const AdminCard = () => {
     return (
-        <Row gutter={16}>
-            <Col span={8}>
+        <Row gutter={[16, 16]}>
+            <Col xs={24} sm={8}>
                 <Card title="Card title" bordered={false}>
                     Card content
                 </Card>
             </Col>
-            <Col span={8}>
+            <Col xs={24} sm={8}>
                 <Card title="Card title" bordered={false}>
                     Card content
                 </Card>
             </Col>
-            <Col span={8}>
+            <Col xs={24} sm={8}>
                 <Card title="Card title" bordered={false}>
                     Card content
                 </Card>

@@ -591,17 +591,18 @@ const StudentHomework = () => {
                                                     </Button>
                                                 </Card>
 
-                                                <Row gutter={24}>
-                                                    <Col span={12}>
+                                                <Row gutter={[24, 24]}>
+                                                    <Col xs={24} lg={12}>
                                                         <Space direction="vertical" size={0} style={{ width: '100%' }}>
                                                             {initialTasks.map((task) => (
-                                                                <Card key={task} size="small" style={{ width: '100%', height: '50px' }}>
+                                                                <Card key={task} size="small" style={{ width: '100%' }} styles={{ body: { padding: '4px 8px' } }}>
                                                                     <Space
                                                                         size="middle"
+                                                                        wrap
                                                                         style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}
                                                                     >
                                                                         <Text strong>{task}</Text>
-                                                                        <Space>
+                                                                        <Space wrap>
                                                                             {taskScores[task] > -1 && (
                                                                                 <Button
                                                                                     type="text"
@@ -625,7 +626,7 @@ const StudentHomework = () => {
                                                             ))}
                                                         </Space>
                                                     </Col>
-                                                    <Col span={12}>
+                                                    <Col xs={24} lg={12}>
                                                         <Card style={{ marginBottom: '20px' }}>
                                                             <Title level={4}>Nhập danh sách bài tập (cách nhau bằng dấu phẩy)</Title>
                                                             <Space direction="horizontal" style={{ width: '100%' }}>
@@ -685,7 +686,7 @@ const StudentHomework = () => {
                                                 </Row>
 
                                                 <Title level={3} style={{ marginLeft: '10px', marginTop: '20px' }}>Bảng Kết Quả</Title>
-                                                <Table dataSource={lessonPerformance} columns={columns} rowKey="id" />
+                                                <Table dataSource={lessonPerformance} columns={columns} rowKey="id" scroll={{ x: 'max-content' }} />
                                             </>
                                         ) : (
                                             <Text>Chọn buổi học để xem chi tiết.</Text>

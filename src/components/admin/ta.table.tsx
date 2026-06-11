@@ -238,7 +238,7 @@ const TaTable: React.FC = () => {
                         value={searchTerm}
                         onChange={onSearch}
                         prefix={<SearchOutlined />}
-                        style={{ width: 300 }}
+                        style={{ width: 300, maxWidth: '100%' }}
                     />
                 </Col>
                 <Col>
@@ -315,7 +315,7 @@ const TaTable: React.FC = () => {
             >
                 <Form form={formAdjust} layout="vertical">
                     <Row gutter={16}>
-                        <Col span={12}>
+                        <Col xs={24} sm={12}>
                             <Form.Item
                                 name="fullName"
                                 label="Họ và tên"
@@ -324,7 +324,7 @@ const TaTable: React.FC = () => {
                                 <Input />
                             </Form.Item>
                         </Col>
-                        <Col span={12}>
+                        <Col xs={24} sm={12}>
                             <Form.Item
                                 name="email"
                                 label="Email"
@@ -338,7 +338,7 @@ const TaTable: React.FC = () => {
                         </Col>
                     </Row>
                     <Row gutter={16}>
-                        <Col span={12}>
+                        <Col xs={24} sm={12}>
                             <Form.Item
                                 name="phoneNumber"
                                 label="Điện thoại"

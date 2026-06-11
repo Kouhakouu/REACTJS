@@ -168,7 +168,7 @@ const ManagerTable: React.FC = () => {
                     <Input
                         placeholder="Tìm quản lý"
                         prefix={<SearchOutlined />}
-                        style={{ width: 300 }}
+                        style={{ width: 300, maxWidth: '100%' }}
                         value={searchTerm}
                         onChange={e => setSearchTerm(e.target.value)}
                     />
@@ -198,7 +198,7 @@ const ManagerTable: React.FC = () => {
             >
                 <Form form={form} layout="vertical">
                     <Row gutter={16}>
-                        <Col span={12}>
+                        <Col xs={24} sm={12}>
                             <Form.Item
                                 name="fullName"
                                 label="Họ và tên"
@@ -207,7 +207,7 @@ const ManagerTable: React.FC = () => {
                                 <Input />
                             </Form.Item>
                         </Col>
-                        <Col span={12}>
+                        <Col xs={24} sm={12}>
                             <Form.Item
                                 name="gradeLevel"
                                 label="Khối quản lý"
@@ -218,7 +218,7 @@ const ManagerTable: React.FC = () => {
                         </Col>
                     </Row>
                     <Row gutter={16}>
-                        <Col span={12}>
+                        <Col xs={24} sm={12}>
                             <Form.Item
                                 name="phoneNumber"
                                 label="Số điện thoại"
@@ -227,7 +227,7 @@ const ManagerTable: React.FC = () => {
                                 <Input />
                             </Form.Item>
                         </Col>
-                        <Col span={12}>
+                        <Col xs={24} sm={12}>
                             <Form.Item
                                 name="email"
                                 label="Email"

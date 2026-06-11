@@ -102,11 +102,11 @@ const CourseManagement = () => {
     return (
         <div style={{ padding: 20 }}>
             <h2>Quản lý Khóa Học</h2>
-            <div style={{ marginBottom: 16, display: 'flex', gap: 8 }}>
-                <Input placeholder="Tìm kiếm khóa học" value={searchText} onChange={handleSearch} style={{ width: 300 }} />
+            <div style={{ marginBottom: 16, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <Input placeholder="Tìm kiếm khóa học" value={searchText} onChange={handleSearch} style={{ maxWidth: 300 }} />
                 <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>Thêm mới</Button>
             </div>
-            <Table dataSource={filteredCourses} columns={columns} rowKey="id" />
+            <Table dataSource={filteredCourses} columns={columns} rowKey="id" scroll={{ x: 'max-content' }} />
             <Modal title="Thêm khóa học" open={isModalOpen} onOk={handleOk} onCancel={() => setIsModalOpen(false)}>
                 <Form form={form} layout="vertical">
                     <Form.Item name="title" label="Tên khóa học" rules={[{ required: true, message: 'Vui lòng nhập tên khóa học!' }]}>

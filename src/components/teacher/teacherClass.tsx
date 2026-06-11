@@ -97,6 +97,7 @@ export default function TeacherClassPage({ params }: { params: { id: string } })
                 dataSource={students}
                 columns={columns}
                 rowKey="id"
+                scroll={{ x: 'max-content' }}
                 expandable={{
                     expandRowByClick: true,
                     expandedRowRender: record => (

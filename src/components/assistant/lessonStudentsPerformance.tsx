@@ -88,6 +88,7 @@ const LessonStudentsPerformance = ({
             ) : (
                 <Table
                     dataSource={data}
+                    scroll={{ x: 'max-content' }}
                     columns={[
                         { title: 'Họ và tên', dataIndex: 'fullName', key: 'fullName' },
                         {

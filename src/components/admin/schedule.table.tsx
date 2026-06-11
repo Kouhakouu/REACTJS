@@ -89,7 +89,7 @@ const renderScheduleContent = (
         <div
             style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
                 gap: '16px',
             }}
         >
@@ -343,6 +343,7 @@ const ScheduleTable: React.FC = () => {
                     columns={columns}
                     rowKey="id"
                     pagination={{ pageSize: 5 }}
+                    scroll={{ x: 'max-content' }}
                 />
             </Modal>
 

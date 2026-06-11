@@ -240,7 +240,7 @@ const ClassTable: React.FC = () => {
                         value={searchTerm}
                         onChange={onSearch}
                         prefix={<SearchOutlined />}
-                        style={{ width: 300 }}
+                        style={{ width: 300, maxWidth: '100%' }}
                     />
                 </Col>
                 <Col>

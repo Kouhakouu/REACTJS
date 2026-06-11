@@ -104,7 +104,7 @@ const AssistantClassPage = ({ params }: { params: { id: string } }) => {
                     <Input
                         placeholder="Tìm kiếm học sinh theo họ và tên"
                         prefix={<SearchOutlined />}
-                        style={{ width: 300 }}
+                        style={{ width: 300, maxWidth: '100%' }}
                         onChange={handleSearch}
                     />
                 </Col>

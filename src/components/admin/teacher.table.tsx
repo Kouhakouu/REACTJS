@@ -149,7 +149,7 @@ const TeacherTable: React.FC = () => {
                     <Input
                         placeholder="Tìm kiếm giáo viên"
                         prefix={<SearchOutlined />}
-                        style={{ width: 300 }}
+                        style={{ width: 300, maxWidth: '100%' }}
                         value={searchTerm}
                         onChange={e => setSearchTerm(e.target.value)}
                     />
@@ -180,7 +180,7 @@ const TeacherTable: React.FC = () => {
             >
                 <Form form={form} layout="vertical">
                     <Row gutter={16}>
-                        <Col span={12}>
+                        <Col xs={24} sm={12}>
                             <Form.Item
                                 name="fullName"
                                 label="Tên giáo viên"
@@ -189,7 +189,7 @@ const TeacherTable: React.FC = () => {
                                 <Input placeholder="Tên giáo viên" />
                             </Form.Item>
                         </Col>
-                        <Col span={12}>
+                        <Col xs={24} sm={12}>
                             <Form.Item
                                 name="phoneNumber"
                                 label="Số điện thoại"
@@ -200,7 +200,7 @@ const TeacherTable: React.FC = () => {
                         </Col>
                     </Row>
                     <Row gutter={16}>
-                        <Col span={12}>
+                        <Col xs={24} sm={12}>
                             <Form.Item
                                 name="email"
                                 label="Email"
@@ -212,7 +212,7 @@ const TeacherTable: React.FC = () => {
                                 <Input placeholder="Email" />
                             </Form.Item>
                         </Col>
-                        <Col span={12}>
+                        <Col xs={24} sm={12}>
                             <Form.Item
                                 name="password"
                                 label={isEditMode ? "Mật khẩu (để trống nếu không đổi)" : "Mật khẩu"}

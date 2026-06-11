@@ -67,6 +67,7 @@ const UserTable = () => {
                 bordered
                 dataSource={dataSource}
                 columns={columns}
+                scroll={{ x: 'max-content' }}
             />
         </>
     )

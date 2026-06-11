@@ -271,7 +271,7 @@ const StudentTable = () => {
                     <Input
                         placeholder="Tìm kiếm học sinh"
                         prefix={<SearchOutlined />}
-                        style={{ width: 300, marginBottom: '0.5rem' }}
+                        style={{ width: 300, maxWidth: '100%', marginBottom: '0.5rem' }}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         allowClear
@@ -288,7 +288,7 @@ const StudentTable = () => {
             <Row>
                 <Select
                     placeholder="Lọc theo lớp"
-                    style={{ width: 300, marginBottom: '0.5rem' }}
+                    style={{ width: 300, maxWidth: '100%', marginBottom: '0.5rem' }}
                     allowClear
                     value={selectedClass}
                     onChange={(value) => setSelectedClass(value)}
@@ -307,6 +307,7 @@ const StudentTable = () => {
                 rowKey="id"
                 pagination={{ pageSize: 5 }}
                 bordered
+                scroll={{ x: 'max-content' }}
             />
 
             <Modal

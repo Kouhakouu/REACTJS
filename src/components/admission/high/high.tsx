@@ -245,7 +245,7 @@ const High = () => {
                                     </div>
 
                                     <Row gutter={[16, 16]}>
-                                        <Col span={12}>
+                                        <Col xs={24} sm={12}>
                                             <Card
                                                 bordered={false}
                                                 style={{
@@ -263,7 +263,7 @@ const High = () => {
                                             </Card>
                                         </Col>
 
-                                        <Col span={12}>
+                                        <Col xs={24} sm={12}>
                                             <Card
                                                 bordered={false}
                                                 style={{

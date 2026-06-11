@@ -400,6 +400,7 @@ const StudentPerformancePage = () => {
                     dataSource={studentPerformances}
                     rowKey="id"
                     bordered
+                    scroll={{ x: 'max-content' }}
                     pagination={{
                         pageSize: 10,
                         showSizeChanger: true,
