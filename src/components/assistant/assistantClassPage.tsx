@@ -5,6 +5,7 @@ import { Spin, Table, Typography, message, Input, Row, Col, Card } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import Link from 'next/link';
+import { authHeaders } from '@/utils/authHeaders';
 
 const { Title } = Typography;
 
@@ -42,7 +43,7 @@ const AssistantClassPage = ({ params }: { params: { id: string } }) => {
         const fetchClassDetail = async () => {
             setLoading(true);
             try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/assistant/classes/${params.id}`);
+                const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/assistant/classes/${params.id}`, { headers: authHeaders() });
                 const data = await res.json();
                 setClassDetail(data);
                 setFilteredStudents(data.students);
@@ -60,7 +61,7 @@ const AssistantClassPage = ({ params }: { params: { id: string } }) => {
         const fetchLessons = async () => {
             setLoadingLessons(true);
             try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/assistant/classes/${params.id}/lessons`, { credentials: 'include' });
+                const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/assistant/classes/${params.id}/lessons`, { headers: authHeaders() });
                 const data = await res.json();
 
                 if (!res.ok) {

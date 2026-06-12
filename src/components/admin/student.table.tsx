@@ -6,6 +6,7 @@ import {
 import { PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
 import { SearchOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs'
+import { authHeaders } from '@/utils/authHeaders'
 
 interface IClass {
     id: number
@@ -49,7 +50,7 @@ const StudentTable = () => {
 
     const fetchStudents = async () => {
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/get-student-info`)
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/get-student-info`, { headers: authHeaders() })
             if (!res.ok) {
                 throw new Error('Failed to fetch students')
             }
@@ -64,7 +65,7 @@ const StudentTable = () => {
 
     const fetchClasses = async () => {
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/get-class-info`)
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/get-class-info`, { headers: authHeaders() })
             if (!res.ok) {
                 throw new Error('Failed to fetch classes')
             }
@@ -97,7 +98,7 @@ const StudentTable = () => {
         try {
             const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/student-post-crud`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: authHeaders({ 'Content-Type': 'application/json' }),
                 body: JSON.stringify(newStudentData),
             })
             if (!res.ok) {
@@ -147,7 +148,7 @@ const StudentTable = () => {
         try {
             const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/update-student-crud`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                headers: authHeaders({ 'Content-Type': 'application/json' }),
                 body: JSON.stringify(updatedStudentData),
             })
 
@@ -168,7 +169,7 @@ const StudentTable = () => {
         try {
             const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/student-delete-crud`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: authHeaders({ 'Content-Type': 'application/json' }),
                 body: JSON.stringify({ id: student.id }),
             })
             if (!res.ok) {

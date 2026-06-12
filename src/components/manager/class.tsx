@@ -4,6 +4,7 @@
 import { useEffect, useState } from 'react';
 import { Spin, Table, Typography, message, Input, Row, Col } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
+import { authHeaders } from '@/utils/authHeaders';
 
 const { Title } = Typography;
 
@@ -33,7 +34,8 @@ const Class = ({ params }: { params: { id: string } }) => {
             setLoading(true);
             try {
                 const res = await fetch(
-                    `${process.env.NEXT_PUBLIC_BACKEND_PORT}/manager/students/${params.id}`
+                    `${process.env.NEXT_PUBLIC_BACKEND_PORT}/manager/students/${params.id}`,
+                    { headers: authHeaders() }
                 );
                 const data: ClassDetail = await res.json();
                 setClassDetail(data);

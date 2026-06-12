@@ -16,6 +16,7 @@ import {
     Popconfirm,
     Col,
 } from 'antd';
+import { authHeaders } from '@/utils/authHeaders';
 
 const { Title } = Typography;
 const { TabPane } = Tabs;
@@ -149,7 +150,7 @@ const ScheduleTable: React.FC = () => {
     };
 
     useEffect(() => {
-        fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/get-class-info`)
+        fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/get-class-info`, { headers: authHeaders() })
             .then((res) => res.json())
             .then((data: ClassInfo[]) => {
                 setClassData(data);
@@ -163,7 +164,7 @@ const ScheduleTable: React.FC = () => {
     }, []);
 
     const fetchSchedules = () => {
-        fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/get-schedules`)
+        fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/get-schedules`, { headers: authHeaders() })
             .then((res) => res.json())
             .then((data: ClassSchedule[]) => {
                 setScheduleData(data);
@@ -180,7 +181,7 @@ const ScheduleTable: React.FC = () => {
                     `${process.env.NEXT_PUBLIC_BACKEND_PORT}/edit-schedule/${editingId}`,
                     {
                         method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: authHeaders({ 'Content-Type': 'application/json' }),
                         body: JSON.stringify(values),
                     }
                 );
@@ -194,7 +195,7 @@ const ScheduleTable: React.FC = () => {
                     `${process.env.NEXT_PUBLIC_BACKEND_PORT}/create-schedule`,
                     {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: authHeaders({ 'Content-Type': 'application/json' }),
                         body: JSON.stringify(values),
                     }
                 );
@@ -222,6 +223,7 @@ const ScheduleTable: React.FC = () => {
                 `${process.env.NEXT_PUBLIC_BACKEND_PORT}/delete-schedule/${id}`,
                 {
                     method: 'DELETE',
+                    headers: authHeaders(),
                 }
             );
             if (response.ok) {

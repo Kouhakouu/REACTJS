@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Spin, Table, Typography, message, Switch } from 'antd'; // 1. Import Switch
+import { authHeaders } from '@/utils/authHeaders';
 
 const { Title } = Typography;
 
@@ -33,7 +34,8 @@ const LessonStudentsPerformance = ({
         setLoading(true);
         try {
             const res = await fetch(
-                `${process.env.NEXT_PUBLIC_BACKEND_PORT}/assistant/classes/${params.id}/lessons/${params.lessonId}/students-performance`
+                `${process.env.NEXT_PUBLIC_BACKEND_PORT}/assistant/classes/${params.id}/lessons/${params.lessonId}/students-performance`,
+                { headers: authHeaders() }
             );
             const json = await res.json();
             setData(json);
@@ -62,9 +64,7 @@ const LessonStudentsPerformance = ({
                 `${process.env.NEXT_PUBLIC_BACKEND_PORT}/assistant/lessons/${params.lessonId}/students/${studentId}/attendance`,
                 {
                     method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: authHeaders({ 'Content-Type': 'application/json' }),
                     body: JSON.stringify({ attendance: checked }),
                 }
             );

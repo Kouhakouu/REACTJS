@@ -3,6 +3,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { Button, Modal, Form, DatePicker, Select, message } from "antd";
 import { Card, Row, Col, Typography, Spin, Alert } from "antd";
 import { AuthContext } from "@/library/authContext";
+import { authHeaders } from "@/utils/authHeaders";
 
 interface Class {
     id: number;
@@ -26,7 +27,7 @@ const ManagerLessonPage = () => {
 
     useEffect(() => {
         // Lấy danh sách lớp học từ API
-        fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/get-class-info`)
+        fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/get-class-info`, { headers: authHeaders() })
             .then((response) => {
                 if (!response.ok) {
                     throw new Error("Network response was not ok");
@@ -76,7 +77,7 @@ const ManagerLessonPage = () => {
 
             const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/createLesson`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: authHeaders({ 'Content-Type': 'application/json' }),
                 body: JSON.stringify(payload),
             });
 

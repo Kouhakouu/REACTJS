@@ -92,7 +92,7 @@ const ManagerManagingLessonPage = () => {
 
             const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/createLesson`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                 body: JSON.stringify(payload),
             });
 
