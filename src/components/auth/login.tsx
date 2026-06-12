@@ -2,12 +2,18 @@
 import { Button, Col, Divider, Form, Input, Row, notification } from "antd";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import Link from "next/link";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { AuthContext } from "@/library/authContext";
 
 const Login = () => {
     const { login } = useContext(AuthContext);
     const [form] = Form.useForm();
+
+    // Đánh thức backend serverless + Neon DB ngay khi mở trang,
+    // để lúc người dùng bấm Login thì server đã sẵn sàng (tránh cold start 3-8s)
+    useEffect(() => {
+        fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/health`).catch(() => { });
+    }, []);
 
     const onFinish = async (values: any) => {
         try {
