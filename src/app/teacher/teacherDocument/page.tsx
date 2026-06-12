@@ -1,8 +1,8 @@
-import React from 'react'
+import TeacherDocument from "@/components/teacher/teacherDocument"
 
 const teacherDocumentPage = () => {
     return (
-        <div>teacherDocumentPage document page</div>
+        <TeacherDocument />
     )
 }
 
