@@ -38,12 +38,12 @@ export default function Page() {
             },
             {
                 id: "q2",
-                text: "Trong buổi kiểm tra định kỳ, trợ giảng cần đến trước giờ kiểm tra bao lâu?",
+                text: "Nếu đến deadline nộp đáp án bài tập về nhà lên form mà trợ giảng chưa hoàn thiện đáp án hoặc giáo viên yêu cầu sửa đáp án thì trợ giảng nên làm gì?",
                 options: [
-                    { id: "a", text: "10 phút" },
-                    { id: "b", text: "15 phút" },
-                    { id: "c", text: "20 phút" },
-                    { id: "d", text: "30 phút" },
+                    { id: "a", text: "Copy lời giải trên mạng, lời giải AI cho xong trước deadline." },
+                    { id: "b", text: "Nộp đại một bản đáp án nháp rồi sau đó làm lại đáp án cẩn thận gửi lên nhóm lớp." },
+                    { id: "c", text: "Làm đáp án vắn tắt cho xong trước deadline để đủ chấm BTVN học sinh" },
+                    { id: "d", text: "Làm lại đáp án cẩn thận gửi lên nhóm lớp và gửi lại bản sửa vào form nộp đáp án BTVN để nhóm chuyên môn đánh giá đáp án BTVN." },
                 ],
                 correctOptionId: "d",
             },
@@ -278,6 +278,28 @@ export default function Page() {
                     { id: "e", text: "Bật dậy khỏi giường, nhận ra mình không cần lo về điều này vì làm gì có người yêu 😊" }
                 ],
                 correctOptionId: "c",
+            },
+            {
+                id: "q24",
+                text: "Tình huống: Trong lúc làm đáp án bài tập về nhà, bạn A gặp một bài khó và đã suy nghĩ rất lâu nhưng chưa làm được. Bạn A nên làm gì?",
+                options: [
+                    { id: "a", text: "Bỏ qua, không làm đáp án cho bài đó" },
+                    { id: "b", text: "Hỏi các học sinh mà mình quen biết rồi chép giải" },
+                    { id: "c", text: "Trao đổi với các trợ giảng khác để cùng thảo luận, nếu vẫn chưa chắc thì hỏi thêm giáo viên trước khi hoàn thiện đáp án" },
+                    { id: "d", text: "Tra AI/tìm trên mạng và chép luôn kết quả vào đáp án" },
+                ],
+                correctOptionId: "c",
+            },
+            {
+                id: "q25",
+                text: "Tình huống: Khi soạn đáp án bài tập về nhà, A gặp một bài có thể giải nhanh hơn bằng kiến thức ở cấp học cao hơn mà học sinh chưa được học. A nên trình bày lời giải thế nào?",
+                options: [
+                    { id: "a", text: "Chỉ trình bày cách giải bằng kiến thức cao hơn cho ngắn gọn, học sinh tự tìm hiểu thêm nếu chưa hiểu" },
+                    { id: "b", text: "Trình bày lời giải theo đúng phương pháp/kiến thức học sinh đã được học (Cách 1); nếu muốn, có thể bổ sung thêm cách giải khác (Cách 2) để học sinh tham khảo, nhưng không thay thế Cách 1" },
+                    { id: "c", text: "Bỏ qua bài đó trong đáp án vì cách giải theo đúng chương trình quá dài" },
+                    { id: "d", text: "Trình bày lời giải bằng cách sử dụng kiến thức cao hơn và chứng minh lại phần kiến thức đó theo dạng bổ đề" },
+                ],
+                correctOptionId: "b",
             },
         ],
         []
