@@ -9,6 +9,7 @@ type Question = {
     id: string;
     text: string;
     options: Option[];
+    correctOptionId: string;
 };
 
 export default function Page() {
@@ -37,7 +38,7 @@ export default function Page() {
             },
             {
                 id: "q2",
-                text: "Trong buổi kiểm tra định kỳ, trợ giảng cần đến trước giờ bao lâu?",
+                text: "Trong buổi kiểm tra định kỳ, trợ giảng cần đến trước giờ kiểm tra bao lâu?",
                 options: [
                     { id: "a", text: "10 phút" },
                     { id: "b", text: "15 phút" },
@@ -95,7 +96,7 @@ export default function Page() {
                 text: "Nếu học sinh đến muộn sau 15 phút, trợ giảng cần làm gì?",
                 options: [
                     { id: "a", text: "Không cần xử lý vì đã quá muộn" },
-                    { id: "b", text: "Nhắn bổ sung cho quản lý khối và thu ngay bài tập về nhà của học sinh" },
+                    { id: "b", text: "Vẫn điểm danh và thu bài tập về nhà của học sinh, ngoài ra cần nhắn bổ sung cho quản lý khối" },
                     { id: "c", text: "Chỉ nhắc nhở học sinh lần sau đi sớm hơn" },
                     { id: "d", text: "Đợi cuối buổi mới cập nhật điểm danh" },
                 ],
@@ -150,8 +151,8 @@ export default function Page() {
                 text: "Lưu ý nào sau đây về điều hòa trước khi ra về là đúng?",
                 options: [
                     { id: "a", text: "Có thể để chế độ hẹn giờ" },
-                    { id: "b", text: "Chỉ cần tắt quạt, không cần kiểm tra điều hòa" },
-                    { id: "c", text: "Kiểm tra trạng thái điều hòa, không để chế độ hẹn giờ" },
+                    { id: "b", text: "Dập cầu dao khi tan học" },
+                    { id: "c", text: "Tắt toàn bộ điều hòa bằng điều khiển, không để chế độ hẹn giờ" },
                     { id: "d", text: "Để nguyên vì bảo vệ sẽ xử lý" },
                 ],
                 correctOptionId: "c",
@@ -191,18 +192,18 @@ export default function Page() {
             },
             {
                 id: "q16",
-                text: "Thông thường, cuộc họp trợ giảng định kì diễn ra khi nào?",
+                text: "Theo quy trình bổ trợ, mỗi trợ giảng cần đăng ký tối thiểu bao nhiêu buổi bổ trợ mỗi tháng?",
                 options: [
-                    { id: "a", text: "Ngày đầu tiên hàng tháng" },
-                    { id: "b", text: "Ngày cuối cùng hàng tháng" },
-                    { id: "c", text: "Thứ bảy đầu tiên hàng tháng" },
-                    { id: "d", text: "Chủ nhật đầu tiên hàng tháng" },
+                    { id: "a", text: "1 buổi" },
+                    { id: "b", text: "2 buổi" },
+                    { id: "c", text: "3 buổi" },
+                    { id: "d", text: "5 buổi" },
                 ],
                 correctOptionId: "c",
             },
             {
                 id: "q17",
-                text: "Mức phạt với trợ giảng nghỉ họp không phép ở lần thứ 3 trong cùng 1 năm là bao nhiêu?",
+                text: "Mức phạt cho trợ giảng nghỉ họp không phép ở buổi thứ 3 trong cùng một năm là bao nhiêu?",
                 options: [
                     { id: "a", text: "50.000 VNĐ" },
                     { id: "b", text: "100.000 VNĐ" },
@@ -224,29 +225,29 @@ export default function Page() {
             },
             {
                 id: "q19",
-                text: "Tình huống: Một học sinh đến muộn 20 phút và vừa vào lớp. Bạn nên làm gì?",
+                text: "Tình huống: Khi soạn đáp án bài tập về nhà, A và B phát hiện bài tập về nhà của hai lớp mình đang trợ giảng giống nhau hoàn toàn. A muốn nhờ B soạn toàn bộ đáp án rồi lấy nguyên để dùng cho lớp của mình, A nên làm gì?",
                 options: [
-                    { id: "a", text: "Không cần làm gì" },
-                    { id: "b", text: "Nhắc học sinh ngồi vào chỗ và thu bài tập của học sinh, sau đó nhắn cho quản lí khối rằng học sinh đã đến" },
-                    { id: "c", text: "Điểm danh vào trong file điểm danh và tiếp tục chấm bài tập về nhà" },
-                    { id: "d", text: "Cho học sinh về vì đến quá muộn" },
+                    { id: "a", text: "Nhờ B soạn toàn bộ rồi lấy nguyên đáp án đó gửi cho lớp mình, không cần làm lại" },
+                    { id: "b", text: "Tham khảo đáp án của B, nhưng vẫn cần tự rà soát và hoàn thiện đáp án theo đúng template CMATH, thay tên người soạn là A, rồi gửi giáo viên check trước khi đăng lên nhóm lớp" },
+                    { id: "c", text: "Báo quản lý khối là 2 lớp trùng bài nên chỉ cần 1 trong 2 trợ giảng làm đáp án là đủ" },
+                    { id: "d", text: "Yêu cầu B gửi đáp án trực tiếp lên nhóm lớp của A luôn cho nhanh" },
                 ],
                 correctOptionId: "b",
             },
             {
                 id: "q20",
-                text: "Tình huống: Sau giờ học bạn phát hiện còn đồ học sinh bỏ quên trên bàn. Cách làm nào đúng quy định?",
+                text: "Tình huống: Sang năm học mới, A được phân công trợ giảng một lớp có nội dung học giống với lớp A đã trợ giảng năm trước, và A đã có sẵn đáp án bài tập về nhà từ năm ngoái. A nên làm gì khi soạn đáp án bài tập về nhà cho lớp mới?",
                 options: [
-                    { id: "a", text: "Để nguyên tại lớp để hôm sau học sinh tự tìm" },
-                    { id: "b", text: "Mang về nhà giữ giúp cho chắc" },
-                    { id: "c", text: "Chụp lại, gửi lên nhóm lớp, rồi để đồ vào đúng vị trí tương ứng trong tủ để đồ" },
-                    { id: "d", text: "Đưa cho bảo vệ mà không cần báo nhóm lớp" },
+                    { id: "a", text: "Lấy nguyên đáp án năm cũ" },
+                    { id: "b", text: "Dùng đáp án năm cũ làm tài liệu tham khảo, nhưng vẫn rà soát lại theo đề bài và template CMATH hiện tại, ghi đúng tên người soạn (A) và gửi giáo viên check trước khi đăng lên nhóm lớp" },
+                    { id: "c", text: "Báo giáo viên là đã có đáp án từ năm trước nên không cần làm lại" },
+                    { id: "d", text: "Đợi trợ giảng khác trong lớp làm đáp án rồi mình so sánh với đáp án cũ mà mình đã làm để thống nhất đáp án chung rồi gửi lên nhóm lớp" },
                 ],
-                correctOptionId: "c",
+                correctOptionId: "b",
             },
             {
                 id: "q21",
-                text: "Tình huống: Bạn nhận đề kiểm tra của một lớp chuyên và đã 3 ngày nhưng chưa làm xong đáp án gửi giáo viên check. Bạn nên làm gì?",
+                text: "Tình huống: Bạn nhận đề kiểm tra của một lớp chuyên và đã 3 ngày nhưng chưa làm xong đáp án. Bạn nên làm gì?",
                 options: [
                     { id: "a", text: "Không làm gì cả vì lớp chuyên trợ giảng không cần làm đáp án" },
                     { id: "b", text: "Tiếp tục làm bình thường vì chỉ cần hoàn thiện trước ngày thi là được" },
@@ -257,37 +258,27 @@ export default function Page() {
             },
             {
                 id: "q22",
-                text: "Tình huống: Trong buổi kiểm tra của lớp 8 cận chuyên, một học sinh xin dùng máy tính cầm tay. Bạn nên xử lý thế nào?",
+                text: "Tình huống: Bạn vừa dạy xong một buổi bổ trợ. Bạn cần hoàn thiện file ghi nhận xét học sinh khi nào để được tính lương buổi đó?",
                 options: [
-                    { id: "a", text: "Cho dùng vì lớp nào cũng được dùng máy tính" },
-                    { id: "b", text: "Không cho dùng vì lớp cận chuyên không được dùng máy tính" },
-                    { id: "c", text: "Chỉ cho dùng trong 5 phút" },
-                    { id: "d", text: "Hỏi các bạn khác xem có đồng ý không" },
+                    { id: "a", text: "Trong vòng 2 ngày sau buổi dạy" },
+                    { id: "b", text: "Trước buổi bổ trợ tiếp theo là được" },
+                    { id: "c", text: "Ngay trong ngày dạy bổ trợ hôm đó" },
+                    { id: "d", text: "Trong vòng 1 tuần" },
                 ],
-                correctOptionId: "b",
+                correctOptionId: "c",
             },
             {
                 id: "q23",
-                text: "Tình huống: Khi chấm kiểm tra trên Google Sheet, bạn thấy có các ô màu vàng. Điều nào sau đây là đúng?",
+                text: "Tình huống: Tối nay bạn có buổi trợ giảng lớp online theo đúng lịch đã đăng ký, nhưng người yêu lại rủ đi chơi đúng giờ đó. Bạn nên làm gì?",
                 options: [
-                    { id: "a", text: "Điền thẳng vào các ô đó vì nó không khác gì các ô khác" },
-                    { id: "b", text: "Không chỉnh sửa các ô màu vàng; chỉ điền điểm/nhận xét ở đúng ô được quy định" },
-                    { id: "c", text: "Xóa sheet cũ và tạo sheet mới, chuyển tất cả các ô về màu trắng cho dễ chấm" },
-                    { id: "d", text: "Điền điểm trực tiếp vào giấy bài trước rồi gửi quản lí danh sách điểm mới" },
+                    { id: "a", text: "Bỏ lớp" },
+                    { id: "b", text: "Đi chơi với người yêu, nhờ một trợ giảng khác đi thay mà không báo trước với quản lí khối" },
+                    { id: "c", text: "Từ chối lời mời, hoàn thành đầy đủ buổi trợ giảng theo đúng lịch đã đăng ký, sau đó hẹn người yêu đi chơi vào lúc khác" },
+                    { id: "d", text: "Vừa trợ giảng online vừa đi chơi với người yêu trong giờ dạy" },
+                    { id: "e", text: "Bật dậy khỏi giường, nhận ra mình không cần lo về điều này vì làm gì có người yêu 😊" }
                 ],
-                correctOptionId: "b",
+                correctOptionId: "c",
             },
-            // {
-            //     id: "q24",
-            //     text: `Phương trình $\\sqrt{\\left(\\frac{x^2+1}{x^2-1}\\right)^2-1}+\\sqrt{\\left(\\frac{x^2-1}{x^2+1}\\right)^2+3}=2\\sqrt{2}$ có nghiệm là `,
-            //     options: [
-            //         { id: "a", text: "1" },
-            //         { id: "b", text: "2" },
-            //         { id: "c", text: "3" },
-            //         { id: "d", text: "4" },
-            //     ],
-            //     correctOptionId: "b",
-            // },
         ],
         []
     );
@@ -306,6 +297,14 @@ export default function Page() {
     const [verifying, setVerifying] = useState(false);
 
     const allAnswered = questions.every((q) => Boolean(answers[q.id]));
+
+    // Số câu đúng (chấm sơ bộ ở client để báo sớm; backend vẫn chấm lại để chốt)
+    const correctCount = questions.reduce(
+        (sum, q) => sum + (answers[q.id] === q.correctOptionId ? 1 : 0),
+        0
+    );
+    // Cần đúng tối thiểu bao nhiêu câu để nhận mã (đồng bộ với backend)
+    const PASS_THRESHOLD = 20;
 
     // Tự điền họ tên từ tài khoản trợ giảng đang đăng nhập
     useEffect(() => {
@@ -333,6 +332,13 @@ export default function Page() {
             setStatus({ type: "error", message: "Bạn cần trả lời tất cả câu hỏi trước khi nộp." });
             return;
         }
+        if (correctCount < PASS_THRESHOLD) {
+            setStatus({
+                type: "error",
+                message: `Bạn mới trả lời đúng ${correctCount}/${questions.length} câu. Cần đúng tối thiểu ${PASS_THRESHOLD} câu để nhận mã kích hoạt. Vui lòng xem lại và làm lại bài test.`,
+            });
+            return;
+        }
         if (!isEmailValid(contact.trim())) {
             setStatus({ type: "error", message: "Vui lòng nhập email hợp lệ để nhận mã kích hoạt." });
             return;
@@ -346,7 +352,7 @@ export default function Page() {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify({ email: contact.trim() }),
+                body: JSON.stringify({ email: contact.trim(), answers }),
             });
             const data = await res.json().catch(() => null);
             if (!res.ok) throw new Error(data?.message || "Gửi mã thất bại.");
@@ -618,7 +624,11 @@ export default function Page() {
                         }}
                     >
                         <div style={{ fontSize: 14, opacity: 0.75 }}>
-                            {allAnswered ? "Bạn đã trả lời đủ. Có thể nộp." : `Bạn cần trả lời đủ ${questions.length} câu.`}
+                            {!allAnswered
+                                ? `Bạn cần trả lời đủ ${questions.length} câu.`
+                                : isOnboarding
+                                    ? `Đã trả lời đủ ${questions.length} câu. Cần đúng tối thiểu ${PASS_THRESHOLD} câu để nhận mã.`
+                                    : "Bạn đã trả lời đủ. Có thể nộp."}
                         </div>
 
                         <button
