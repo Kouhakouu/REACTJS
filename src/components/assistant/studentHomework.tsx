@@ -62,6 +62,8 @@ const StudentHomework = () => {
     const [initialTasks, setInitialTasks] = useState<string[]>([]);
     const [taskScores, setTaskScores] = useState<Record<string, number>>({});
     const [studentName, setStudentName] = useState<string>('');
+    // Lưu id học sinh đã chọn từ danh sách để xử lý đúng trường hợp trùng tên
+    const [selectedStudentId, setSelectedStudentId] = useState<number | null>(null);
 
     // State cho AI nhận xét
     const [aiLoadingIds, setAiLoadingIds] = useState<Set<number>>(new Set());
@@ -271,12 +273,18 @@ const StudentHomework = () => {
         }
     };
 
-    // Các option cho AutoComplete dựa trên danh sách học sinh lấy từ DB
+    // Các option cho AutoComplete dựa trên danh sách học sinh lấy từ DB.
+    // value PHẢI là id (duy nhất) — nếu dùng fullName thì học sinh trùng tên sẽ
+    // tạo các option trùng key, khiến AntD render sai/lặp và lọc nhầm.
     const autoCompleteOptions = lessonPerformance.map((item: StudentPerformance) => ({
-        value: item.fullName,
+        value: String(item.id),
+        name: item.fullName,
         label: (
             <div style={{ color: item.performance && item.performance.doneTask > 0 ? 'red' : 'black' }}>
                 {item.fullName}
+                {item.school ? (
+                    <span style={{ color: '#999', marginLeft: 8 }}>({item.school})</span>
+                ) : null}
             </div>
         )
     }));
@@ -308,7 +316,21 @@ const StudentHomework = () => {
             message.error("Chưa chọn lớp hoặc buổi học!");
             return;
         }
-        const studentRecord = lessonPerformance.find((item) => item.fullName === studentName);
+        // Ưu tiên học sinh đã chọn từ danh sách (theo id) để tránh nhầm khi trùng tên.
+        let studentRecord = selectedStudentId != null
+            ? lessonPerformance.find((item) => item.id === selectedStudentId)
+            : undefined;
+
+        // Nếu chỉ gõ tay (không chọn từ danh sách): tìm theo tên.
+        if (!studentRecord) {
+            const matches = lessonPerformance.filter((item) => item.fullName === studentName);
+            if (matches.length > 1) {
+                message.error("Có nhiều học sinh trùng tên, vui lòng chọn đúng học sinh trong danh sách!");
+                return;
+            }
+            studentRecord = matches[0];
+        }
+
         if (!studentRecord) {
             message.error("Học sinh không tồn tại trong danh sách buổi học!");
             return;
@@ -369,6 +391,7 @@ const StudentHomework = () => {
             await fetchStudentPerformance();
             message.success("Lưu kết quả chấm bài thành công!");
             setStudentName('');
+            setSelectedStudentId(null);
             resetScores();
         } catch (error: any) {
             console.error(error);
@@ -377,6 +400,7 @@ const StudentHomework = () => {
             // === RESET STATE KHI LỖI ===
             // Xóa tên học sinh và reset bảng điểm để tránh người dùng tưởng đã lưu rồi
             setStudentName('');
+            setSelectedStudentId(null);
             resetScores();
         }
     };
@@ -653,9 +677,18 @@ const StudentHomework = () => {
                                                                 options={autoCompleteOptions}
                                                                 placeholder="Nhập tên học sinh"
                                                                 value={studentName}
-                                                                onChange={setStudentName}
-                                                                filterOption={(inputValue, option) =>
-                                                                    option!.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
+                                                                onChange={(value) => {
+                                                                    // Khi gõ tay thì coi như chưa chọn học sinh cụ thể
+                                                                    setStudentName(value);
+                                                                    setSelectedStudentId(null);
+                                                                }}
+                                                                onSelect={(_value, option: any) => {
+                                                                    // Chọn từ danh sách: lưu id, hiển thị lại tên trong ô nhập
+                                                                    setSelectedStudentId(Number(option.value));
+                                                                    setStudentName(option.name);
+                                                                }}
+                                                                filterOption={(inputValue, option: any) =>
+                                                                    (option?.name ?? '').toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
                                                                 }
                                                             />
                                                             <Button type="primary" onClick={handleSubmit} style={{ width: '100%' }}>
