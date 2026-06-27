@@ -43,17 +43,17 @@ const currentStudents: Student[] = [
     },
     {
         id: 3,
-        name: '...',
+        name: 'Thân Ngọc Minh Châu',
         achievement:
-            '...',
-        image: ''
+            'Huy chương Vàng kì thi Toán học Tài năng Quốc tế ITMC',
+        image: '/images/than-ngoc-minh-chau.png'
     },
     {
         id: 4,
-        name: '...',
+        name: 'Nguyễn Khánh Gia Hòa',
         achievement:
-            '...',
-        image: ''
+            'Huy chương Vàng kì thi Olympic Khoa học Châu Á ASMO môn Tiếng Anh 2025',
+        image: '/images/nguyen-khanh-gia-hoa.png'
     },
 ]
 
