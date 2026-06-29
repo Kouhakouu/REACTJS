@@ -1,7 +1,7 @@
 'use client'
 import Layout from "antd/es/layout";
 import Menu from "antd/es/menu";
-import { AppstoreOutlined, MailOutlined, SettingOutlined, TeamOutlined, } from '@ant-design/icons';
+import { AppstoreOutlined, FileExcelOutlined, FileTextOutlined, FormOutlined, MailOutlined, SettingOutlined, TeamOutlined, } from '@ant-design/icons';
 import React, { useContext } from 'react';
 import { AdminContext } from "@/library/admin.context";
 import type { MenuProps } from 'antd';
@@ -13,7 +13,6 @@ const AssistantSideBar = () => {
     const { collapseMenu, setCollapseMenu } = useContext(AdminContext)!;
 
     const items: MenuItem[] = [
-
         {
             key: 'grp',
             label: 'PhongBui',
@@ -32,17 +31,17 @@ const AssistantSideBar = () => {
                 {
                     key: "children-homework",
                     label: <Link href={"/assistant/childrenHomework"}>Excel chấm bài</Link>,
-                    icon: <TeamOutlined />,
+                    icon: <FileExcelOutlined />,
                 },
                 {
                     key: "student-homework",
                     label: <Link href={`/assistant/studentHomework`}>Chấm bài tập về nhà</Link>,
-                    icon: <TeamOutlined />,
+                    icon: <FormOutlined />,
                 },
                 {
                     key: "assistant-document",
                     label: <Link href={"/assistant/assistantDocument"}>Tài liệu trợ giảng</Link>,
-                    icon: <TeamOutlined />,
+                    icon: <FileTextOutlined />,
                 },
             ],
         },

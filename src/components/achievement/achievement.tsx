@@ -36,10 +36,10 @@ const currentStudents: Student[] = [
     },
     {
         id: 2,
-        name: '...',
+        name: 'Trần Duy An',
         achievement:
-            '...',
-        image: ''
+            'Giải Nhất HSG TP Hà Nội',
+        image: '/images/tran-duy-an.jpg'
     },
     {
         id: 3,

@@ -18,9 +18,10 @@ const FooterComponent = () => {
                 <Col xs={24} md={10} style={{ paddingLeft: "20px" }}>
                     <Paragraph><strong>Địa chỉ:</strong></Paragraph>
                     <Paragraph>CS1: NTT12, Thống Nhất Complex, 82 Nguyễn Tuân, Thanh Xuân, Hà Nội.</Paragraph>
-                    <Paragraph>CS2: NTT06, Thống Nhất Complex, 82 Nguyễn Tuân, Thanh Xuân, Hà Nội.</Paragraph>
-                    <Paragraph>CS3: 12A Khu C Đô thị A10 Nam Trung Yên, Trung Hòa, Cầu Giấy.</Paragraph>
-                    <Paragraph><strong>Hotline:</strong> 0911 190 991 - 0973872184 - 0981571746</Paragraph>
+                    <Paragraph>CS2: 02, Liền kề 1, 90 Nguyễn Tuân, Thanh Xuân, Hà Nội.</Paragraph>
+                    <Paragraph>CS3: 12A Lô C, KDT A10, Nam Trung Yên, Trung Hòa, Cầu Giấy, Hà Nội.</Paragraph>
+                    <Paragraph>CS4: 15, Liền kề 4, 90 Nguyễn Tuân, Thanh Xuân, Hà Nội.</Paragraph>
+                    <Paragraph><strong>Hotline:</strong> 1900 368 662</Paragraph>
                 </Col>
 
                 <Col xs={24} md={7} style={{ paddingLeft: "20px" }}>

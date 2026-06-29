@@ -169,7 +169,7 @@ const assistantHighlights = [
 const featuredAssistants = [
     {
         name: 'Lê Mai Anh',
-        image: '/images/assistants/le-mai-anh.png',
+        image: '/images/assistants/le-mai-anh.jpg',
         study: 'Cựu học sinh Chuyên Sư phạm 2022-2025',
         achievement: 'Giải Nhất học sinh giỏi cấp Đại học Sư phạm',
         description:
@@ -177,7 +177,7 @@ const featuredAssistants = [
     },
     {
         name: 'Phạm Vũ Minh Trang',
-        image: '/images/assistants/pham-vu-minh-trang.webp',
+        image: '/images/assistants/pham-vu-minh-trang.jpg',
         study: 'Cựu học sinh Chuyên Nguyễn Trãi 2022-2025',
         achievement: 'Tham gia kì thi Học sinh giỏi Quốc gia năm 2025',
         description:
@@ -185,17 +185,17 @@ const featuredAssistants = [
     },
     {
         name: 'Nguyễn Anh Quân',
-        image: '/images/assistants/nguyen-anh-quan.png',
-        study: 'Cựu học sinh ... 2021-2024',
+        image: '/images/assistants/nguyen-anh-quan.jpg',
+        study: 'Cựu học sinh Chuyên Lê Quý Đôn 2021-2024',
         achievement: 'Giải Ba Học sinh giỏi Quốc gia năm 2023',
         description:
             'Quân luôn sẵn sàng đồng hành cùng các em trong việc luyện đề, giải thích cặn kẽ từng bước và giúp các bạn xây dựng nền tảng toán học vững chắc.',
     },
     {
-        name: 'Vũ Tùng Lâm',
-        image: '/images/assistants/vu-tung-lam.jpg',
-        study: 'Cựu học sinh Chuyên Hạ Long 2019-2022',
-        achievement: 'Tham gia kì thi Học sinh giỏi Quốc gia năm 2022',
+        name: 'Đỗ Lý Minh Hải',
+        image: '/images/assistants/do-ly-minh-hai.jpg',
+        study: 'Cựu học sinh Chuyên Khoa học Tự nhiên 2018-2021',
+        achievement: 'Tham gia kì thi chọn học sinh giỏi đội tuyển KHTN năm 2021',
         description:
             'Lâm tận tâm trong việc hướng dẫn các em nắm chắc phương pháp giải, phát triển tư duy logic và tự tin với mọi dạng bài tập.',
     },
