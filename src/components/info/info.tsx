@@ -195,7 +195,7 @@ const featuredAssistants = [
         name: 'Đỗ Lý Minh Hải',
         image: '/images/assistants/do-ly-minh-hai.jpg',
         study: 'Cựu học sinh Chuyên Khoa học Tự nhiên 2018-2021',
-        achievement: 'Tham gia kì thi chọn học sinh giỏi đội tuyển KHTN năm 2021',
+        achievement: 'Tham gia kì thi chọn học sinh giỏi đội tuyển KHTN năm 2019',
         description:
             'Lâm tận tâm trong việc hướng dẫn các em nắm chắc phương pháp giải, phát triển tư duy logic và tự tin với mọi dạng bài tập.',
     },
