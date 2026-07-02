@@ -130,7 +130,7 @@ const AssistantClassPage = ({ params }: { params: { id: string } }) => {
                     { title: 'Email phụ huynh', dataIndex: 'parentEmail', key: 'parentEmail' },
                 ]}
                 rowKey="id"
-                pagination={{ pageSize: 10 }}
+                pagination={{ defaultPageSize: 10, pageSizeOptions: ['5', '10', '20', '50', '100'] }}
                 scroll={{ x: 'max-content' }}
             />
 

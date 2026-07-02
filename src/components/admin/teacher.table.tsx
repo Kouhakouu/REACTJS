@@ -164,7 +164,7 @@ const TeacherTable: React.FC = () => {
             <Table
                 columns={columns}
                 dataSource={filtered}
-                pagination={{ pageSize: 5 }}
+                pagination={{ defaultPageSize: 5, pageSizeOptions: ['5', '10', '20', '50', '100'] }}
                 rowKey="key"
                 scroll={{ x: 'max-content' }}
             />

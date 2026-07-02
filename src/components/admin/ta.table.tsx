@@ -252,7 +252,7 @@ const TaTable: React.FC = () => {
                 columns={columns}
                 dataSource={filtered}
                 rowKey="key"
-                pagination={{ pageSize: 5 }}
+                pagination={{ defaultPageSize: 5, pageSizeOptions: ['5', '10', '20', '50', '100'] }}
                 scroll={{ x: 'max-content' }}
             />
 
