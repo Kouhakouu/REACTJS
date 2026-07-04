@@ -1,9 +1,8 @@
 'use client'
 
 import { useState, useEffect, useContext } from 'react';
-import { Table, Button, Input, Modal, Form, Upload, message, Popconfirm, Spin, Tag } from 'antd';
-import { UploadOutlined, PlusOutlined, DeleteOutlined, FileTextOutlined } from '@ant-design/icons';
-import type { UploadFile } from 'antd';
+import { Table, Button, Input, Modal, Form, Upload, message, Popconfirm, Spin, Tag, Space } from 'antd';
+import { UploadOutlined, PlusOutlined, DeleteOutlined, FileTextOutlined, DownloadOutlined } from '@ant-design/icons'; import type { UploadFile } from 'antd';
 import { AuthContext } from '@/library/authContext';
 import axios from 'axios';
 
@@ -24,6 +23,30 @@ const formatSize = (bytes: number | null) => {
     if (!bytes) return '';
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
     return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
+};
+
+const formatFileType = (type: string | null) => {
+    if (!type) return '';
+
+    if (type.includes('pdf')) return 'PDF';
+    if (type.includes('wordprocessingml')) return 'Word';
+    if (type.includes('spreadsheetml')) return 'Excel';
+    if (type.includes('presentationml')) return 'PowerPoint';
+    if (type.includes('image')) return 'Ảnh';
+    if (type.includes('video')) return 'Video';
+
+    return type.split('/').pop() || type;
+};
+
+const getDownloadUrl = (url: string) => {
+    if (!url) return '#';
+
+    // Với Cloudinary: ép trình duyệt tải file thay vì mở preview
+    if (url.includes('/upload/')) {
+        return url.replace('/upload/', '/upload/fl_attachment/');
+    }
+
+    return url;
 };
 
 const TeacherDocument = () => {
@@ -110,17 +133,35 @@ const TeacherDocument = () => {
             dataIndex: 'title',
             key: 'title',
             render: (text: string, record: DocumentItem) => (
-                <a href={record.fileUrl} target="_blank" rel="noopener noreferrer">
-                    <FileTextOutlined style={{ marginRight: 8 }} />{text}
-                </a>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <FileTextOutlined style={{ fontSize: 18 }} />
+
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span style={{ fontWeight: 600 }}>
+                            {text}
+                        </span>
+
+                        {record.fileName && (
+                            <span style={{ fontSize: 12, color: '#888' }}>
+                                {record.fileName}
+                            </span>
+                        )}
+                    </div>
+                </div>
             ),
         },
-        { title: 'Mô tả', dataIndex: 'description', key: 'description' },
+        {
+            title: 'Mô tả',
+            dataIndex: 'description',
+            key: 'description',
+            render: (text: string | null) => text || 'Không có mô tả',
+        },
         {
             title: 'Định dạng',
             dataIndex: 'fileType',
             key: 'fileType',
-            render: (t: string | null) => t ? <Tag color="blue">{t.split('/').pop()}</Tag> : null,
+            render: (t: string | null) =>
+                t ? <Tag color="blue">{formatFileType(t)}</Tag> : null,
         },
         {
             title: 'Dung lượng',
@@ -137,14 +178,32 @@ const TeacherDocument = () => {
         {
             title: 'Thao tác',
             key: 'action',
+            width: 220,
             render: (_: any, record: DocumentItem) => (
-                <Popconfirm
-                    title="Xóa tài liệu này?"
-                    onConfirm={() => handleDelete(record.id)}
-                    okText="Xóa" cancelText="Hủy"
-                >
-                    <Button danger icon={<DeleteOutlined />} size="small">Xóa</Button>
-                </Popconfirm>
+                <Space>
+                    <Button
+                        ghost
+                        type="primary"
+                        icon={<DownloadOutlined />}
+                        size="small"
+                        href={getDownloadUrl(record.fileUrl)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        Tải xuống
+                    </Button>
+
+                    <Popconfirm
+                        title="Xóa tài liệu này?"
+                        onConfirm={() => handleDelete(record.id)}
+                        okText="Xóa"
+                        cancelText="Hủy"
+                    >
+                        <Button danger icon={<DeleteOutlined />} size="small">
+                            Xóa
+                        </Button>
+                    </Popconfirm>
+                </Space>
             ),
         },
     ];
