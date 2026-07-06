@@ -38,17 +38,6 @@ const formatFileType = (type: string | null) => {
     return type.split('/').pop() || type;
 };
 
-const getDownloadUrl = (url: string) => {
-    if (!url) return '#';
-
-    // Với Cloudinary: ép trình duyệt tải file thay vì mở preview
-    if (url.includes('/upload/')) {
-        return url.replace('/upload/', '/upload/fl_attachment/');
-    }
-
-    return url;
-};
-
 const TeacherDocument = () => {
     const { user, token } = useContext(AuthContext);
     const [documents, setDocuments] = useState<DocumentItem[]>([]);
@@ -111,6 +100,37 @@ const TeacherDocument = () => {
         }
     };
 
+    const handleDownload = async (record: DocumentItem) => {
+        try {
+            const res = await axios.get(
+                `${API}/teacher/documents/${record.id}/download`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                    responseType: 'blob',
+                }
+            );
+
+            const blob = new Blob([res.data], {
+                type: record.fileType || 'application/octet-stream',
+            });
+
+            const downloadUrl = window.URL.createObjectURL(blob);
+
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = record.fileName || `${record.title || 'document'}`;
+            document.body.appendChild(link);
+            link.click();
+
+            link.remove();
+            window.URL.revokeObjectURL(downloadUrl);
+        } catch (err: any) {
+            console.error('Download error:', err);
+            message.error(err?.response?.data?.message || 'Không thể tải tài liệu');
+        }
+    };
     const handleDelete = async (id: number) => {
         try {
             await axios.delete(`${API}/teacher/documents/${id}`, {
@@ -186,9 +206,7 @@ const TeacherDocument = () => {
                         type="primary"
                         icon={<DownloadOutlined />}
                         size="small"
-                        href={`${API}/teacher/documents/${record.id}/download`}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        onClick={() => handleDownload(record)}
                     >
                         Tải xuống
                     </Button>
@@ -205,7 +223,7 @@ const TeacherDocument = () => {
                     </Popconfirm>
                 </Space>
             ),
-        },
+        }
     ];
 
     return (
