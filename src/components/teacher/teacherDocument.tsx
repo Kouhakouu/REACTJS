@@ -186,7 +186,7 @@ const TeacherDocument = () => {
                         type="primary"
                         icon={<DownloadOutlined />}
                         size="small"
-                        href={getDownloadUrl(record.fileUrl)}
+                        href={`${API}/teacher/documents/${record.id}/download`}
                         target="_blank"
                         rel="noopener noreferrer"
                     >
