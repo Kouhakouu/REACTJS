@@ -408,14 +408,14 @@ const StudentTable = () => {
                     </Form.Item>
 
                     <Form.Item
-                        label="Parent Phone"
+                        label="Số điện thoại phụ huynh"
                         name="parentPhoneNumber"
                     >
                         <Input />
                     </Form.Item>
 
                     <Form.Item
-                        label="Parent Email"
+                        label="Email phụ huynh"
                         name="parentEmail"
                         rules={[{ type: 'email', message: 'Email không hợp lệ!' }]}
                     >
