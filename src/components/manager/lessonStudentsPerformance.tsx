@@ -40,6 +40,8 @@ interface HeaderInfo {
     isLocked?: boolean;
 }
 
+
+
 const StudentPerformancePage = () => {
     const router = useRouter();
     const params = useParams();
@@ -54,6 +56,7 @@ const StudentPerformancePage = () => {
     const [headerInfo, setHeaderInfo] = useState<HeaderInfo>({});
     const [buttonLoading, setButtonLoading] = useState(false);
     const [emailLoading, setEmailLoading] = useState(false);
+    const [emailProgress, setEmailProgress] = useState<string>('');
 
     // Fetch thông tin Header (Lớp và Buổi học)
     useEffect(() => {
@@ -157,54 +160,117 @@ const StudentPerformancePage = () => {
         }
     };
 
-    // Gửi email kết quả buổi học (bulk)
+    // Gửi email kết quả buổi học theo nhiều batch nhỏ
     const handleSendEmails = async () => {
         if (!token) {
             message.error("Bạn chưa đăng nhập.");
             return;
         }
+
         if (!classId || !lessonId) {
             message.error("Thiếu classId/lessonId.");
             return;
         }
+
         if (!headerInfo.isLocked) {
             message.warning("Vui lòng chốt kết quả trước khi gửi email.");
             return;
         }
 
         setEmailLoading(true);
+        setEmailProgress("Đang chuẩn bị gửi email...");
+
+        const messageKey = "send-email-progress";
+
+        let offset = 0;
+        const limit = 5;
+
+        let totalSent = 0;
+        let totalFailed = 0;
+        let totalSkipped = 0;
+        let totalStudents = 0;
+
+        const allErrors: any[] = [];
+
         try {
-            const res = await fetch(
-                `${process.env.NEXT_PUBLIC_BACKEND_PORT}/manager/classes/${classId}/lessons/${lessonId}/send-results-emails`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
+            while (true) {
+                message.loading({
+                    key: messageKey,
+                    content: `Đang gửi email... Đã xử lý ${offset}/${totalStudents || "?"}`,
+                    duration: 0,
+                });
+
+                setEmailProgress(`Đang gửi email... Đã xử lý ${offset}/${totalStudents || "?"}`);
+
+                const res = await fetch(
+                    `${process.env.NEXT_PUBLIC_BACKEND_PORT}/manager/classes/${classId}/lessons/${lessonId}/send-results-emails?offset=${offset}&limit=${limit}`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                        }
                     }
+                );
+
+                const data = await res.json().catch(() => ({}));
+
+                console.log("send mail batch result:", data);
+
+                if (!res.ok) {
+                    throw new Error(data?.message || `Lỗi HTTP: ${res.status}`);
                 }
-            );
 
-            const data = await res.json().catch(() => ({}));
+                totalStudents = data?.totalStudents ?? totalStudents;
 
-            console.log("send mail result:", data);
+                totalSent += data?.stats?.sent ?? 0;
+                totalFailed += data?.stats?.failed ?? 0;
+                totalSkipped += data?.stats?.skippedNoEmail ?? 0;
 
-            if ((data?.stats?.failed ?? 0) > 0 && Array.isArray(data?.errors)) {
-                // show lỗi đầu tiên cho nhanh
-                message.error(`Gửi thất bại: ${data.errors[0]?.email} - ${data.errors[0]?.error}`);
+                if (Array.isArray(data?.errors)) {
+                    allErrors.push(...data.errors);
+                }
+
+                const nextOffset = data?.batch?.nextOffset ?? offset + limit;
+                const hasMore = data?.batch?.hasMore ?? false;
+
+                offset = nextOffset;
+
+                setEmailProgress(`Đã xử lý ${Math.min(offset, totalStudents)}/${totalStudents} học sinh`);
+
+                if (!hasMore) break;
+
+                // Nghỉ nhẹ để tránh gửi SMTP quá dồn dập
+                await new Promise(resolve => setTimeout(resolve, 500));
             }
 
-            if (!res.ok) {
-                throw new Error(data?.message || `Lỗi HTTP: ${res.status}`);
+            if (totalFailed > 0 && allErrors.length > 0) {
+                message.warning({
+                    key: messageKey,
+                    content: `Đã gửi: ${totalSent} | Lỗi: ${totalFailed} | Bỏ qua thiếu email: ${totalSkipped}`,
+                    duration: 6,
+                });
+
+                message.error(`Lỗi đầu tiên: ${allErrors[0]?.email} - ${allErrors[0]?.error}`);
+            } else {
+                message.success({
+                    key: messageKey,
+                    content: `Đã gửi email xong. Thành công: ${totalSent} | Bỏ qua thiếu email: ${totalSkipped}`,
+                    duration: 5,
+                });
             }
 
-            const sent = data?.stats?.sent ?? 0;
-            const failed = data?.stats?.failed ?? 0;
-            const skipped = data?.stats?.skippedNoEmail ?? 0;
+            setEmailProgress("");
 
-            message.success(`Đã gửi: ${sent} | Lỗi: ${failed} | Bỏ qua (thiếu email): ${skipped}`);
         } catch (error: any) {
             console.error(error);
-            message.error(error?.message || "Lỗi khi gửi email!");
+
+            message.error({
+                key: messageKey,
+                content: error?.message || "Lỗi khi gửi email!",
+                duration: 6,
+            });
+
+            setEmailProgress("");
         } finally {
             setEmailLoading(false);
         }
