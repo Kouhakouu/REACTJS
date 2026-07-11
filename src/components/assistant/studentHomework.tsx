@@ -1,8 +1,8 @@
 'use client'
 
 import { useEffect, useState, useContext } from 'react';
-import { Button, Card, Typography, message, Table, Tabs, Collapse, Input, Space, Row, Col, AutoComplete, Tooltip, Popconfirm } from 'antd';
-import { CloseOutlined, RobotOutlined, ThunderboltOutlined } from '@ant-design/icons';
+import { Button, Card, Typography, message, Table, Tabs, Collapse, Input, Space, Row, Col, AutoComplete, Tooltip, Popconfirm, Select } from 'antd';
+import { CloseOutlined, RobotOutlined, ThunderboltOutlined, SaveOutlined } from '@ant-design/icons';
 import { AuthContext } from '@/library/authContext';
 import * as XLSX from 'xlsx';
 import { formatDate } from '@/utils/formatDate';
@@ -20,6 +20,7 @@ interface Lesson {
     lessonContent: string;
     totalTaskLength: number;
     lessonDate: string;
+    isLocked?: boolean;
 }
 
 interface Performance {
@@ -42,7 +43,14 @@ interface StudentPerformance {
     performance: Performance | null;
 }
 
+interface EditablePerformanceFields {
+    presentation: string;
+    skills: string;
+    comment: string;
+}
+
 const scores: number[] = [0, 0.25, 0.5, 0.75, 1];
+const evaluationOptions = ['Tốt', 'Khá', 'Trung bình', 'Yếu'].map(value => ({ value, label: value }));
 
 const StudentHomework = () => {
     const { token } = useContext(AuthContext);
@@ -68,6 +76,39 @@ const StudentHomework = () => {
     // State cho AI nhận xét
     const [aiLoadingIds, setAiLoadingIds] = useState<Set<number>>(new Set());
     const [aiBulkLoading, setAiBulkLoading] = useState<boolean>(false);
+
+    // State chỉnh sửa trực tiếp các cột Trình bày, Kĩ năng và Nhận xét
+    const [performanceDrafts, setPerformanceDrafts] = useState<Record<number, EditablePerformanceFields>>({});
+    const [savingPerformanceIds, setSavingPerformanceIds] = useState<Set<number>>(new Set());
+
+    const buildPerformanceDrafts = (data: StudentPerformance[]) => {
+        return Object.fromEntries(
+            data.map((student) => [
+                student.id,
+                {
+                    presentation: student.performance?.presentation || '',
+                    skills: student.performance?.skills || '',
+                    comment: student.performance?.comment || ''
+                }
+            ])
+        );
+    };
+
+    const updatePerformanceDraft = (
+        studentId: number,
+        field: keyof EditablePerformanceFields,
+        value: string
+    ) => {
+        setPerformanceDrafts(prev => ({
+            ...prev,
+            [studentId]: {
+                presentation: prev[studentId]?.presentation || '',
+                skills: prev[studentId]?.skills || '',
+                comment: prev[studentId]?.comment || '',
+                [field]: value
+            }
+        }));
+    };
 
     // Khi danh sách bài tập thay đổi, reset điểm của từng bài
     useEffect(() => {
@@ -155,6 +196,7 @@ const StudentHomework = () => {
         setSelectedClass(assistantClass);
         setSelectedLesson(null);
         setLessonPerformance([]);
+        setPerformanceDrafts({});
         try {
             const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_PORT}/assistant/classes/${assistantClass.id}/lessons`, {
                 headers: { 'Authorization': `Bearer ${token}` }
@@ -202,6 +244,7 @@ const StudentHomework = () => {
         if (!activeKey) {
             setSelectedLesson(null);
             setLessonPerformance([]);
+            setPerformanceDrafts({});
             return;
         }
         const lessonId: number = Number(activeKey as string);
@@ -220,6 +263,7 @@ const StudentHomework = () => {
                 if (!res.ok) throw new Error('Error fetching lesson performance');
                 const data: StudentPerformance[] = await res.json();
                 setLessonPerformance(data);
+                setPerformanceDrafts(buildPerformanceDrafts(data));
             } catch (error) {
                 console.error(error);
                 message.error('Không thể lấy hiệu suất học sinh của buổi học');
@@ -300,6 +344,7 @@ const StudentHomework = () => {
             if (!res.ok) throw new Error('Error fetching lesson performance');
             const data: StudentPerformance[] = await res.json();
             setLessonPerformance(data);
+            setPerformanceDrafts(buildPerformanceDrafts(data));
         } catch (error) {
             console.error(error);
             message.error('Không thể cập nhật dữ liệu hiệu suất học sinh');
@@ -456,6 +501,78 @@ const StudentHomework = () => {
         }
     };
 
+    // Lưu riêng các trường được chỉnh sửa trực tiếp trong bảng kết quả
+    const handleSaveEditablePerformance = async (student: StudentPerformance) => {
+        if (!selectedClass || !selectedLesson) {
+            message.error('Chưa chọn lớp hoặc buổi học.');
+            return;
+        }
+
+        if (!student.performance) {
+            message.warning('Học sinh này chưa có dữ liệu chấm bài. Hãy Submit kết quả trước.');
+            return;
+        }
+
+        const draft = performanceDrafts[student.id] || {
+            presentation: student.performance.presentation || '',
+            skills: student.performance.skills || '',
+            comment: student.performance.comment || ''
+        };
+
+        setSavingPerformanceIds(prev => {
+            const next = new Set(prev);
+            next.add(student.id);
+            return next;
+        });
+
+        try {
+            const updatedPerformance: Performance = {
+                ...student.performance,
+                presentation: draft.presentation,
+                skills: draft.skills,
+                comment: draft.comment
+            };
+
+            const res = await fetch(
+                `${process.env.NEXT_PUBLIC_BACKEND_PORT}/assistant/classes/${selectedClass.id}/lessons/${selectedLesson.id}/students-performance`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        studentId: student.id,
+                        lessonId: selectedLesson.id,
+                        performance: updatedPerformance
+                    })
+                }
+            );
+
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.message || 'Không thể lưu phần chỉnh sửa.');
+            }
+
+            setLessonPerformance(prev => prev.map(item =>
+                item.id === student.id
+                    ? { ...item, performance: updatedPerformance }
+                    : item
+            ));
+
+            message.success(`Đã cập nhật kết quả của ${student.fullName}.`);
+        } catch (error: any) {
+            console.error(error);
+            message.error(error.message || 'Không thể lưu phần chỉnh sửa.');
+        } finally {
+            setSavingPerformanceIds(prev => {
+                const next = new Set(prev);
+                next.delete(student.id);
+                return next;
+            });
+        }
+    };
+
     // Gọi AI sinh nhận xét cho 1 học sinh
     const handleAiCommentSingle = async (student: StudentPerformance) => {
         if (!selectedClass || !selectedLesson) return;
@@ -483,6 +600,7 @@ const StudentHomework = () => {
                     ? { ...s, performance: { ...s.performance, comment: data.comment } }
                     : s
             ));
+            updatePerformanceDraft(student.id, 'comment', data.comment);
             message.success(`Đã tạo nhận xét AI cho ${student.fullName}`);
         } catch (err: any) {
             console.error(err);
@@ -552,14 +670,78 @@ const StudentHomework = () => {
             key: 'missingTasks',
             render: (tasks: string) => (tasks && tasks.trim() !== "" ? tasks.replace(/"/g, '') : 'Không có')
         },
-        { title: 'Trình bày', dataIndex: ['performance', 'presentation'], key: 'presentation' },
-        { title: 'Kĩ năng', dataIndex: ['performance', 'skills'], key: 'skills' },
+        {
+            title: 'Trình bày',
+            dataIndex: ['performance', 'presentation'],
+            key: 'presentation',
+            width: 150,
+            render: (_value: string, record: StudentPerformance) => (
+                <Select
+                    style={{ width: '100%' }}
+                    placeholder={record.performance ? 'Chọn mức độ' : 'Chưa chấm'}
+                    value={performanceDrafts[record.id]?.presentation || undefined}
+                    options={evaluationOptions}
+                    allowClear
+                    disabled={!record.performance || !!selectedLesson?.isLocked}
+                    onChange={(value) => updatePerformanceDraft(record.id, 'presentation', value || '')}
+                />
+            )
+        },
+        {
+            title: 'Kĩ năng',
+            dataIndex: ['performance', 'skills'],
+            key: 'skills',
+            width: 150,
+            render: (_value: string, record: StudentPerformance) => (
+                <Select
+                    style={{ width: '100%' }}
+                    placeholder={record.performance ? 'Chọn mức độ' : 'Chưa chấm'}
+                    value={performanceDrafts[record.id]?.skills || undefined}
+                    options={evaluationOptions}
+                    allowClear
+                    disabled={!record.performance || !!selectedLesson?.isLocked}
+                    onChange={(value) => updatePerformanceDraft(record.id, 'skills', value || '')}
+                />
+            )
+        },
         {
             title: 'Nhận xét',
             dataIndex: ['performance', 'comment'],
             key: 'comment',
-            render: (value: string) => (
-                <div style={{ whiteSpace: 'pre-wrap', minWidth: 240 }}>{value || ''}</div>
+            width: 360,
+            render: (_value: string, record: StudentPerformance) => (
+                <Input.TextArea
+                    autoSize={{ minRows: 2, maxRows: 6 }}
+                    placeholder={record.performance ? 'Nhập nhận xét' : 'Hãy Submit kết quả trước'}
+                    value={performanceDrafts[record.id]?.comment || ''}
+                    disabled={!record.performance || !!selectedLesson?.isLocked}
+                    onChange={(event) => updatePerformanceDraft(record.id, 'comment', event.target.value)}
+                />
+            )
+        },
+        {
+            title: 'Lưu',
+            key: 'save',
+            width: 80,
+            align: 'center' as const,
+            render: (_: any, record: StudentPerformance) => (
+                <Tooltip
+                    title={
+                        selectedLesson?.isLocked
+                            ? 'Buổi học đã chốt, không thể chỉnh sửa'
+                            : record.performance
+                                ? 'Lưu Trình bày, Kĩ năng và Nhận xét'
+                                : 'Hãy Submit kết quả trước'
+                    }
+                >
+                    <Button
+                        type="primary"
+                        icon={<SaveOutlined />}
+                        loading={savingPerformanceIds.has(record.id)}
+                        disabled={!record.performance || !!selectedLesson?.isLocked}
+                        onClick={() => handleSaveEditablePerformance(record)}
+                    />
+                </Tooltip>
             )
         },
         {
