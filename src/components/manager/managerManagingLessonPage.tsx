@@ -5,9 +5,10 @@ import React, { useEffect, useState, useContext } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link'; // Import Link from next/link
 import { AuthContext } from '@/library/authContext';
-import { List, Spin, Alert, Typography, Button, Modal, Form, DatePicker, Select, message } from 'antd';
-import { ArrowLeftOutlined, EyeOutlined } from '@ant-design/icons'; // Added EyeOutlined
+import { List, Spin, Alert, Typography, Button, Modal, Form, DatePicker, Select, Space, message } from 'antd';
+import { ArrowLeftOutlined, EyeOutlined, FileExcelOutlined } from '@ant-design/icons'; // Added EyeOutlined
 import { formatDate } from '@/utils/formatDate';
+import CreateLessonFromExcelModal from './createLessonFromExcelModal';
 
 const { Title, Text } = Typography;
 
@@ -28,6 +29,7 @@ const ManagerManagingLessonPage = () => {
     const [error, setError] = useState<string | null>(null);
     const [className, setClassName] = useState<string | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isExcelModalOpen, setIsExcelModalOpen] = useState(false);
     const [form] = Form.useForm();
 
     // Fetch Lessons
@@ -115,9 +117,25 @@ const ManagerManagingLessonPage = () => {
 
     return (
         <>
-            <Button type="primary" onClick={showModal}>
-                Tạo buổi học
-            </Button>
+            <Space wrap>
+                <Button type="primary" onClick={showModal}>
+                    Tạo buổi học
+                </Button>
+                <Button icon={<FileExcelOutlined />} onClick={() => setIsExcelModalOpen(true)}>
+                    Tạo buổi học từ Excel
+                </Button>
+            </Space>
+
+            <CreateLessonFromExcelModal
+                open={isExcelModalOpen}
+                classId={classId}
+                token={token}
+                onCancel={() => setIsExcelModalOpen(false)}
+                onSuccess={() => {
+                    setIsExcelModalOpen(false);
+                    fetchLessons();
+                }}
+            />
 
             <Modal
                 title="Tạo mới buổi học"
