@@ -3,8 +3,8 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { AuthContext } from '@/library/authContext';
-import { Table, Spin, Typography, Switch, message, Descriptions, Button, Popconfirm, Tooltip } from 'antd';
-import { LockOutlined, UnlockOutlined, MailOutlined } from '@ant-design/icons';
+import { Table, Spin, Typography, Switch, message, Descriptions, Button, Popconfirm, Tooltip, Input, InputNumber, Space } from 'antd';
+import { LockOutlined, UnlockOutlined, MailOutlined, EditOutlined, SaveOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { formatDate } from '@/utils/formatDate';
 
@@ -37,7 +37,16 @@ interface HeaderInfo {
     homeworkList?: string;
     previousHomeworkCount?: number;
     previousLessonContent?: string;
+    hasPreviousLesson?: boolean;
+    nextHomework?: string;
     isLocked?: boolean;
+}
+
+interface InfoDraft {
+    lessonContent: string;
+    previousLessonContent: string;
+    totalTaskLength: number | null;
+    nextHomework: string;
 }
 
 
@@ -57,6 +66,11 @@ const StudentPerformancePage = () => {
     const [buttonLoading, setButtonLoading] = useState(false);
     const [emailLoading, setEmailLoading] = useState(false);
     const [emailProgress, setEmailProgress] = useState<string>('');
+    const [isEditingInfo, setIsEditingInfo] = useState(false);
+    const [savingInfo, setSavingInfo] = useState(false);
+    const [infoDraft, setInfoDraft] = useState<InfoDraft>({
+        lessonContent: '', previousLessonContent: '', totalTaskLength: 0, nextHomework: '',
+    });
 
     // Fetch thông tin Header (Lớp và Buổi học)
     useEffect(() => {
@@ -74,6 +88,8 @@ const StudentPerformancePage = () => {
                     homeworkList: data.homeworkList,
                     previousHomeworkCount: data.previousHomeworkCount,
                     previousLessonContent: data.previousLessonContent,
+                    hasPreviousLesson: data.hasPreviousLesson,
+                    nextHomework: data.nextHomework,
                     isLocked: data.isLocked
                 });
             })
@@ -131,6 +147,70 @@ const StudentPerformancePage = () => {
         } catch (error) {
             setStudentPerformances(previousData);
             message.error("Lỗi khi cập nhật điểm danh!");
+        }
+    };
+
+    // Chỉnh sửa thông tin buổi học (4 mục ở phần header)
+    const startEditingInfo = () => {
+        setInfoDraft({
+            lessonContent: headerInfo.lessonContent || '',
+            previousLessonContent: headerInfo.hasPreviousLesson ? (headerInfo.previousLessonContent || '') : '',
+            totalTaskLength: headerInfo.previousHomeworkCount ?? 0,
+            nextHomework: headerInfo.nextHomework || '',
+        });
+        setIsEditingInfo(true);
+    };
+
+    const handleSaveLessonInfo = async () => {
+        if (!classId || !lessonId) return;
+        setSavingInfo(true);
+        try {
+            // Chỉ gửi những mục thực sự thay đổi
+            const body: Record<string, unknown> = {};
+            if (infoDraft.lessonContent !== (headerInfo.lessonContent || '')) {
+                body.lessonContent = infoDraft.lessonContent;
+            }
+            if (headerInfo.hasPreviousLesson && infoDraft.previousLessonContent !== (headerInfo.previousLessonContent || '')) {
+                body.previousLessonContent = infoDraft.previousLessonContent;
+            }
+            if (infoDraft.totalTaskLength !== null && infoDraft.totalTaskLength !== (headerInfo.previousHomeworkCount ?? 0)) {
+                body.totalTaskLength = infoDraft.totalTaskLength;
+            }
+            if (infoDraft.nextHomework !== (headerInfo.nextHomework || '')) {
+                body.nextHomework = infoDraft.nextHomework;
+            }
+
+            if (Object.keys(body).length === 0) {
+                setIsEditingInfo(false);
+                return;
+            }
+
+            const res = await fetch(
+                `${process.env.NEXT_PUBLIC_BACKEND_PORT}/manager/classes/${classId}/lessons/${lessonId}`,
+                {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                    body: JSON.stringify(body),
+                }
+            );
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(data.message || `Lỗi HTTP: ${res.status}`);
+
+            setHeaderInfo(prev => ({
+                ...prev,
+                lessonContent: data.lessonContent,
+                nextHomework: data.nextHomework,
+                previousHomeworkCount: data.totalTaskLength,
+                previousLessonContent: body.previousLessonContent !== undefined
+                    ? (body.previousLessonContent as string)
+                    : prev.previousLessonContent,
+            }));
+            setIsEditingInfo(false);
+            message.success('Đã cập nhật thông tin buổi học');
+        } catch (err: any) {
+            message.error(err.message || 'Không thể cập nhật thông tin buổi học');
+        } finally {
+            setSavingInfo(false);
         }
     };
 
@@ -443,13 +523,70 @@ const StudentPerformancePage = () => {
                         </div>
                     </div>
 
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginBottom: 8 }}>
+                        {isEditingInfo ? (
+                            <>
+                                <Button onClick={() => setIsEditingInfo(false)} disabled={savingInfo}>Hủy</Button>
+                                <Button type="primary" icon={<SaveOutlined />} loading={savingInfo} onClick={handleSaveLessonInfo}>
+                                    Lưu
+                                </Button>
+                            </>
+                        ) : (
+                            <Button icon={<EditOutlined />} onClick={startEditingInfo}>Chỉnh sửa</Button>
+                        )}
+                    </div>
+
                     <Descriptions bordered column={3} size="middle" labelStyle={{ fontWeight: 'bold', backgroundColor: '#fafafa', width: '150px' }}>
                         <Descriptions.Item label="Nội dung bài học" span={3}>
-                            <span style={{ fontSize: 16 }}>{headerInfo.lessonContent || "Chưa cập nhật"}</span>
+                            {isEditingInfo ? (
+                                <Input.TextArea
+                                    autoSize={{ minRows: 1, maxRows: 6 }}
+                                    value={infoDraft.lessonContent}
+                                    onChange={e => setInfoDraft(d => ({ ...d, lessonContent: e.target.value }))}
+                                />
+                            ) : (
+                                <span style={{ fontSize: 16 }}>{headerInfo.lessonContent || "Chưa cập nhật"}</span>
+                            )}
                         </Descriptions.Item>
-                        <Descriptions.Item label="Nội dung buổi trước">{headerInfo.previousLessonContent || "Không có"}</Descriptions.Item>
-                        <Descriptions.Item label="Tổng số BTVN">{headerInfo.previousHomeworkCount ?? 0} ý</Descriptions.Item>
-                        <Descriptions.Item label="BTVN tuần sau">{headerInfo.homeworkList || "Thầy gửi qua Zalo"}</Descriptions.Item>
+                        <Descriptions.Item label="Nội dung buổi trước">
+                            {isEditingInfo && headerInfo.hasPreviousLesson ? (
+                                <Input.TextArea
+                                    autoSize={{ minRows: 1, maxRows: 6 }}
+                                    value={infoDraft.previousLessonContent}
+                                    onChange={e => setInfoDraft(d => ({ ...d, previousLessonContent: e.target.value }))}
+                                />
+                            ) : (
+                                headerInfo.previousLessonContent || "Không có"
+                            )}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Tổng số BTVN">
+                            {isEditingInfo ? (
+                                <Space>
+                                    <InputNumber
+                                        min={0}
+                                        max={500}
+                                        precision={0}
+                                        value={infoDraft.totalTaskLength}
+                                        onChange={v => setInfoDraft(d => ({ ...d, totalTaskLength: v }))}
+                                    />
+                                    ý
+                                </Space>
+                            ) : (
+                                <>{headerInfo.previousHomeworkCount ?? 0} ý</>
+                            )}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="BTVN tuần sau">
+                            {isEditingInfo ? (
+                                <Input.TextArea
+                                    autoSize={{ minRows: 1, maxRows: 6 }}
+                                    placeholder="Thầy gửi qua Zalo"
+                                    value={infoDraft.nextHomework}
+                                    onChange={e => setInfoDraft(d => ({ ...d, nextHomework: e.target.value }))}
+                                />
+                            ) : (
+                                headerInfo.nextHomework || "Thầy gửi qua Zalo"
+                            )}
+                        </Descriptions.Item>
                     </Descriptions>
                 </div>
             )}

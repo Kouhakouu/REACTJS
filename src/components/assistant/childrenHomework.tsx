@@ -6,6 +6,7 @@ import { Button, Card, Typography, Space, Row, Col, Input, Table, Upload, messag
 import { CloseOutlined, UploadOutlined, RobotOutlined, ThunderboltOutlined } from '@ant-design/icons';
 import { AuthContext } from '@/library/authContext';
 import * as XLSX from 'xlsx';
+import { buildComment } from '@/utils/homeworkComment';
 
 const { Title, Text } = Typography;
 
@@ -179,17 +180,8 @@ const ChildrenHomework = () => {
             return;
         }
 
-        // Cập nhật nhận xét (nếu muốn logic khác, bạn sửa ở đây)
-        let newComments = "";
-        if (skills === "Tốt") {
-            newComments = "Bài tập về nhà con làm tốt, cần tiếp tục phát huy";
-        } else if (skills === "Tốt" && presentation === "Khá") {
-            newComments = "Bài tập về nhà con hoàn thiện khá tốt, tuy nhiên còn nhiều ý con mắc lỗi trong trình bày và lập luận, con cần xem lại cách trình bày để hoàn thiện bài hơn";
-        } else if (skills === "Khá" && presentation === "Khá") {
-            newComments = "Con hoàn thiện bài tập về nhà ở mức độ khá, tuy nhiên phần bài tập đã làm mắc một số lỗi lập luận và trình bày, còn khá nhiều bài tập con chưa có hướng làm. Con chú ý sửa lại các chỗ sai, đồng thời dành thêm thời gian suy nghĩ các bài tập chưa làm được";
-        } else if (skills === "Trung bình") {
-            newComments = "Bài tập về nhà con chưa làm được nhiều, cần đầu tư nhiều thời gian suy nghĩ bài hơn, chú ý đọc kĩ vở ghi của thầy trước khi làm để nắm chắc kiến thức, cố gắng hoàn thiện các bài tập tương tự trên lớp";
-        }
+        // Nhận xét gồm 2 dòng: quá trình học trên lớp + BTVN
+        const newComments = buildComment(skills, presentation);
 
         const existingIndex = submittedData.findIndex(record => record.name === studentName);
 

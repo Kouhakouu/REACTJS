@@ -6,6 +6,7 @@ import { CloseOutlined, RobotOutlined, ThunderboltOutlined, SaveOutlined } from 
 import { AuthContext } from '@/library/authContext';
 import * as XLSX from 'xlsx';
 import { formatDate } from '@/utils/formatDate';
+import { buildComment } from '@/utils/homeworkComment';
 
 const { Title, Text } = Typography;
 
@@ -18,6 +19,7 @@ interface AssistantClass {
 interface Lesson {
     id: number;
     lessonContent: string;
+    nextHomework?: string | null;
     totalTaskLength: number;
     lessonDate: string;
     isLocked?: boolean;
@@ -37,8 +39,6 @@ interface StudentPerformance {
     id: number;
     fullName: string;
     school: string;
-    parentPhoneNumber: string;
-    parentEmail: string;
     attendance: boolean;
     performance: Performance | null;
 }
@@ -64,6 +64,7 @@ const StudentHomework = () => {
 
     // State cho phần chỉnh sửa nội dung buổi học
     const [editedLessonContent, setEditedLessonContent] = useState<string>('');
+    const [editedNextHomework, setEditedNextHomework] = useState<string>('');
 
     // State cho phần chấm bài
     const [customTasks, setCustomTasks] = useState<string>('');
@@ -252,6 +253,7 @@ const StudentHomework = () => {
         if (lesson && selectedClass) {
             setSelectedLesson(lesson);
             setEditedLessonContent(lesson.lessonContent);
+            setEditedNextHomework(lesson.nextHomework || '');
             const tasks: string[] = await loadHomeworkList(lesson);
             setInitialTasks(tasks);
             setTaskScores(Object.fromEntries(tasks.map((task: string) => [task, -1])));
@@ -314,6 +316,41 @@ const StudentHomework = () => {
             if (selectedLesson) {
                 setEditedLessonContent(selectedLesson.lessonContent);
             }
+        }
+    };
+
+    // Hàm cập nhật "BTVN tuần sau" (văn bản tự do) vào DB
+    const updateNextHomework = async () => {
+        if (!selectedClass || !selectedLesson) {
+            message.error('Chưa chọn lớp hoặc buổi học');
+            return;
+        }
+        try {
+            const res = await fetch(
+                `${process.env.NEXT_PUBLIC_BACKEND_PORT}/assistant/classes/${selectedClass.id}/lessons/${selectedLesson.id}`,
+                {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ nextHomework: editedNextHomework })
+                }
+            );
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.message || 'Error updating next homework');
+            }
+
+            const saved: string = data.lesson?.nextHomework ?? editedNextHomework;
+            setLessons(ls => ls.map(l => l.id === selectedLesson.id ? { ...l, nextHomework: saved } : l));
+            setSelectedLesson(prev => prev ? { ...prev, nextHomework: saved } : null);
+            setEditedNextHomework(saved);
+            message.success('Cập nhật BTVN tuần sau thành công');
+        } catch (err: any) {
+            console.error(err);
+            message.error(err.message || 'Không lưu được BTVN tuần sau');
+            setEditedNextHomework(selectedLesson.nextHomework || '');
         }
     };
 
@@ -391,16 +428,8 @@ const StudentHomework = () => {
         } else {
             presentation = "Tốt"; skills = "Tốt";
         }
-        let comment = "";
-        if (skills === "Tốt") {
-            comment = "Bài tập về nhà con làm tốt, cần tiếp tục phát huy";
-        } else if (skills === "Tốt" && presentation === "Khá") {
-            comment = "Bài tập về nhà con hoàn thiện khá tốt, tuy nhiên còn nhiều ý con mắc lỗi trong trình bày và lập luận, con cần xem lại cách trình bày để hoàn thiện bài hơn";
-        } else if (skills === "Khá" && presentation === "Khá") {
-            comment = "Con hoàn thiện bài tập về nhà ở mức độ khá, tuy nhiên phần bài tập đã làm mắc một số lỗi lập luận và trình bày, còn khá nhiều bài tập con chưa có hướng làm. Con chú ý sửa lại các chỗ sai, đồng thời dành thêm thời gian suy nghĩ các bài tập chưa làm được";
-        } else {
-            comment = "Bài tập về nhà con chưa làm được nhiều, cần đầu tư nhiều thời gian suy nghĩ bài hơn, chú ý đọc kĩ vở ghi của thầy trước khi làm để nắm chắc kiến thức, cố gắng hoàn thiện các bài tập tương tự trên lớp";
-        }
+        // Nhận xét gồm 2 dòng: quá trình học trên lớp + BTVN
+        const comment = buildComment(skills, presentation);
 
         const updatedPerformance = {
             doneTask: doneTasks.length,
@@ -794,6 +823,26 @@ const StudentHomework = () => {
                                                     />
                                                     <Button type="primary" size="small" onClick={updateLessonContent}>
                                                         Lưu nội dung
+                                                    </Button>
+                                                </Card>
+
+                                                <Card size="small" style={{ marginBottom: 12 }}>
+                                                    <Text strong>BTVN tuần sau:</Text>
+                                                    <Input.TextArea
+                                                        rows={2}
+                                                        placeholder="Thầy gửi qua Zalo"
+                                                        value={editedNextHomework}
+                                                        onChange={e => setEditedNextHomework(e.target.value)}
+                                                        disabled={!!selectedLesson.isLocked}
+                                                        style={{ margin: '8px 0' }}
+                                                    />
+                                                    <Button
+                                                        type="primary"
+                                                        size="small"
+                                                        onClick={updateNextHomework}
+                                                        disabled={!!selectedLesson.isLocked}
+                                                    >
+                                                        Lưu BTVN tuần sau
                                                     </Button>
                                                 </Card>
 

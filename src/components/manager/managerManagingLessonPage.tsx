@@ -5,8 +5,8 @@ import React, { useEffect, useState, useContext } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link'; // Import Link from next/link
 import { AuthContext } from '@/library/authContext';
-import { List, Spin, Alert, Typography, Button, Modal, Form, DatePicker, Select, Space, message } from 'antd';
-import { ArrowLeftOutlined, EyeOutlined, FileExcelOutlined } from '@ant-design/icons'; // Added EyeOutlined
+import { List, Spin, Alert, Typography, Button, Modal, Form, DatePicker, Select, Space, Popconfirm, message } from 'antd';
+import { ArrowLeftOutlined, DeleteOutlined, EyeOutlined, FileExcelOutlined } from '@ant-design/icons'; // Added EyeOutlined
 import { formatDate } from '@/utils/formatDate';
 import CreateLessonFromExcelModal from './createLessonFromExcelModal';
 
@@ -115,6 +115,23 @@ const ManagerManagingLessonPage = () => {
         setIsModalOpen(true);
     };
 
+    const handleDeleteLesson = async (lesson: Lesson) => {
+        try {
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_BACKEND_PORT}/manager/classes/${classId}/lessons/${lesson.id}`,
+                { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } }
+            );
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(data.message || `Lỗi HTTP: ${response.status}`);
+            }
+            message.success("Đã xóa buổi học.");
+            setLessons(prev => prev.filter(l => l.id !== lesson.id));
+        } catch (err: any) {
+            message.error("Không thể xóa buổi học: " + err.message);
+        }
+    };
+
     return (
         <>
             <Space wrap>
@@ -175,6 +192,19 @@ const ManagerManagingLessonPage = () => {
                             return (
                                 <List.Item
                                     key={lesson.id}
+                                    actions={[
+                                        <Popconfirm
+                                            key="delete"
+                                            title="Xóa buổi học này?"
+                                            description="Toàn bộ điểm danh và kết quả của buổi học sẽ bị xóa và không thể khôi phục."
+                                            okText="Xóa"
+                                            cancelText="Hủy"
+                                            okButtonProps={{ danger: true }}
+                                            onConfirm={() => handleDeleteLesson(lesson)}
+                                        >
+                                            <Button type="text" danger icon={<DeleteOutlined />}>Xóa</Button>
+                                        </Popconfirm>
+                                    ]}
                                 >
                                     <List.Item.Meta
                                         title={

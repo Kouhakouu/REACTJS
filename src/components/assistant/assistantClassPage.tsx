@@ -14,9 +14,6 @@ interface Student {
     fullName: string;
     school: string;
     DOB: string;
-    parentPhoneNumber: string;
-    parentPhone: string;
-    parentEmail: string;
 }
 
 interface ClassDetail {
@@ -122,12 +119,6 @@ const AssistantClassPage = ({ params }: { params: { id: string } }) => {
                         key: 'DOB',
                         render: (dob: string) => dayjs(dob).format('DD/MM/YYYY')
                     },
-                    {
-                        title: 'SĐT phụ huynh',
-                        dataIndex: 'parentPhoneNumber',
-                        key: 'parentPhoneNumber'
-                    },
-                    { title: 'Email phụ huynh', dataIndex: 'parentEmail', key: 'parentEmail' },
                 ]}
                 rowKey="id"
                 pagination={{ defaultPageSize: 10, pageSizeOptions: ['5', '10', '20', '50', '100'] }}
