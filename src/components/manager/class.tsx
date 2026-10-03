@@ -8,14 +8,16 @@ import {
     Modal,
     Popconfirm,
     Row,
+    Space,
     Spin,
     Table,
     Typography,
     message
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
+import { FileExcelOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import { authHeaders } from '@/utils/authHeaders';
+import ImportClassStudentsFromExcelModal from './importClassStudentsFromExcelModal';
 
 const { Title, Text } = Typography;
 
@@ -60,6 +62,7 @@ const Class = ({ params }: { params: { id: string } }) => {
     const [availableLoading, setAvailableLoading] = useState(false);
     const [addingStudents, setAddingStudents] = useState(false);
     const [removingStudentId, setRemovingStudentId] = useState<number | null>(null);
+    const [isExcelModalOpen, setIsExcelModalOpen] = useState(false);
 
     const classId = params.id;
 
@@ -316,9 +319,14 @@ const Class = ({ params }: { params: { id: string } }) => {
                     <Text type="secondary">Sĩ số: {classDetail.students.length} học sinh</Text>
                 </Col>
                 <Col>
-                    <Button type="primary" icon={<PlusOutlined />} onClick={openAddModal}>
-                        Thêm học sinh vào lớp
-                    </Button>
+                    <Space wrap>
+                        <Button icon={<FileExcelOutlined />} onClick={() => setIsExcelModalOpen(true)}>
+                            Cập nhật danh sách từ Excel
+                        </Button>
+                        <Button type="primary" icon={<PlusOutlined />} onClick={openAddModal}>
+                            Thêm học sinh vào lớp
+                        </Button>
+                    </Space>
                 </Col>
             </Row>
 
@@ -376,6 +384,16 @@ const Class = ({ params }: { params: { id: string } }) => {
                     }}
                 />
             </Modal>
+
+            <ImportClassStudentsFromExcelModal
+                open={isExcelModalOpen}
+                classId={classId}
+                onCancel={() => setIsExcelModalOpen(false)}
+                onSuccess={() => {
+                    setIsExcelModalOpen(false);
+                    fetchClassDetail();
+                }}
+            />
         </div>
     );
 };

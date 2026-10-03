@@ -268,6 +268,7 @@ const StudentPerformancePage = () => {
         let totalSent = 0;
         let totalFailed = 0;
         let totalSkipped = 0;
+        let totalNotSaved = 0;
         let totalStudents = 0;
 
         const allErrors: any[] = [];
@@ -305,6 +306,7 @@ const StudentPerformancePage = () => {
                 totalSent += data?.stats?.sent ?? 0;
                 totalFailed += data?.stats?.failed ?? 0;
                 totalSkipped += data?.stats?.skippedNoEmail ?? 0;
+                totalNotSaved += data?.stats?.notSavedToSent ?? 0;
 
                 if (Array.isArray(data?.errors)) {
                     allErrors.push(...data.errors);
@@ -337,6 +339,10 @@ const StudentPerformancePage = () => {
                     content: `Đã gửi email xong. Thành công: ${totalSent} | Bỏ qua thiếu email: ${totalSkipped}`,
                     duration: 5,
                 });
+            }
+
+            if (totalNotSaved > 0) {
+                message.warning(`${totalNotSaved} email đã gửi nhưng không lưu được bản sao vào thư mục Sent.`, 6);
             }
 
             setEmailProgress("");
