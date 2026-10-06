@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import NavbarComponent from '@/components/common/navbar';
 import FooterComponent from '@/components/common/footer';
-import { Layout, Typography, Menu, Card, Row, Col, Spin, Empty, Tag } from 'antd';
+import { Layout, Typography, Menu, Card, Row, Col, Spin, Empty, Tag, Grid } from 'antd';
 
 const { Content, Sider } = Layout;
 const { Title, Paragraph, Text } = Typography;
@@ -35,6 +35,8 @@ const Courses = () => {
     const pathname = usePathname();
     const [courses, setCourses] = useState<Course[]>([]);
     const [loading, setLoading] = useState(false);
+    const screens = Grid.useBreakpoint();
+    const isMobile = screens.lg === false;
 
     const activeTag = pathToTag[pathname] ?? null;
     const activeLabel = sidebarItems.find(i => i.path === pathname)?.label ?? null;
@@ -56,13 +58,20 @@ const Courses = () => {
     return (
         <Layout>
             <NavbarComponent />
-            <Layout>
+            <Layout style={{ position: 'relative' }}>
+                {/* Màn hình nhỏ: danh mục trượt ra đè lên nội dung thay vì bóp hẹp nội dung */}
                 <Sider
-                    width={300}
+                    width={isMobile ? 280 : 300}
                     breakpoint="lg"
                     collapsedWidth={0}
                     zeroWidthTriggerStyle={{ top: 12 }}
-                    style={{ background: '#fff', borderRadius: '10px' }}
+                    style={{
+                        background: '#fff',
+                        borderRadius: '10px',
+                        ...(isMobile
+                            ? { position: 'absolute', top: 0, bottom: 0, left: 0, zIndex: 10 }
+                            : {}),
+                    }}
                 >
                     <div style={{ padding: '20px' }}>
                         <Title level={4}>Danh mục khóa học</Title>
@@ -80,7 +89,7 @@ const Courses = () => {
                     </div>
                 </Sider>
 
-                <Content style={{ padding: '24px', minHeight: '80vh', background: '#f5f5f5' }}>
+                <Content style={{ padding: isMobile ? '64px 16px 24px' : '24px', minHeight: '80vh', background: '#f5f5f5' }}>
                     {!activeTag ? (
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
                             <Text type="secondary">Chọn một danh mục để xem khóa học</Text>

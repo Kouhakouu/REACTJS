@@ -96,7 +96,7 @@ const ManagerLessonPage = () => {
 
     return (
         <>
-            <div style={{ padding: "20px" }}>
+            <div className="page-wrapper">
                 <Button type="primary" onClick={showModal}>
                     Tạo buổi học
                 </Button>
@@ -133,7 +133,7 @@ const ManagerLessonPage = () => {
                 </Modal>
             </div>
 
-            <div style={{ padding: "20px" }}>
+            <div className="page-wrapper">
                 <Title level={2}>Danh Sách Lớp Quản Lý</Title>
                 <Row gutter={[16, 16]}>
                     {classes.map((cls) => (

@@ -46,7 +46,7 @@ const Primary = () => {
             <NavbarComponent />
             <Layout>
                 {/* Hero Section */}
-                <div style={{ maxWidth: 1200, margin: '0 auto', padding: '72px 24px 48px' }}>
+                <div style={{ maxWidth: 1200, margin: '0 auto', padding: 'clamp(40px, 8vw, 72px) 24px clamp(32px, 6vw, 48px)' }}>
                     <Row gutter={[40, 40]} align="middle">
                         <Col xs={24} lg={12}>
                             <Space direction="vertical" size={20} style={{ width: '100%' }}>
@@ -68,7 +68,7 @@ const Primary = () => {
                                     level={1}
                                     style={{
                                         margin: 0,
-                                        fontSize: 'clamp(36px, 6vw, 60px)',
+                                        fontSize: 'clamp(30px, 6vw, 60px)',
                                         lineHeight: 1.15,
                                     }}
                                 >
@@ -87,7 +87,7 @@ const Primary = () => {
 
                                 <Paragraph
                                     style={{
-                                        fontSize: 18,
+                                        fontSize: 'clamp(16px, 2.5vw, 18px)',
                                         color: '#595959',
                                         lineHeight: 1.8,
                                         marginBottom: 0,
@@ -136,7 +136,7 @@ const Primary = () => {
                             >
                                 <div
                                     style={{
-                                        padding: 32,
+                                        padding: 'clamp(20px, 5vw, 32px)',
                                         background: 'linear-gradient(135deg, #1677ff 0%, #36cfc9 100%)',
                                         color: 'white',
                                     }}
@@ -202,7 +202,7 @@ const Primary = () => {
                                     </Row>
                                 </div>
 
-                                <div style={{ padding: 24, background: '#fff' }}>
+                                <div style={{ padding: 'clamp(16px, 4vw, 24px)', background: '#fff' }}>
                                     <Row gutter={[16, 16]}>
                                         <Col xs={24} sm={12}>
                                             <Card
@@ -234,8 +234,8 @@ const Primary = () => {
                 </div>
 
                 {/* Features */}
-                <div style={{ maxWidth: 1200, margin: '0 auto', padding: '24px 24px 72px' }}>
-                    <div style={{ textAlign: 'center', marginBottom: 48 }}>
+                <div style={{ maxWidth: 1200, margin: '0 auto', padding: '24px 24px clamp(48px, 8vw, 72px)' }}>
+                    <div style={{ textAlign: 'center', marginBottom: 'clamp(28px, 5vw, 48px)' }}>
                         <Text strong style={{ color: '#1677ff', letterSpacing: 1 }}>
                             ĐIỂM NỔI BẬT
                         </Text>
@@ -289,7 +289,7 @@ const Primary = () => {
                 </div>
 
                 {/* Benefits */}
-                <div style={{ background: '#f5f7fa', padding: '72px 24px' }}>
+                <div style={{ background: '#f5f7fa', padding: 'clamp(48px, 8vw, 72px) 24px' }}>
                     <div style={{ maxWidth: 1200, margin: '0 auto' }}>
                         <Row gutter={[40, 40]} align="middle">
                             <Col xs={24} lg={11}>
@@ -331,12 +331,12 @@ const Primary = () => {
                 </div>
 
                 {/* CTA */}
-                <div style={{ maxWidth: 1200, margin: '0 auto', padding: '72px 24px 88px' }}>
+                <div style={{ maxWidth: 1200, margin: '0 auto', padding: 'clamp(48px, 8vw, 72px) 24px clamp(56px, 10vw, 88px)' }}>
                     <div
                         style={{
                             background: 'linear-gradient(135deg, #1677ff 0%, #36cfc9 100%)',
                             borderRadius: 32,
-                            padding: '56px 24px',
+                            padding: 'clamp(36px, 7vw, 56px) clamp(16px, 4vw, 24px)',
                             textAlign: 'center',
                             color: 'white',
                             boxShadow: '0 20px 50px rgba(22,119,255,0.25)',

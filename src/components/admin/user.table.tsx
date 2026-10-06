@@ -58,6 +58,7 @@ const UserTable = () => {
             <div style={{
                 display: "flex", justifyContent: "space-between",
                 alignItems: "center",
+                flexWrap: "wrap", gap: 8,
                 marginBottom: 20
             }}>
                 <span>Manager Users</span>

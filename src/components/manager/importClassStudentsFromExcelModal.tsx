@@ -132,6 +132,7 @@ const buildEntryColumns = (selectedRows: Set<number>): ColumnsType<RosterEntry> 
         {
             title: 'Hồ sơ khớp trong hệ thống',
             key: 'student',
+            width: 240,
             render: (_, record) => {
                 if (!record.student) return '—';
                 const { fullName, DOB, classes } = record.student;
@@ -397,7 +398,7 @@ const ImportClassStudentsFromExcelModal = ({ open, classId, onCancel, onSuccess 
                                         rowKey="id"
                                         size="small"
                                         pagination={false}
-                                        scroll={{ y: 320 }}
+                                        scroll={{ x: 'max-content', y: 320 }}
                                         locale={{ emptyText: 'Không có học sinh nào bị xoá' }}
                                         rowSelection={{
                                             selectedRowKeys: removeSelection,

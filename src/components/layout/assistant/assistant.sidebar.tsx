@@ -1,69 +1,15 @@
 'use client'
-import Layout from "antd/es/layout";
-import Menu from "antd/es/menu";
-import { AppstoreOutlined, FileExcelOutlined, FileTextOutlined, FormOutlined, MailOutlined, SettingOutlined, TeamOutlined, } from '@ant-design/icons';
-import React, { useContext } from 'react';
-import { AdminContext } from "@/library/admin.context";
-import type { MenuProps } from 'antd';
-import Link from 'next/link'
+import { AppstoreOutlined, FileExcelOutlined, FileTextOutlined, FormOutlined, TeamOutlined, } from '@ant-design/icons';
+import PortalSideBar, { PortalMenuItem } from "@/components/layout/portal.sidebar";
 
-type MenuItem = Required<MenuProps>['items'][number];
-const AssistantSideBar = () => {
-    const { Sider } = Layout;
-    const { collapseMenu, setCollapseMenu } = useContext(AdminContext)!;
+const items: PortalMenuItem[] = [
+    { key: "dashboard", href: "/assistant", label: "Dashboard", icon: <AppstoreOutlined /> },
+    { key: "classes", href: "/assistant/classes", label: "QL lớp học", icon: <TeamOutlined /> },
+    { key: "children-homework", href: "/assistant/childrenHomework", label: "Excel chấm bài", icon: <FileExcelOutlined /> },
+    { key: "student-homework", href: "/assistant/studentHomework", label: "Chấm bài tập về nhà", icon: <FormOutlined /> },
+    { key: "assistant-document", href: "/assistant/assistantDocument", label: "Tài liệu trợ giảng", icon: <FileTextOutlined /> },
+];
 
-    const items: MenuItem[] = [
-        {
-            key: 'grp',
-            label: 'PhongBui',
-            type: 'group',
-            children: [
-                {
-                    key: "dashboard",
-                    label: <Link href={"/assistant"}>Dashboard</Link>,
-                    icon: <AppstoreOutlined />,
-                },
-                {
-                    key: "classes",
-                    label: <Link href={"/assistant/classes"}>QL lớp học</Link>,
-                    icon: <TeamOutlined />,
-                },
-                {
-                    key: "children-homework",
-                    label: <Link href={"/assistant/childrenHomework"}>Excel chấm bài</Link>,
-                    icon: <FileExcelOutlined />,
-                },
-                {
-                    key: "student-homework",
-                    label: <Link href={`/assistant/studentHomework`}>Chấm bài tập về nhà</Link>,
-                    icon: <FormOutlined />,
-                },
-                {
-                    key: "assistant-document",
-                    label: <Link href={"/assistant/assistantDocument"}>Tài liệu trợ giảng</Link>,
-                    icon: <FileTextOutlined />,
-                },
-            ],
-        },
-    ];
-
-    return (
-        <Sider
-            collapsed={collapseMenu}
-            breakpoint="lg"
-            collapsedWidth={0}
-            trigger={null}
-            onBreakpoint={(broken) => setCollapseMenu(broken)}
-        >
-
-            <Menu
-                mode="inline"
-                defaultSelectedKeys={['']}
-                items={items}
-                style={{ height: '100vh' }}
-            />
-        </Sider>
-    )
-}
+const AssistantSideBar = () => <PortalSideBar title="PhongBui" items={items} />;
 
 export default AssistantSideBar;

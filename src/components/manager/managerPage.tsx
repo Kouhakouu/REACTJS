@@ -83,7 +83,7 @@ const ManagerPage = () => {
         ));
 
     return (
-        <div style={{ padding: 24 }}>
+        <div className="page-wrapper">
 
             {/* Summary cards */}
             <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>

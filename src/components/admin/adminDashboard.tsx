@@ -58,7 +58,7 @@ function HorizontalBarChart({ data }: { data: ClassSummary[] }) {
                     <Tooltip title={`Khối ${c.gradeLevel}`}>
                         <div
                             style={{
-                                width: 130,
+                                width: 'clamp(72px, 35%, 130px)',
                                 fontSize: 12,
                                 textAlign: 'right',
                                 overflow: 'hidden',
@@ -214,7 +214,7 @@ const AdminDashboard = () => {
         : 0;
 
     return (
-        <div style={{ padding: 20 }}>
+        <div className="page-wrapper">
 
             {/* ── Row 1: Summary cards ── */}
             <Row gutter={[16, 16]} style={{ marginBottom: 20 }}>

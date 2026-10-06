@@ -91,7 +91,7 @@ const ManagerManagingPage = () => {
     }
 
     return (
-        <div style={{ padding: "20px" }}>
+        <div className="page-wrapper">
             <Title level={2}>Danh Sách Lớp Quản Lý</Title>
             {classes.length === 0 && !loading && (
                 <Alert message="Thông báo" description="Không có lớp nào được quản lý." type="info" showIcon />

@@ -148,14 +148,9 @@ const Chatbot: React.FC = () => {
         <>
             {open && (
                 <div
+                    className="cmath-chatbot-panel"
                     style={{
                         position: 'fixed',
-                        bottom: 96,
-                        right: 24,
-                        width: 360,
-                        maxWidth: 'calc(100vw - 32px)',
-                        height: 520,
-                        maxHeight: 'calc(100vh - 120px)',
                         background: '#fff',
                         borderRadius: 16,
                         boxShadow: '0 20px 50px rgba(15, 23, 42, 0.25)',
@@ -173,10 +168,12 @@ const Chatbot: React.FC = () => {
                             padding: '14px 16px',
                             display: 'flex',
                             alignItems: 'center',
-                            justifyContent: 'space-between'
+                            justifyContent: 'space-between',
+                            gap: 8,
+                            flexShrink: 0
                         }}
                     >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
                             <Avatar
                                 size={36}
                                 style={{ background: 'rgba(255,255,255,0.2)' }}
@@ -187,7 +184,7 @@ const Chatbot: React.FC = () => {
                                 <div style={{ fontSize: 12, opacity: 0.85 }}>Hỗ trợ thông tin câu lạc bộ</div>
                             </div>
                         </div>
-                        <div style={{ display: 'flex', gap: 4 }}>
+                        <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
                             <Tooltip title="Xóa hội thoại">
                                 <Button
                                     type="text"
@@ -213,7 +210,9 @@ const Chatbot: React.FC = () => {
                         ref={listRef}
                         style={{
                             flex: 1,
+                            minHeight: 0,
                             overflowY: 'auto',
+                            overscrollBehavior: 'contain',
                             padding: '14px 14px 8px',
                             background: '#f8fafc'
                         }}
@@ -321,11 +320,13 @@ const Chatbot: React.FC = () => {
                             background: '#fff',
                             display: 'flex',
                             gap: 6,
-                            alignItems: 'flex-end'
+                            alignItems: 'flex-end',
+                            flexShrink: 0
                         }}
                     >
                         <Input.TextArea
                             ref={inputRef}
+                            className="cmath-chatbot-input"
                             value={draft}
                             onChange={(e) => setDraft(e.target.value)}
                             placeholder="Nhập câu hỏi của phụ huynh..."
@@ -356,10 +357,9 @@ const Chatbot: React.FC = () => {
                     size="large"
                     icon={open ? <CloseOutlined /> : <MessageOutlined />}
                     onClick={toggleOpen}
+                    className="cmath-chatbot-launcher"
                     style={{
                         position: 'fixed',
-                        bottom: 24,
-                        right: 24,
                         width: 56,
                         height: 56,
                         boxShadow: '0 8px 20px rgba(22, 119, 255, 0.35)',
@@ -373,6 +373,37 @@ const Chatbot: React.FC = () => {
             <style
                 dangerouslySetInnerHTML={{
                     __html: `
+                .cmath-chatbot-panel {
+                    bottom: 96px;
+                    right: 24px;
+                    width: 360px;
+                    max-width: calc(100vw - 32px);
+                    height: 520px;
+                    max-height: calc(100vh - 120px);
+                    max-height: calc(100dvh - 120px);
+                }
+                .cmath-chatbot-launcher {
+                    bottom: 24px;
+                    right: 24px;
+                }
+                @media (max-width: 575.98px) {
+                    .cmath-chatbot-panel {
+                        bottom: 84px;
+                        right: 12px;
+                        width: calc(100vw - 24px);
+                        max-width: none;
+                        max-height: calc(100vh - 100px);
+                        max-height: calc(100dvh - 100px);
+                    }
+                    .cmath-chatbot-launcher {
+                        bottom: 16px;
+                        right: 16px;
+                    }
+                    textarea.cmath-chatbot-input,
+                    .cmath-chatbot-input textarea {
+                        font-size: 16px;
+                    }
+                }
                 .cmath-chatbot-typing::after {
                     content: '';
                     display: inline-block;

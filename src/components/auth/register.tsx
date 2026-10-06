@@ -70,9 +70,9 @@ const Register = () => {
     };
 
     return (
-        <Row justify="center" style={{ marginTop: 30, marginBottom: 30 }}>
+        <Row justify="center" style={{ marginTop: 30, marginBottom: 30, padding: '0 8px' }}>
             <Col xs={24} md={16} lg={10}>
-                <fieldset style={{ padding: 20, margin: 5, border: '1px solid #ccc', borderRadius: 5 }}>
+                <fieldset style={{ padding: 'clamp(12px, 4vw, 20px)', margin: 5, border: '1px solid #ccc', borderRadius: 5 }}>
                     <legend>Đăng Ký Tài Khoản Học Sinh</legend>
 
                     <Form

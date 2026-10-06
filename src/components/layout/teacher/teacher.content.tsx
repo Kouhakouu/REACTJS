@@ -11,14 +11,8 @@ const TeacherContent = ({
 
     return (
         <Content>
-            <div
-                style={{
-                    padding: 24,
-                    minHeight: 'calc(100vh - 180px)',
-                    // background: "#ccc",
-                    // borderRadius: "#ccc",
-                }}
-            >
+            {/* padding co lại trên màn hình nhỏ — xem .portal-content trong globals.css */}
+            <div className="portal-content">
                 {children}
             </div>
         </Content>

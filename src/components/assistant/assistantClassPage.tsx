@@ -94,7 +94,7 @@ const AssistantClassPage = ({ params }: { params: { id: string } }) => {
     }
 
     return (
-        <div style={{ padding: '20px' }}>
+        <div className="page-wrapper">
             <Title level={2}>{classDetail.className}</Title>
 
             <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>

@@ -7,6 +7,12 @@ img {
   max-width: 100%;
 }
 
+/* Không cho trang bị kéo ngang trên điện thoại khi có phần tử lỡ rộng hơn màn hình.
+   Chỉ đặt trên body (không đặt trên html) để position: sticky vẫn hoạt động. */
+body {
+  overflow-x: hidden;
+}
+
 /* Navbar: menu ngang trên desktop, nút hamburger trên mobile */
 @media (max-width: 991px) {
   .navbar-menu-desktop {
@@ -23,4 +29,254 @@ img {
 /* Bảng Ant Design: cuộn ngang thay vì vỡ layout trên màn hình hẹp */
 .ant-table-content {
   overflow-x: auto;
+}
+
+/* =========================================================
+   Khung trang các khu vực sau đăng nhập
+   (admin / giáo viên / phụ trách / trợ giảng / học sinh)
+   ========================================================= */
+
+/* Sidebar: dính khi cuộn trên desktop */
+.portal-sider {
+  position: sticky !important;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border-inline-end: 1px solid #f0f0f0;
+  z-index: 101;
+}
+
+.portal-sider.ant-layout-sider-collapsed {
+  border-inline-end: 0;
+}
+
+.portal-sider-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 1001;
+}
+
+/* Header: luôn hiện để mở menu, tên dài bị cắt bằng "..." */
+.portal-header.ant-layout-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0;
+  background: #f5f5f5;
+  line-height: normal;
+}
+
+.portal-header-user {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  margin-right: 20px;
+  cursor: pointer;
+}
+
+.portal-header-greeting {
+  flex-shrink: 0;
+}
+
+.portal-header-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.portal-content {
+  padding: 24px;
+  min-height: calc(100vh - 180px);
+}
+
+.student-content.ant-layout-content {
+  margin: 24px 16px;
+  padding: 24px;
+  min-height: 280px;
+  background: #fff;
+  border-radius: 8px;
+}
+
+/* Màn hình < 992px: sidebar trượt ra đè lên nội dung thay vì chiếm chỗ */
+@media (max-width: 991.98px) {
+  .portal-sider {
+    position: fixed !important;
+    left: 0;
+    bottom: 0;
+    height: auto;
+    z-index: 1002;
+    box-shadow: 6px 0 16px rgba(0, 0, 0, 0.12);
+  }
+
+  /* Chưa hydrate xong thì chưa biết trạng thái đóng/mở -> ẩn để khỏi nháy */
+  .portal-sider:not(.portal-sider--ready) {
+    display: none;
+  }
+
+  .portal-sider.ant-layout-sider-collapsed {
+    box-shadow: none;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .portal-content {
+    padding: 12px;
+  }
+
+  .student-content.ant-layout-content {
+    margin: 12px 8px;
+    padding: 12px;
+  }
+
+  .portal-header-greeting {
+    display: none;
+  }
+
+  .portal-header-user {
+    margin-right: 12px;
+  }
+}
+
+/* =========================================================
+   Tinh chỉnh chung cho Ant Design trên điện thoại
+   ========================================================= */
+@media (max-width: 575.98px) {
+  /* Tiêu đề nhỏ lại cho vừa màn hình */
+  body h1.ant-typography {
+    font-size: 26px;
+  }
+
+  body h2.ant-typography {
+    font-size: 22px;
+  }
+
+  body h3.ant-typography {
+    font-size: 19px;
+  }
+
+  body h4.ant-typography {
+    font-size: 17px;
+  }
+
+  /* Bớt khoảng trắng bên trong thẻ/collapse/modal để dành chỗ cho nội dung */
+  body .ant-card:not(.ant-card-small) > .ant-card-body {
+    padding: 16px;
+  }
+
+  body .ant-card:not(.ant-card-small) > .ant-card-head {
+    padding: 0 16px;
+  }
+
+  body .ant-collapse > .ant-collapse-item > .ant-collapse-header {
+    padding: 12px;
+  }
+
+  body .ant-collapse > .ant-collapse-item > .ant-collapse-content > .ant-collapse-content-box {
+    padding: 12px;
+  }
+
+  body .ant-modal .ant-modal-content {
+    padding: 16px;
+  }
+
+  /* iPhone tự phóng to trang khi chạm vào ô nhập có cỡ chữ < 16px */
+  input:not([type="checkbox"]):not([type="radio"]),
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+
+  /* Giữ chiều cao ô nhập 32px như cũ để không lệch với nút bên cạnh */
+  input:not([type="checkbox"]):not([type="radio"]) {
+    line-height: 1.375 !important;
+  }
+
+  /* Card có nhiều nút ở "extra": cho nút xuống dòng thay vì bóp mất tiêu đề */
+  body .ant-card-head-wrapper {
+    flex-wrap: wrap;
+    row-gap: 8px;
+    padding: 8px 0;
+  }
+
+  body .ant-card-head-title {
+    white-space: normal;
+    min-width: 50%;
+  }
+}
+
+/* =========================================================
+   Thành phần riêng
+   ========================================================= */
+
+/* Carousel "Các khóa học" ở trang chủ: mọi thẻ cao bằng thẻ có mô tả dài nhất,
+   không để chữ tràn ra ngoài thẻ */
+.course-carousel .slick-track {
+  display: flex !important;
+}
+
+.course-carousel .slick-slide {
+  height: auto !important;
+}
+
+.course-carousel .slick-slide > div,
+.course-carousel .slick-slide > div > div {
+  height: 100%;
+}
+
+/* Lịch dạy / lịch hỗ trợ ở Dashboard (chế độ lịch lớn): bớt lề trong ô
+   để đủ chỗ ghi tên lớp và giờ học */
+.schedule-calendar.ant-picker-calendar.ant-picker-calendar-full .ant-picker-panel .ant-picker-calendar-date {
+  margin: 0 2px;
+  padding: 4px 4px 0;
+}
+
+/* =========================================================
+   Lớp tiện ích dùng trong các trang
+   ========================================================= */
+
+/* Khung ngoài cùng của một trang trong khu vực sau đăng nhập.
+   Layout đã có sẵn padding nên trên điện thoại không cộng thêm nữa. */
+.page-wrapper {
+  padding: 20px;
+}
+
+@media (max-width: 767.98px) {
+  .page-wrapper {
+    padding: 0;
+  }
+}
+
+/* Hàng nút/ô lọc: tự xuống dòng khi hết chỗ */
+.responsive-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (max-width: 575.98px) {
+  /* Chiếm hết chiều ngang (dùng cho Select/Input/Button có width cố định) */
+  .mobile-full-width {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  /* Xếp dọc các phần tử của một hàng flex */
+  .mobile-stack {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .mobile-hide {
+    display: none !important;
+  }
 }

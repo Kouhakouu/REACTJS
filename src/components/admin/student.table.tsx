@@ -279,7 +279,7 @@ const StudentTable = () => {
                     />
 
                 </Col>
-                <Col>
+                <Col style={{ marginBottom: '0.5rem' }}>
                     <Button type="primary" onClick={showCreateModal} icon={<PlusOutlined />}>
                         Thêm học sinh mới
                     </Button>

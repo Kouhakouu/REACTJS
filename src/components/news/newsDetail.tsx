@@ -38,7 +38,7 @@ const NewsDetail = ({ slug }: NewsDetailProps) => {
             <NavbarComponent />
             <Layout style={{ background: '#f5f7fb' }}>
                 <Content>
-                    <div style={{ maxWidth: 900, margin: '0 auto', padding: '48px 20px' }}>
+                    <div style={{ maxWidth: 900, margin: '0 auto', padding: 'clamp(28px, 6vw, 48px) 20px' }}>
                         <Link href="/news">← Quay lại Tin tức</Link>
 
                         <Title level={2} style={{ margin: '20px 0 8px' }}>
@@ -81,7 +81,7 @@ const NewsDetail = ({ slug }: NewsDetailProps) => {
 
                         {otherNews.length > 0 && (
                             <>
-                                <Divider style={{ margin: '40px 0' }} />
+                                <Divider style={{ margin: 'clamp(28px, 6vw, 40px) 0' }} />
                                 <Title level={4} style={{ marginBottom: 20 }}>
                                     Tin tức khác
                                 </Title>

@@ -112,7 +112,7 @@ const Secondary = () => {
                     style={{
                         background:
                             'linear-gradient(135deg, #0f172a 0%, #111827 45%, #0b3b75 100%)',
-                        padding: '72px 24px 88px',
+                        padding: 'clamp(40px, 8vw, 72px) 24px clamp(48px, 10vw, 88px)',
                     }}
                 >
                     <div style={{ maxWidth: 1240, margin: '0 auto' }}>
@@ -135,7 +135,7 @@ const Secondary = () => {
                                         style={{
                                             color: '#ffffff',
                                             margin: 0,
-                                            fontSize: 'clamp(36px, 5vw, 58px)',
+                                            fontSize: 'clamp(30px, 5vw, 58px)',
                                             lineHeight: 1.15,
                                         }}
                                     >
@@ -153,7 +153,7 @@ const Secondary = () => {
                                     <Paragraph
                                         style={{
                                             color: 'rgba(255,255,255,0.82)',
-                                            fontSize: 18,
+                                            fontSize: 'clamp(16px, 2.5vw, 18px)',
                                             lineHeight: 1.9,
                                             maxWidth: 760,
                                             marginBottom: 0,
@@ -238,7 +238,7 @@ const Secondary = () => {
                                         background: 'rgba(255,255,255,0.08)',
                                         border: '1px solid rgba(255,255,255,0.14)',
                                         borderRadius: 28,
-                                        padding: 24,
+                                        padding: 'clamp(14px, 4vw, 24px)',
                                         backdropFilter: 'blur(10px)',
                                     }}
                                 >
@@ -252,7 +252,7 @@ const Secondary = () => {
                                                         'linear-gradient(135deg, rgba(255,255,255,0.98) 0%, rgba(240,247,255,0.96) 100%)',
                                                 }}
                                                 styles={{
-                                                    body: { padding: 22 },
+                                                    body: { padding: 'clamp(16px, 4vw, 22px)' },
                                                 }}
                                             >
                                                 <Space align="start" size="middle">
@@ -298,7 +298,7 @@ const Secondary = () => {
                                                     height: '100%',
                                                 }}
                                                 styles={{
-                                                    body: { padding: 20 },
+                                                    body: { padding: 'clamp(14px, 4vw, 20px)' },
                                                 }}
                                             >
                                                 <Text type="secondary">Trọng tâm</Text>
@@ -320,7 +320,7 @@ const Secondary = () => {
                                                     height: '100%',
                                                 }}
                                                 styles={{
-                                                    body: { padding: 20 },
+                                                    body: { padding: 'clamp(14px, 4vw, 20px)' },
                                                 }}
                                             >
                                                 <Text type="secondary">Mục tiêu</Text>
@@ -342,7 +342,7 @@ const Secondary = () => {
                                                     border: '1px solid rgba(105,177,255,0.2)',
                                                 }}
                                                 styles={{
-                                                    body: { padding: 20 },
+                                                    body: { padding: 'clamp(14px, 4vw, 20px)' },
                                                 }}
                                             >
                                                 <Text style={{ color: '#dbeafe' }}>Phù hợp với</Text>
@@ -382,9 +382,9 @@ const Secondary = () => {
                 </section>
 
                 {/* Highlights */}
-                <section style={{ padding: '72px 24px', background: '#ffffff' }}>
+                <section style={{ padding: 'clamp(48px, 8vw, 72px) 24px', background: '#ffffff' }}>
                     <div style={{ maxWidth: 1240, margin: '0 auto' }}>
-                        <div style={{ textAlign: 'center', marginBottom: 48 }}>
+                        <div style={{ textAlign: 'center', marginBottom: 'clamp(28px, 5vw, 48px)' }}>
                             <Text
                                 strong
                                 style={{
@@ -425,7 +425,7 @@ const Secondary = () => {
                                             boxShadow: '0 14px 40px rgba(15,23,42,0.06)',
                                         }}
                                         styles={{
-                                            body: { padding: 28 },
+                                            body: { padding: 'clamp(16px, 4vw, 28px)' },
                                         }}
                                     >
                                         <div
@@ -465,7 +465,7 @@ const Secondary = () => {
                 </section>
 
                 {/* Roadmap */}
-                <section style={{ padding: '72px 24px', background: '#f8fafc' }}>
+                <section style={{ padding: 'clamp(48px, 8vw, 72px) 24px', background: '#f8fafc' }}>
                     <div style={{ maxWidth: 1240, margin: '0 auto' }}>
                         <Row gutter={[40, 40]} align="top">
                             <Col xs={24} lg={8}>
@@ -505,15 +505,15 @@ const Secondary = () => {
                                                 boxShadow: '0 10px 28px rgba(0,0,0,0.05)',
                                             }}
                                             styles={{
-                                                body: { padding: 24 },
+                                                body: { padding: 'clamp(16px, 4vw, 24px)' },
                                             }}
                                         >
                                             <Row gutter={[20, 20]} align="middle">
-                                                <Col xs={24} sm={5} md={4}>
+                                                <Col xs={6} sm={5} md={4}>
                                                     <div
                                                         style={{
-                                                            width: 72,
-                                                            height: 72,
+                                                            width: 'clamp(48px, 12vw, 72px)',
+                                                            height: 'clamp(48px, 12vw, 72px)',
                                                             borderRadius: 20,
                                                             background:
                                                                 'linear-gradient(135deg, #1677ff 0%, #69b1ff 100%)',
@@ -530,7 +530,7 @@ const Secondary = () => {
                                                     </div>
                                                 </Col>
 
-                                                <Col xs={24} sm={19} md={20}>
+                                                <Col xs={18} sm={19} md={20}>
                                                     <Title level={4} style={{ marginBottom: 8 }}>
                                                         {item.title}
                                                     </Title>
@@ -555,9 +555,9 @@ const Secondary = () => {
                 </section>
 
                 {/* Tracks */}
-                <section style={{ padding: '72px 24px', background: '#ffffff' }}>
+                <section style={{ padding: 'clamp(48px, 8vw, 72px) 24px', background: '#ffffff' }}>
                     <div style={{ maxWidth: 1240, margin: '0 auto' }}>
-                        <div style={{ textAlign: 'center', marginBottom: 48 }}>
+                        <div style={{ textAlign: 'center', marginBottom: 'clamp(28px, 5vw, 48px)' }}>
                             <Text
                                 strong
                                 style={{
@@ -586,7 +586,7 @@ const Secondary = () => {
                                             border: '1px solid #eef3fb',
                                         }}
                                         styles={{
-                                            body: { padding: 28 },
+                                            body: { padding: 'clamp(16px, 4vw, 28px)' },
                                         }}
                                     >
                                         <Title level={4} style={{ marginBottom: 18 }}>
@@ -626,12 +626,12 @@ const Secondary = () => {
                 </section>
 
                 {/* CTA */}
-                <section style={{ padding: '24px 24px 88px', background: '#ffffff' }}>
+                <section style={{ padding: '24px 24px clamp(56px, 10vw, 88px)', background: '#ffffff' }}>
                     <div style={{ maxWidth: 1000, margin: '0 auto' }}>
                         <div
                             style={{
                                 borderRadius: 32,
-                                padding: '48px 24px',
+                                padding: 'clamp(32px, 7vw, 48px) clamp(16px, 4vw, 24px)',
                                 background:
                                     'linear-gradient(135deg, #111827 0%, #172554 50%, #1677ff 100%)',
                                 textAlign: 'center',

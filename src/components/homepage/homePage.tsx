@@ -1,5 +1,5 @@
 'use client'
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { Carousel, Layout, Menu, Button, Row, Col, Card, Typography } from "antd";
 import { HomeOutlined, InfoCircleOutlined, PhoneOutlined, TrophyOutlined, BookOutlined, SolutionOutlined, FileTextOutlined, ReadOutlined, SafetyOutlined, TeamOutlined, HeartOutlined, UserOutlined, LoginOutlined, UserAddOutlined, LeftOutlined, RightOutlined, YoutubeOutlined } from "@ant-design/icons";
@@ -8,7 +8,15 @@ import FooterComponent from "@/components/common/footer";
 const { Title, Paragraph } = Typography;
 const { Header, Content, Footer } = Layout;
 
+// Lề ngang các khối: 10% trên desktop, thu dần về 16px trên điện thoại
+const sectionPaddingX = "clamp(16px, 15vw - 72px, 10%)";
+
 const HomePage = () => {
+    // Trước khi carousel tính xong kích thước (lúc chưa hydrate), mỗi slide chỉ rộng 1/4 khung
+    // -> giữ thẻ cao cố định 250px, tránh trang bị kéo dài rồi giật lại trên điện thoại
+    const [carouselReady, setCarouselReady] = useState(false);
+    useEffect(() => setCarouselReady(true), []);
+
     const features = [
         {
             title: "TRIẾT LÝ DẠY HỌC",
@@ -83,7 +91,7 @@ const HomePage = () => {
                     <img src="/banner2627.jpg" alt="Hero" style={{ width: "100%", height: "auto" }} />
                 </div>
 
-                <div style={{ textAlign: "center", padding: "50px 10%", background: "#fff" }}>
+                <div style={{ textAlign: "center", padding: `clamp(32px, 6vw, 50px) ${sectionPaddingX}`, background: "#fff" }}>
                     <Title level={1} style={{ fontSize: "clamp(28px, 5vw, 50px)" }}>Vì sao chọn chúng tôi</Title>
                     <div style={{ width: "80px", height: "3px", background: "#f4c20d", margin: "auto" }}></div>
 
@@ -113,7 +121,7 @@ const HomePage = () => {
                     </Row>
                 </div>
 
-                <div style={{ background: "#E7F6F8", padding: "80px 10%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <div style={{ background: "#E7F6F8", padding: `clamp(40px, 8vw, 80px) ${sectionPaddingX}`, display: "flex", alignItems: "center", justifyContent: "center" }}>
                     <Row gutter={[32, 32]} align="middle">
                         <Col xs={24} md={12}>
                             <Title level={2}>Về chúng tôi</Title>
@@ -152,11 +160,13 @@ const HomePage = () => {
                     </Row>
                 </div>
 
-                <div style={{ textAlign: "center", padding: "50px 10%" }}>
+                <div style={{ textAlign: "center", padding: `clamp(32px, 6vw, 50px) ${sectionPaddingX}` }}>
                     <Title level={2}>Các khóa học</Title>
                     <div style={{ width: "80px", height: "3px", background: "#f4c20d", margin: "10px auto 30px" }}></div>
 
+                    {/* course-carousel: các thẻ cao bằng nhau theo thẻ dài nhất — xem globals.css */}
                     <Carousel
+                        className={carouselReady ? "course-carousel" : undefined}
                         arrows
                         dots={false}
                         slidesToShow={4}
@@ -178,7 +188,8 @@ const HomePage = () => {
                                         padding: "10px",
                                         textAlign: "center",
                                         color: "#fff",
-                                        height: "250px",
+                                        height: carouselReady ? "100%" : "250px",
+                                        minHeight: "250px",
                                         margin: "0 10px"
                                     }}
                                 >
@@ -191,7 +202,7 @@ const HomePage = () => {
 
                 </div>
 
-                <div style={{ background: "rgb(28 177 245)", padding: "80px 10%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <div style={{ background: "rgb(28 177 245)", padding: `clamp(40px, 8vw, 80px) ${sectionPaddingX}`, display: "flex", alignItems: "center", justifyContent: "center" }}>
                     <Row gutter={[32, 32]} align="middle">
                         <Col xs={24} md={12}>
                             <Title level={2}>Người truyền cảm hứng</Title>

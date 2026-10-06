@@ -310,7 +310,7 @@ const Class = ({ params }: { params: { id: string } }) => {
     }
 
     return (
-        <div style={{ padding: 20 }}>
+        <div className="page-wrapper">
             <Row justify="space-between" align="middle" gutter={[16, 16]} style={{ marginBottom: 16 }}>
                 <Col>
                     <Title level={2} style={{ marginBottom: 4 }}>

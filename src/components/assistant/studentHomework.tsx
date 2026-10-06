@@ -796,7 +796,7 @@ const StudentHomework = () => {
     ];
 
     return (
-        <div style={{ padding: '20px' }}>
+        <div className="page-wrapper">
             <Tabs
                 onChange={handleTabChange}
                 activeKey={selectedClass ? selectedClass.id.toString() : undefined}
@@ -884,7 +884,7 @@ const StudentHomework = () => {
                                                     <Col xs={24} lg={12}>
                                                         <Card style={{ marginBottom: '20px' }}>
                                                             <Title level={4}>Nhập danh sách bài tập (cách nhau bằng dấu phẩy)</Title>
-                                                            <Space direction="horizontal" style={{ width: '100%' }}>
+                                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, width: '100%' }}>
                                                                 <Input
                                                                     placeholder="Nhập bài tập: 1a, 2a,..."
                                                                     value={customTasks}
@@ -894,7 +894,7 @@ const StudentHomework = () => {
                                                                 <Button type="primary" onClick={handleHomeworkConfirm}>
                                                                     Xác nhận
                                                                 </Button>
-                                                            </Space>
+                                                            </div>
                                                         </Card>
 
                                                         <Card>

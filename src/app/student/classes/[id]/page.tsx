@@ -90,6 +90,7 @@ export default function StudentClassDetailPage() {
             title: 'Nội dung buổi học',
             dataIndex: 'lessonContent',
             key: 'lessonContent',
+            width: 240,
             render: (v: string) => v || <span style={{ color: '#bbb' }}>Chưa cập nhật</span>,
         },
         {
@@ -177,7 +178,7 @@ export default function StudentClassDetailPage() {
                 columns={columns}
                 dataSource={classDetail.lessons}
                 pagination={false}
-                scroll={{ x: true }}
+                scroll={{ x: 'max-content' }}
                 bordered
             />
         </div>

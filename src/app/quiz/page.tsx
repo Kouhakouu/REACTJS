@@ -490,7 +490,7 @@ export default function Page() {
     // ====== UI ======
     return (
         <div style={{ minHeight: "100vh", background: "#f6f7fb" }}>
-            <div style={{ maxWidth: 900, margin: "0 auto", padding: 24 }}>
+            <div style={{ maxWidth: 900, margin: "0 auto", padding: "clamp(12px, 4vw, 24px)" }}>
                 {/* Header */}
                 <div
                     style={{
@@ -640,6 +640,7 @@ export default function Page() {
                             borderRadius: 18,
                             padding: 16,
                             display: "flex",
+                            flexWrap: "wrap",
                             gap: 12,
                             alignItems: "center",
                             justifyContent: "space-between",
@@ -702,7 +703,7 @@ export default function Page() {
                                     fontWeight: 700,
                                 }}
                             />
-                            <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                            <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center" }}>
                                 <button
                                     type="button"
                                     onClick={handleVerifyCode}

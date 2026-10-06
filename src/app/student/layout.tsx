@@ -1,42 +1,34 @@
 "use client";
 
 import React, { useContext } from 'react';
-import { Layout, Menu, Avatar, Dropdown, theme, MenuProps } from 'antd';
-import { useRouter, usePathname } from 'next/navigation';
+import { Layout, Avatar, Button, Dropdown, theme, MenuProps } from 'antd';
+import { useRouter } from 'next/navigation';
 import {
     DashboardOutlined,
     BookOutlined,
     UserOutlined,
     LogoutOutlined,
     LockOutlined,
+    MenuFoldOutlined,
+    MenuUnfoldOutlined,
 } from '@ant-design/icons';
 import { AuthContext } from '@/library/authContext';
+import { AdminContext, AdminContextProvider } from '@/library/admin.context';
+import PortalSideBar, { PortalMenuItem } from '@/components/layout/portal.sidebar';
 
-const { Sider, Content, Header } = Layout;
+const { Content, Header } = Layout;
 
-export default function StudentLayout({ children }: { children: React.ReactNode }) {
+const menuItems: PortalMenuItem[] = [
+    { key: '/student', href: '/student', icon: <DashboardOutlined />, label: 'Tổng quan' },
+    { key: '/student/classes', href: '/student/classes', icon: <BookOutlined />, label: 'Lớp học của tôi' },
+    { key: '/student/profile', href: '/student/profile', icon: <UserOutlined />, label: 'Hồ sơ của tôi' },
+];
+
+const StudentHeader = () => {
     const router = useRouter();
-    const pathname = usePathname();
     const { token: antToken } = theme.useToken();
     const { user, logout } = useContext(AuthContext);
-
-    const menuItems = [
-        {
-            key: '/student',
-            icon: <DashboardOutlined />,
-            label: 'Tổng quan',
-        },
-        {
-            key: '/student/classes',
-            icon: <BookOutlined />,
-            label: 'Lớp học của tôi',
-        },
-        {
-            key: '/student/profile',
-            icon: <UserOutlined />,
-            label: 'Hồ sơ của tôi',
-        },
-    ];
+    const { collapseMenu, setCollapseMenu } = useContext(AdminContext)!;
 
     const userDropdownItems: MenuProps['items'] = [
         {
@@ -63,61 +55,66 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
         },
     ];
 
-    // Highlight đúng menu khi vào trang con (vd: /student/classes/1)
-    const selectedKey = menuItems.map(m => m.key).find(k => pathname.startsWith(k) && (k !== '/student' || pathname === '/student')) ?? '/student';
+    return (
+        <Header
+            className="portal-header"
+            style={{ background: '#fff', boxShadow: '0 1px 4px rgba(0,21,41,.08)' }}
+        >
+            <Button
+                type="text"
+                aria-label={collapseMenu ? 'Mở menu' : 'Đóng menu'}
+                icon={collapseMenu ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+                onClick={() => setCollapseMenu(!collapseMenu)}
+                style={{ fontSize: 16, width: 64, height: 64, flexShrink: 0 }}
+            />
+            <Dropdown menu={{ items: userDropdownItems }} placement="bottomRight" arrow>
+                <div className="portal-header-user" style={{ cursor: 'pointer', gap: 8 }}>
+                    <Avatar style={{ backgroundColor: antToken.colorPrimary, flexShrink: 0 }} icon={<UserOutlined />} />
+                    <span className="portal-header-name" style={{ fontWeight: 500 }}>{user?.fullName ?? 'Học sinh'}</span>
+                </div>
+            </Dropdown>
+        </Header>
+    );
+};
+
+export default function StudentLayout({ children }: { children: React.ReactNode }) {
+    const { token: antToken } = theme.useToken();
 
     return (
-        <Layout style={{ minHeight: '100vh' }}>
-            <Sider collapsible theme="light" breakpoint="lg" collapsedWidth={0}>
-                <div
-                    style={{
-                        height: 32,
-                        margin: 16,
-                        background: 'rgba(0,0,0,0.05)',
-                        borderRadius: 6,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontWeight: 'bold',
-                        color: antToken.colorPrimary,
-                        overflow: 'hidden',
-                        whiteSpace: 'nowrap',
-                    }}
-                >
-                    CMATH EDUCATION
-                </div>
-                <Menu
-                    theme="light"
-                    mode="inline"
-                    selectedKeys={[selectedKey]}
+        <AdminContextProvider>
+            <Layout style={{ minHeight: '100vh' }}>
+                <PortalSideBar
                     items={menuItems}
-                    onClick={({ key }) => router.push(key)}
-                />
-            </Sider>
-
-            <Layout>
-                <Header
-                    style={{
-                        padding: '0 24px',
-                        background: '#fff',
-                        display: 'flex',
-                        justifyContent: 'flex-end',
-                        alignItems: 'center',
-                        boxShadow: '0 1px 4px rgba(0,21,41,.08)',
-                    }}
-                >
-                    <Dropdown menu={{ items: userDropdownItems }} placement="bottomRight" arrow>
-                        <div style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <Avatar style={{ backgroundColor: antToken.colorPrimary }} icon={<UserOutlined />} />
-                            <span style={{ fontWeight: 500 }}>{user?.fullName ?? 'Học sinh'}</span>
+                    logo={
+                        <div
+                            style={{
+                                height: 32,
+                                margin: 16,
+                                background: 'rgba(0,0,0,0.05)',
+                                borderRadius: 6,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontWeight: 'bold',
+                                color: antToken.colorPrimary,
+                                overflow: 'hidden',
+                                whiteSpace: 'nowrap',
+                            }}
+                        >
+                            CMATH EDUCATION
                         </div>
-                    </Dropdown>
-                </Header>
+                    }
+                />
 
-                <Content style={{ margin: '24px 16px', padding: 24, minHeight: 280, background: '#fff', borderRadius: 8 }}>
-                    {children}
-                </Content>
+                <Layout style={{ minWidth: 0 }}>
+                    <StudentHeader />
+
+                    {/* margin/padding co lại trên màn hình nhỏ — xem .student-content trong globals.css */}
+                    <Content className="student-content">
+                        {children}
+                    </Content>
+                </Layout>
             </Layout>
-        </Layout>
+        </AdminContextProvider>
     );
 }

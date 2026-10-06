@@ -1,64 +1,14 @@
 'use client'
-import Layout from "antd/es/layout";
-import Menu from "antd/es/menu";
 import { AppstoreOutlined, TeamOutlined, ScheduleOutlined, BookOutlined } from '@ant-design/icons';
-import React, { useContext } from 'react';
-import { AdminContext } from "@/library/admin.context";
-import type { MenuProps } from 'antd';
-import Link from 'next/link'
+import PortalSideBar, { PortalMenuItem } from "@/components/layout/portal.sidebar";
 
-type MenuItem = Required<MenuProps>['items'][number];
-const ManagerSideBar = () => {
-    const { Sider } = Layout;
-    const { collapseMenu, setCollapseMenu } = useContext(AdminContext)!;
+const items: PortalMenuItem[] = [
+    { key: "dashboard", href: "/manager", label: "Dashboard", icon: <AppstoreOutlined /> },
+    { key: "students", href: "/manager/managing", label: "QL lớp học", icon: <TeamOutlined /> },
+    { key: "assistants", href: "/manager/assistants", label: "Phân công trợ giảng", icon: <ScheduleOutlined /> },
+    { key: "document", href: "/manager/documents", label: "Tài liệu học tập", icon: <BookOutlined /> },
+];
 
-    const items: MenuItem[] = [
-        {
-            key: 'grp',
-            label: 'PhongBui',
-            type: 'group',
-            children: [
-                {
-                    key: "dashboard",
-                    label: <Link href={"/manager"}>Dashboard</Link>,
-                    icon: <AppstoreOutlined />,
-                },
-                {
-                    key: "students",
-                    label: <Link href={"/manager/managing"}>QL lớp học</Link>,
-                    icon: <TeamOutlined />,
-                },
-                {
-                    key: "assistants",
-                    label: <Link href={"/manager/assistants"}>Phân công trợ giảng</Link>,
-                    icon: <ScheduleOutlined />,
-                },
-                {
-                    key: "document",
-                    label: <Link href={"/manager/documents"}>Tài liệu học tập</Link>,
-                    icon: <BookOutlined />,
-                },
-            ],
-        },
-    ];
-
-    return (
-        <Sider
-            collapsed={collapseMenu}
-            breakpoint="lg"
-            collapsedWidth={0}
-            trigger={null}
-            onBreakpoint={(broken) => setCollapseMenu(broken)}
-        >
-
-            <Menu
-                mode="inline"
-                defaultSelectedKeys={['']}
-                items={items}
-                style={{ height: '100vh' }}
-            />
-        </Sider>
-    )
-}
+const ManagerSideBar = () => <PortalSideBar title="PhongBui" items={items} />;
 
 export default ManagerSideBar;

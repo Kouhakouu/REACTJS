@@ -144,7 +144,7 @@ const AdminCourseManagement = () => {
     ];
 
     return (
-        <div style={{ padding: 24 }}>
+        <div className="page-wrapper">
             <Title level={3}>Quản lý khóa học</Title>
             <Table
                 dataSource={courses}
@@ -152,7 +152,8 @@ const AdminCourseManagement = () => {
                 rowKey="id"
                 loading={loading}
                 pagination={{ defaultPageSize: 10, pageSizeOptions: ['5', '10', '20', '50', '100'] }}
-                scroll={{ x: 'max-content' }}
+                // Cột "Mô tả" dùng ellipsis nên cần x cố định để không bị kéo dài theo nội dung
+                scroll={{ x: 1200 }}
             />
 
             <Modal

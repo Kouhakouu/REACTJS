@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { AuthContext } from '@/library/authContext';
-import { Table, Spin, Typography, Switch, message, Descriptions, Button, Popconfirm, Tooltip, Input, InputNumber, Space } from 'antd';
+import { Table, Spin, Typography, Switch, message, Descriptions, Button, Popconfirm, Tooltip, Input, InputNumber, Space, Grid } from 'antd';
 import { LockOutlined, UnlockOutlined, MailOutlined, EditOutlined, SaveOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { formatDate } from '@/utils/formatDate';
@@ -55,6 +55,9 @@ const StudentPerformancePage = () => {
     const router = useRouter();
     const params = useParams();
     const { token } = useContext(AuthContext);
+    const screens = Grid.useBreakpoint();
+    // Số cột thông tin buổi học theo kích thước màn hình
+    const descColumn = screens.lg ? 3 : screens.md ? 2 : 1;
 
     const classId = params.id as string | undefined;
     const lessonId = params.lessonId as string | undefined;
@@ -376,7 +379,7 @@ const StudentPerformancePage = () => {
             key: 'fullName',
             fixed: 'left',
             sorter: (a, b) => a.fullName.localeCompare(b.fullName),
-            width: 200,
+            width: screens.sm ? 200 : 140,
         },
         {
             title: 'Email phụ huynh',
@@ -456,19 +459,19 @@ const StudentPerformancePage = () => {
     const presentCount = studentPerformances.filter(student => student.attendance).length;
 
     return (
-        <div style={{ padding: '20px', backgroundColor: '#fff' }}>
+        <div className="page-wrapper" style={{ backgroundColor: '#fff' }}>
 
             {!loading && (
                 <div style={{ marginBottom: 30 }}>
                     {/* Header + Nút Chốt Kết Quả + Nút Gửi Email */}
-                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: 20, position: 'relative' }}>
-                        <Title level={3} style={{ textTransform: 'uppercase', margin: 0 }}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: 8, marginBottom: 20, position: 'relative' }}>
+                        <Title level={3} style={{ textTransform: 'uppercase', margin: 0, textAlign: 'center' }}>
                             {headerInfo.className ? `LỚP ${headerInfo.className}` : '...'} :
                             Ngày {headerInfo.lessonDate ? formatDate(headerInfo.lessonDate) : '...'}
                         </Title>
 
                         {/* Nút nằm bên phải */}
-                        <div style={{ position: 'absolute', right: 0, display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <div style={{ position: screens.xl ? 'absolute' : 'static', right: 0, display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: 10 }}>
                             {/* Gửi email */}
                             <Tooltip title={!headerInfo.isLocked ? 'Vui lòng chốt kết quả trước khi gửi email' : 'Gửi email kết quả buổi học cho tất cả phụ huynh'}>
                                 <Popconfirm
@@ -529,7 +532,7 @@ const StudentPerformancePage = () => {
                         </div>
                     </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginBottom: 8 }}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'flex-end', gap: 8, marginBottom: 8 }}>
                         {isEditingInfo ? (
                             <>
                                 <Button onClick={() => setIsEditingInfo(false)} disabled={savingInfo}>Hủy</Button>
@@ -542,8 +545,14 @@ const StudentPerformancePage = () => {
                         )}
                     </div>
 
-                    <Descriptions bordered column={3} size="middle" labelStyle={{ fontWeight: 'bold', backgroundColor: '#fafafa', width: '150px' }}>
-                        <Descriptions.Item label="Nội dung bài học" span={3}>
+                    <Descriptions
+                        bordered
+                        column={descColumn}
+                        size={screens.sm ? 'middle' : 'small'}
+                        layout={screens.sm ? 'horizontal' : 'vertical'}
+                        labelStyle={{ fontWeight: 'bold', backgroundColor: '#fafafa', width: '150px' }}
+                    >
+                        <Descriptions.Item label="Nội dung bài học" span={descColumn}>
                             {isEditingInfo ? (
                                 <Input.TextArea
                                     autoSize={{ minRows: 1, maxRows: 6 }}

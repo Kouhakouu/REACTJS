@@ -170,7 +170,7 @@ const StudentSection: React.FC<StudentSectionProps> = ({
     students,
 }) => {
     return (
-        <section style={{ marginBottom: 72 }}>
+        <section style={{ marginBottom: 'clamp(40px, 8vw, 72px)' }}>
             <div style={{ marginBottom: 28 }}>
                 <Title level={2} style={sectionTitleStyle}>
                     {title}
@@ -213,7 +213,7 @@ const Achievement = () => {
                 <div
                     style={{
                         background: 'linear-gradient(135deg, #eef6ff 0%, #ffffff 50%, #f8fbff 100%)',
-                        padding: '72px 24px 56px',
+                        padding: 'clamp(40px, 8vw, 72px) 24px clamp(32px, 6vw, 56px)',
                         textAlign: 'center',
                     }}
                 >
@@ -223,7 +223,7 @@ const Achievement = () => {
                             style={{
                                 marginTop: 16,
                                 marginBottom: 16,
-                                fontSize: 'clamp(32px, 5vw, 52px)',
+                                fontSize: 'clamp(28px, 5vw, 52px)',
                                 lineHeight: 1.2,
                             }}
                         >
@@ -232,7 +232,7 @@ const Achievement = () => {
 
                         <Paragraph
                             style={{
-                                fontSize: 18,
+                                fontSize: 'clamp(16px, 2.5vw, 18px)',
                                 color: '#666',
                                 lineHeight: 1.8,
                                 margin: '0 auto',
@@ -249,7 +249,7 @@ const Achievement = () => {
                     style={{
                         maxWidth: 1280,
                         margin: '0 auto',
-                        padding: '56px 24px 80px',
+                        padding: 'clamp(32px, 6vw, 56px) 24px clamp(40px, 8vw, 80px)',
                     }}
                 >
                     <StudentSection
@@ -259,7 +259,7 @@ const Achievement = () => {
 
                     <Divider
                         style={{
-                            margin: '8px 0 56px',
+                            margin: '8px 0 clamp(32px, 6vw, 56px)',
                             borderColor: '#d9d9d9',
                         }}
                     />

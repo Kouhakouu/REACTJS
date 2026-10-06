@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Layout, Button, Card, Col, Row, Space, Typography, Divider, Tag } from 'antd'
+import { Layout, Button, Card, Col, Row, Space, Typography, Divider, Tag, Grid } from 'antd'
 import {
     ArrowRightOutlined,
     CheckCircleFilled,
@@ -99,6 +99,9 @@ const outcomes = [
 ]
 
 const High = () => {
+    const screens = Grid.useBreakpoint()
+    const isMobile = screens.md === false
+
     return (
         <Layout style={{ minHeight: '100vh', background: '#fcfaf6' }}>
             <NavbarComponent />
@@ -108,7 +111,7 @@ const High = () => {
                 <section
                     style={{
                         background: '#fcfaf6',
-                        padding: '80px 24px 56px',
+                        padding: 'clamp(40px, 8vw, 80px) 24px clamp(36px, 6vw, 56px)',
                         borderBottom: '1px solid #ece7df',
                     }}
                 >
@@ -119,6 +122,8 @@ const High = () => {
                                     <Tag
                                         style={{
                                             width: 'fit-content',
+                                            maxWidth: '100%',
+                                            whiteSpace: 'normal',
                                             marginInlineEnd: 0,
                                             padding: '8px 16px',
                                             borderRadius: 999,
@@ -135,7 +140,7 @@ const High = () => {
                                     <Title
                                         style={{
                                             margin: 0,
-                                            fontSize: 'clamp(40px, 5.5vw, 72px)',
+                                            fontSize: 'clamp(32px, 5.5vw, 72px)',
                                             lineHeight: 1.05,
                                             letterSpacing: -1.2,
                                             color: '#1f1f1f',
@@ -154,7 +159,7 @@ const High = () => {
 
                                     <Paragraph
                                         style={{
-                                            fontSize: 19,
+                                            fontSize: 'clamp(16px, 2.6vw, 19px)',
                                             lineHeight: 1.95,
                                             color: '#5b5b5b',
                                             maxWidth: 780,
@@ -204,7 +209,7 @@ const High = () => {
                                         background: '#fffdf9',
                                         border: '1px solid #e8e1d8',
                                         borderRadius: 32,
-                                        padding: 28,
+                                        padding: 'clamp(16px, 4vw, 28px)',
                                         boxShadow: '0 20px 50px rgba(60,40,20,0.05)',
                                     }}
                                 >
@@ -349,8 +354,15 @@ const High = () => {
                                         style={{
                                             padding: '28px 24px',
                                             textAlign: 'center',
-                                            borderLeft: '1px solid #e9e2d8',
-                                            borderRight: '1px solid #e9e2d8',
+                                            ...(isMobile
+                                                ? {
+                                                    borderTop: '1px solid #e9e2d8',
+                                                    borderBottom: '1px solid #e9e2d8',
+                                                }
+                                                : {
+                                                    borderLeft: '1px solid #e9e2d8',
+                                                    borderRight: '1px solid #e9e2d8',
+                                                }),
                                         }}
                                     >
                                         <Title level={4} style={{ marginBottom: 8 }}>
@@ -377,9 +389,9 @@ const High = () => {
                 </section>
 
                 {/* Pillars */}
-                <section style={{ padding: '84px 24px', background: '#fffdf9' }}>
+                <section style={{ padding: 'clamp(48px, 9vw, 84px) 24px', background: '#fffdf9' }}>
                     <div style={{ maxWidth: 1240, margin: '0 auto' }}>
-                        <div style={{ textAlign: 'center', marginBottom: 52 }}>
+                        <div style={{ textAlign: 'center', marginBottom: 'clamp(32px, 6vw, 52px)' }}>
                             <Text
                                 style={{
                                     color: '#7a1f1f',
@@ -419,7 +431,7 @@ const High = () => {
                                             border: '1px solid #eee6dc',
                                             boxShadow: '0 10px 30px rgba(60,40,20,0.04)',
                                         }}
-                                        styles={{ body: { padding: 30 } }}
+                                        styles={{ body: { padding: 'clamp(16px, 4vw, 30px)' } }}
                                     >
                                         <div
                                             style={{
@@ -458,7 +470,7 @@ const High = () => {
                 </section>
 
                 {/* Stages */}
-                <section style={{ padding: '84px 24px', background: '#fcfaf6' }}>
+                <section style={{ padding: 'clamp(48px, 9vw, 84px) 24px', background: '#fcfaf6' }}>
                     <div style={{ maxWidth: 1240, margin: '0 auto' }}>
                         <Row gutter={[40, 40]} align="top">
                             <Col xs={24} lg={8}>
@@ -501,14 +513,14 @@ const High = () => {
                                                 background: index % 2 === 0 ? '#fff' : '#fffaf3',
                                                 border: '1px solid #ebe3d9',
                                             }}
-                                            styles={{ body: { padding: 24 } }}
+                                            styles={{ body: { padding: 'clamp(16px, 4vw, 24px)' } }}
                                         >
                                             <Row gutter={[20, 20]} align="middle">
-                                                <Col xs={24} sm={5} md={4}>
+                                                <Col xs={6} sm={5} md={4}>
                                                     <div
                                                         style={{
-                                                            width: 74,
-                                                            height: 74,
+                                                            width: 'clamp(48px, 12vw, 74px)',
+                                                            height: 'clamp(48px, 12vw, 74px)',
                                                             borderRadius: '50%',
                                                             background: index % 2 === 0 ? '#7a1f1f' : '#1d39c4',
                                                             color: '#fff',
@@ -524,7 +536,7 @@ const High = () => {
                                                     </div>
                                                 </Col>
 
-                                                <Col xs={24} sm={19} md={20}>
+                                                <Col xs={18} sm={19} md={20}>
                                                     <Title level={4} style={{ marginBottom: 8 }}>
                                                         {item.title}
                                                     </Title>
@@ -549,9 +561,9 @@ const High = () => {
                 </section>
 
                 {/* Pathways */}
-                <section style={{ padding: '84px 24px', background: '#fffdf9' }}>
+                <section style={{ padding: 'clamp(48px, 9vw, 84px) 24px', background: '#fffdf9' }}>
                     <div style={{ maxWidth: 1240, margin: '0 auto' }}>
-                        <div style={{ textAlign: 'center', marginBottom: 52 }}>
+                        <div style={{ textAlign: 'center', marginBottom: 'clamp(32px, 6vw, 52px)' }}>
                             <Text
                                 style={{
                                     color: '#ad6800',
@@ -578,7 +590,7 @@ const High = () => {
                                             background: '#fff',
                                             border: '1px solid #ece3d7',
                                         }}
-                                        styles={{ body: { padding: 28 } }}
+                                        styles={{ body: { padding: 'clamp(16px, 4vw, 28px)' } }}
                                     >
                                         <Space direction="vertical" size={16} style={{ width: '100%' }}>
 
@@ -620,7 +632,7 @@ const High = () => {
                 </section>
 
                 {/* Outcomes */}
-                <section style={{ padding: '84px 24px', background: '#fcfaf6' }}>
+                <section style={{ padding: 'clamp(48px, 9vw, 84px) 24px', background: '#fcfaf6' }}>
                     <div style={{ maxWidth: 1240, margin: '0 auto' }}>
                         <Row gutter={[36, 36]} align="middle">
                             <Col xs={24} lg={10}>
@@ -655,7 +667,7 @@ const High = () => {
                                         border: '1px solid #e9e1d6',
                                         boxShadow: '0 12px 36px rgba(60,40,20,0.05)',
                                     }}
-                                    styles={{ body: { padding: 30 } }}
+                                    styles={{ body: { padding: 'clamp(16px, 4vw, 30px)' } }}
                                 >
                                     <Space direction="vertical" size={18} style={{ width: '100%' }}>
                                         {outcomes.map((item) => (
@@ -682,12 +694,12 @@ const High = () => {
                 </section>
 
                 {/* CTA */}
-                <section style={{ padding: '24px 24px 92px', background: '#fffdf9' }}>
+                <section style={{ padding: '24px 24px clamp(56px, 10vw, 92px)', background: '#fffdf9' }}>
                     <div style={{ maxWidth: 1240, margin: '0 auto' }}>
                         <div
                             style={{
                                 borderRadius: 34,
-                                padding: '56px 24px',
+                                padding: 'clamp(36px, 7vw, 56px) clamp(16px, 4vw, 24px)',
                                 textAlign: 'center',
                                 background: '#ffffff',
                                 border: '1px solid #e9e1d6',

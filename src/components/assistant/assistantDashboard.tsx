@@ -3,7 +3,7 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import {
-    Alert, Badge, Calendar, Card, Col, DatePicker,
+    Alert, Badge, Calendar, Card, Col, DatePicker, Grid,
     Modal, List as AntList, Row, Spin, Statistic, Tag, Typography,
 } from 'antd';
 import { TeamOutlined, BookOutlined, CalendarOutlined } from '@ant-design/icons';
@@ -163,6 +163,8 @@ function StackedBarChart({ data }: { data: BarDatum[] }) {
 // ---------- Main component ----------
 const AssistantDashboard = () => {
     const { token } = useContext(AuthContext);
+    const screens = Grid.useBreakpoint();
+    const isMobile = !screens.sm;
 
     const [hasMounted, setHasMounted] = useState(false);
     const [classes, setClasses] = useState<ClassSummary[]>([]);
@@ -350,7 +352,7 @@ const AssistantDashboard = () => {
     }
 
     return (
-        <div style={{ padding: 20 }}>
+        <div className="page-wrapper">
             {/* Summary cards */}
             <Row gutter={[16, 16]} style={{ marginBottom: 20 }}>
                 <Col xs={24} sm={8}>
@@ -387,7 +389,7 @@ const AssistantDashboard = () => {
             </Row>
 
             {/* Week picker */}
-            <Row justify="space-between" align="middle" style={{ marginBottom: 12 }}>
+            <Row justify="space-between" align="middle" gutter={[8, 8]} style={{ marginBottom: 12 }}>
                 <Col>
                     <Text type="secondary">
                         Thống kê theo tuần: {weekStart.format('DD/MM')} – {weekEnd.format('DD/MM/YYYY')}
@@ -407,10 +409,19 @@ const AssistantDashboard = () => {
                 {/* Left: Calendar */}
                 <Col xs={24} lg={14}>
                     <Card title="Lịch hỗ trợ" extra={<Link href="/assistant/classes">Xem lớp</Link>}>
+                        {/* Từ tablet trở lên dùng lịch lớn (mỗi ô cao 86px) để ghi được tên lớp + giờ;
+                            lịch nhỏ (fullscreen=false) chỉ có ô cao 24px nên nội dung bị tràn đè lên hàng dưới */}
                         <Calendar
+                            className="schedule-calendar"
                             value={calendarValue}
                             onChange={(v) => setCalendarValue(v)}
-                            fullscreen={false}
+                            onSelect={(v, info) => {
+                                // Điện thoại: chạm vào ngày có lịch để xem chi tiết
+                                if (isMobile && info.source === 'date' && (teachingEventsByDate.get(v.format('YYYY-MM-DD')) || []).length > 0) {
+                                    setOpenDay(v);
+                                }
+                            }}
+                            fullscreen={!isMobile}
                             dateCellRender={(value) => {
                                 const key = value.format('YYYY-MM-DD');
                                 const events = teachingEventsByDate.get(key) || [];
@@ -419,13 +430,27 @@ const AssistantDashboard = () => {
                                 const shown = events.slice(0, maxShow);
                                 const remaining = events.length - shown.length;
 
+                                // Điện thoại: ô lịch quá hẹp nên chỉ hiện chấm xanh dưới ngày có lịch
+                                if (isMobile) {
+                                    return hasClass ? (
+                                        <div style={{ display: 'flex', justifyContent: 'center', gap: 2, height: 6, lineHeight: 0 }}>
+                                            {events.slice(0, 3).map((ev) => (
+                                                <span
+                                                    key={`${ev.classId}-${ev.start}`}
+                                                    style={{ width: 6, height: 6, borderRadius: '50%', background: '#52c41a' }}
+                                                />
+                                            ))}
+                                        </div>
+                                    ) : null;
+                                }
+
                                 return (
                                     <div
                                         onClick={() => hasClass && setOpenDay(value)}
                                         style={{
-                                            height: 76,
-                                            padding: 6,
-                                            borderRadius: 12,
+                                            height: '100%',
+                                            padding: 4,
+                                            borderRadius: 8,
                                             border: hasClass ? '2px solid #52c41a' : '1px solid transparent',
                                             background: hasClass ? 'rgba(82, 196, 26, 0.06)' : 'transparent',
                                             boxSizing: 'border-box',
@@ -436,18 +461,22 @@ const AssistantDashboard = () => {
                                         {hasClass && (
                                             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                                                 {shown.map((ev) => (
-                                                    <div key={`${ev.classId}-${ev.start}`} style={{ lineHeight: 1.1 }}>
+                                                    <div
+                                                        key={`${ev.classId}-${ev.start}`}
+                                                        title={`${ev.className}: ${ev.start} – ${ev.end}`}
+                                                        style={{ lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                                                    >
                                                         <Badge status="success" />
-                                                        <span style={{ marginLeft: 6, fontSize: 12, fontWeight: 600 }}>
+                                                        <span style={{ marginLeft: 4, fontSize: 12, fontWeight: 600 }}>
                                                             {ev.className}
                                                         </span>
-                                                        <div style={{ marginLeft: 20, fontSize: 11, color: '#666' }}>
-                                                            {ev.start} – {ev.end}
+                                                        <div style={{ fontSize: 11, color: '#666', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                                            {ev.start}–{ev.end}
                                                         </div>
                                                     </div>
                                                 ))}
                                                 {remaining > 0 && (
-                                                    <Text type="secondary" style={{ fontSize: 11, marginLeft: 20 }}>
+                                                    <Text type="secondary" style={{ fontSize: 11 }}>
                                                         +{remaining} ca nữa
                                                     </Text>
                                                 )}

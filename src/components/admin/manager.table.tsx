@@ -163,7 +163,7 @@ const ManagerTable: React.FC = () => {
 
     return (
         <div>
-            <Row justify="space-between" style={{ marginBottom: 16 }}>
+            <Row justify="space-between" gutter={[0, 8]} style={{ marginBottom: 16 }}>
                 <Col>
                     <Input
                         placeholder="Tìm quản lý"

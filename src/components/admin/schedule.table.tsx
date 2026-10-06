@@ -90,7 +90,7 @@ const renderScheduleContent = (
         <div
             style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(min(220px, 100%), 1fr))',
                 gap: '16px',
             }}
         >
@@ -296,6 +296,8 @@ const ScheduleTable: React.FC = () => {
                 style={{
                     display: 'flex',
                     justifyContent: 'space-between',
+                    flexWrap: 'wrap',
+                    gap: 8,
                     marginBottom: '16px',
                 }}
             >

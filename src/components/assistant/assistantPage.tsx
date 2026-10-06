@@ -50,7 +50,7 @@ export default function AssistantPage() {
     if (error) return <Alert type="error" message={error} />;
 
     return (
-        <div style={{ padding: 20 }}>
+        <div className="page-wrapper">
             <Title level={2}>Danh sách lớp học</Title>
 
             <Row gutter={[16, 16]}>

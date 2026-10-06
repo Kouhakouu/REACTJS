@@ -210,7 +210,7 @@ const Info = () => {
                     <div
                         style={{
                             background: 'linear-gradient(135deg, #e6f4ff 0%, #f9f0ff 100%)',
-                            padding: '72px 20px',
+                            padding: 'clamp(40px, 8vw, 72px) 20px',
                         }}
                     >
                         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
@@ -221,6 +221,8 @@ const Info = () => {
                                             color="blue"
                                             style={{
                                                 width: 'fit-content',
+                                                maxWidth: '100%',
+                                                whiteSpace: 'normal',
                                                 padding: '6px 14px',
                                                 borderRadius: 999,
                                                 fontSize: 14,
@@ -243,7 +245,7 @@ const Info = () => {
 
                                         <Paragraph
                                             style={{
-                                                fontSize: 18,
+                                                fontSize: 'clamp(16px, 2.5vw, 18px)',
                                                 lineHeight: 1.9,
                                                 color: '#475569',
                                                 marginBottom: 0,
@@ -274,7 +276,7 @@ const Info = () => {
                                             boxShadow: '0 20px 60px rgba(15, 23, 42, 0.08)',
                                             overflow: 'hidden',
                                         }}
-                                        bodyStyle={{ padding: 28 }}
+                                        bodyStyle={{ padding: 'clamp(16px, 4vw, 28px)' }}
                                     >
                                         <Space direction="vertical" size={20} style={{ width: '100%' }}>
                                             <Title level={3} style={{ margin: 0 }}>
@@ -284,7 +286,7 @@ const Info = () => {
                                             <div
                                                 style={{
                                                     display: 'grid',
-                                                    gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+                                                    gridTemplateColumns: 'repeat(auto-fit, minmax(134px, 1fr))',
                                                     gap: 16,
                                                 }}
                                             >
@@ -332,7 +334,7 @@ const Info = () => {
                         </div>
                     </div>
 
-                    <div style={{ maxWidth: 1200, margin: '0 auto', padding: '64px 20px' }}>
+                    <div style={{ maxWidth: 1200, margin: '0 auto', padding: 'clamp(40px, 8vw, 64px) 20px' }}>
                         <Space direction="vertical" size={16} style={{ width: '100%', marginBottom: 32 }}>
                             <Title level={2} style={{ margin: 0 }}>
                                 Hành trình hình thành và sứ mệnh
@@ -395,7 +397,7 @@ const Info = () => {
                                                 borderRadius: 20,
                                                 boxShadow: '0 10px 30px rgba(15, 23, 42, 0.06)',
                                             }}
-                                            bodyStyle={{ padding: 24 }}
+                                            bodyStyle={{ padding: 'clamp(16px, 4vw, 24px)' }}
                                         >
                                             <Space direction="vertical" size={16} style={{ width: '100%' }}>
                                                 <div
@@ -433,7 +435,7 @@ const Info = () => {
                             </Row>
                         </div>
 
-                        <Divider style={{ margin: '64px 0 48px' }} />
+                        <Divider style={{ margin: 'clamp(40px, 8vw, 64px) 0 clamp(32px, 6vw, 48px)' }} />
 
                         <div>
                             <Title level={2} style={{ textAlign: 'center', marginBottom: 12 }}>
@@ -463,7 +465,7 @@ const Info = () => {
                                                 borderRadius: 20,
                                                 boxShadow: '0 10px 30px rgba(15, 23, 42, 0.06)',
                                             }}
-                                            bodyStyle={{ padding: 24 }}
+                                            bodyStyle={{ padding: 'clamp(16px, 4vw, 24px)' }}
                                         >
                                             <Space align="start" size={16}>
                                                 <div
@@ -498,7 +500,7 @@ const Info = () => {
                             </Row>
                         </div>
 
-                        <Divider style={{ margin: '64px 0 48px' }} />
+                        <Divider style={{ margin: 'clamp(40px, 8vw, 64px) 0 clamp(32px, 6vw, 48px)' }} />
 
                         <Row gutter={[24, 24]}>
                             <Col xs={24} lg={12}>
@@ -509,7 +511,7 @@ const Info = () => {
                                         borderRadius: 20,
                                         boxShadow: '0 10px 30px rgba(15, 23, 42, 0.06)',
                                     }}
-                                    bodyStyle={{ padding: 28 }}
+                                    bodyStyle={{ padding: 'clamp(16px, 4vw, 28px)' }}
                                 >
                                     <Title level={3}>Triết lý dạy học</Title>
                                     <Paragraph style={{ color: '#475569', lineHeight: 1.9, fontSize: 16 }}>
@@ -533,7 +535,7 @@ const Info = () => {
                                         borderRadius: 20,
                                         boxShadow: '0 10px 30px rgba(15, 23, 42, 0.06)',
                                     }}
-                                    bodyStyle={{ padding: 28 }}
+                                    bodyStyle={{ padding: 'clamp(16px, 4vw, 28px)' }}
                                 >
                                     <Title level={3}>Đội ngũ giáo viên</Title>
                                     <Paragraph style={{ color: '#475569', lineHeight: 1.9, fontSize: 16 }}>
@@ -549,7 +551,7 @@ const Info = () => {
                             </Col>
                         </Row>
 
-                        <Divider style={{ margin: '64px 0 48px' }} />
+                        <Divider style={{ margin: 'clamp(40px, 8vw, 64px) 0 clamp(32px, 6vw, 48px)' }} />
 
                         <Card
                             bordered={false}
@@ -557,7 +559,7 @@ const Info = () => {
                                 borderRadius: 24,
                                 boxShadow: '0 10px 30px rgba(15, 23, 42, 0.06)',
                             }}
-                            bodyStyle={{ padding: 32 }}
+                            bodyStyle={{ padding: 'clamp(16px, 5vw, 32px)' }}
                         >
                             <Title level={2} style={{ textAlign: 'center', marginBottom: 8 }}>
                                 Phương pháp giảng dạy tại CMATH
@@ -631,7 +633,7 @@ const Info = () => {
                                 style={{
                                     background: '#fff',
                                     borderRadius: 24,
-                                    padding: '8px 24px',
+                                    padding: '8px clamp(16px, 4vw, 24px)',
                                     boxShadow: '0 10px 30px rgba(15, 23, 42, 0.06)',
                                 }}
                             >
@@ -721,7 +723,7 @@ const Info = () => {
                             </div>
                         </div>
 
-                        <Divider style={{ margin: '64px 0 32px' }} />
+                        <Divider style={{ margin: 'clamp(40px, 8vw, 64px) 0 32px' }} />
 
                         <div>
                             <Title level={2} style={{ textAlign: 'center', marginBottom: 12 }}>
@@ -735,7 +737,7 @@ const Info = () => {
                                     boxShadow: '0 10px 30px rgba(15, 23, 42, 0.06)',
                                     background: 'linear-gradient(180deg, #ffffff 0%, #f8fbff 100%)',
                                 }}
-                                bodyStyle={{ padding: 32 }}
+                                bodyStyle={{ padding: 'clamp(16px, 5vw, 32px)' }}
                             >
                                 <Paragraph
                                     style={{
@@ -765,7 +767,7 @@ const Info = () => {
                                                     boxShadow: '0 8px 24px rgba(15, 23, 42, 0.05)',
                                                     border: '1px solid #eef2f7',
                                                 }}
-                                                bodyStyle={{ padding: 24 }}
+                                                bodyStyle={{ padding: 'clamp(16px, 4vw, 24px)' }}
                                             >
                                                 <Space direction="vertical" size={14} style={{ width: '100%' }}>
                                                     <Text
@@ -802,7 +804,7 @@ const Info = () => {
                             style={{
                                 background: '#fff',
                                 borderRadius: 24,
-                                padding: '8px 24px',
+                                padding: '8px clamp(16px, 4vw, 24px)',
                                 boxShadow: '0 10px 30px rgba(15, 23, 42, 0.06)',
                             }}
                         >
@@ -903,13 +905,13 @@ const Info = () => {
                             ))}
                         </div>
 
-                        <Divider style={{ margin: '64px 0 48px' }} />
+                        <Divider style={{ margin: 'clamp(40px, 8vw, 64px) 0 clamp(32px, 6vw, 48px)' }} />
 
                         <div
                             style={{
                                 background: 'linear-gradient(135deg, #1677ff 0%, #722ed1 100%)',
                                 borderRadius: 28,
-                                padding: '40px 28px',
+                                padding: 'clamp(28px, 6vw, 40px) clamp(16px, 5vw, 28px)',
                                 textAlign: 'center',
                                 color: '#fff',
                             }}

@@ -81,7 +81,7 @@ const LessonStudentsPerformance = ({
     };
 
     return (
-        <div style={{ padding: '20px' }}>
+        <div className="page-wrapper">
             <Title level={2}>Thông tin buổi học</Title>
             {loading ? (
                 <Spin tip="Đang tải..." style={{ display: 'flex', justifyContent: 'center', padding: 20 }} />
@@ -124,7 +124,7 @@ const LessonStudentsPerformance = ({
                         },
                         { title: 'Trình bày', dataIndex: ['performance', 'presentation'], key: 'presentation' },
                         { title: 'Kỹ năng', dataIndex: ['performance', 'skills'], key: 'skills' },
-                        { title: 'Nhận xét', dataIndex: ['performance', 'comment'], key: 'comment' },
+                        { title: 'Nhận xét', dataIndex: ['performance', 'comment'], key: 'comment', width: 360 },
                     ]}
                     rowKey="id"
                     pagination={{ defaultPageSize: 10, pageSizeOptions: ['5', '10', '20', '50', '100'] }}

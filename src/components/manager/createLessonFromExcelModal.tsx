@@ -278,7 +278,7 @@ const CreateLessonFromExcelModal = ({ open, classId, token, onCancel, onSuccess 
                                         rowKey="id"
                                         size="small"
                                         pagination={false}
-                                        scroll={{ y: 320 }}
+                                        scroll={{ x: 'max-content', y: 320 }}
                                         locale={{ emptyText: 'Lớp chưa có học sinh' }}
                                         footer={() => (
                                             <Text type="secondary">
@@ -298,7 +298,7 @@ const CreateLessonFromExcelModal = ({ open, classId, token, onCancel, onSuccess 
                                         rowKey="rowNumber"
                                         size="small"
                                         pagination={false}
-                                        scroll={{ y: 320 }}
+                                        scroll={{ x: 'max-content', y: 320 }}
                                         locale={{ emptyText: 'Tất cả học sinh "Đang học" trong file đều thuộc lớp' }}
                                     />
                                 )

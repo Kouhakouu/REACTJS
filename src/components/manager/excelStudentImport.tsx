@@ -226,7 +226,7 @@ export const FileClassAlert = ({ parsed, fileName, systemClassName }: FileClassA
     return (
         <>
             <Alert
-                style={{ marginTop: 16 }}
+                style={{ marginTop: 16, overflowWrap: 'anywhere' }}
                 type="info"
                 showIcon
                 message={`File: ${fileName}`}
@@ -266,7 +266,7 @@ export const InactiveRowsTable = ({ rows }: { rows: InactiveRow[] }) => (
         rowKey="rowNumber"
         size="small"
         pagination={false}
-        scroll={{ y: 320 }}
+        scroll={{ x: 'max-content', y: 320 }}
         locale={{ emptyText: 'Không có' }}
     />
 );
@@ -284,7 +284,7 @@ export const SkippedRowsTable = ({ rows }: { rows: SkippedRow[] }) => (
         rowKey={(row) => `${row.rowNumber}-${row.fullName}`}
         size="small"
         pagination={false}
-        scroll={{ y: 320 }}
+        scroll={{ x: 'max-content', y: 320 }}
         locale={{ emptyText: 'Không có' }}
     />
 );

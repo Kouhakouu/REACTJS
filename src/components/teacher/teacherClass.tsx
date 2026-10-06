@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState, useContext } from 'react';
 import { useParams } from 'next/navigation';
-import { Spin, Table, Typography, message } from 'antd';
+import { Grid, Spin, Table, Typography, message } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { AuthContext } from '@/library/authContext';
 
@@ -42,6 +42,7 @@ interface ClassDetail {
 export default function TeacherClassPage({ params }: { params: { id: string } }) {
     const { id } = useParams<{ id: string }>();
     const { token } = useContext(AuthContext);
+    const screens = Grid.useBreakpoint();
 
     const [classDetail, setClassDetail] = useState<ClassDetail | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
@@ -73,7 +74,9 @@ export default function TeacherClassPage({ params }: { params: { id: string } })
     }
 
     const { className, sessions, students } = classDetail;
-    const otherColWidth = `calc((100% - 180px) / ${sessions.length})`;
+    // Cột tiêu đề hẹp lại trên điện thoại để còn chỗ cho các buổi học
+    const labelColWidth = screens.sm === false ? 120 : 180;
+    const otherColWidth = `calc((100% - ${labelColWidth}px) / ${sessions.length})`;
 
     // Các cột hiển thị thông tin cơ bản
     const columns: ColumnsType<StudentRecord> = [
@@ -90,7 +93,7 @@ export default function TeacherClassPage({ params }: { params: { id: string } })
     ];
 
     return (
-        <div style={{ padding: 20 }}>
+        <div className="page-wrapper">
             <Title level={2}>{className}</Title>
 
             <Table<StudentRecord>
@@ -101,7 +104,7 @@ export default function TeacherClassPage({ params }: { params: { id: string } })
                 expandable={{
                     expandRowByClick: true,
                     expandedRowRender: record => (
-                        <div style={{ overflowX: 'auto', padding: 16 }}>
+                        <div style={{ overflowX: 'auto', padding: 'clamp(4px, 2vw, 16px)' }}>
                             <table
                                 style={{
                                     width: '100%',
@@ -116,8 +119,8 @@ export default function TeacherClassPage({ params }: { params: { id: string } })
                                                 border: '1px solid #ddd',
                                                 padding: 8,
                                                 background: '#fafafa',
-                                                width: 180,
-                                                maxWidth: 180
+                                                width: labelColWidth,
+                                                maxWidth: labelColWidth
                                             }}
                                         />
                                         {sessions.map(s => (
@@ -146,8 +149,8 @@ export default function TeacherClassPage({ params }: { params: { id: string } })
                                                 padding: 8,
                                                 fontWeight: 'bold',
                                                 textAlign: 'left',
-                                                width: 180,
-                                                maxWidth: 180
+                                                width: labelColWidth,
+                                                maxWidth: labelColWidth
                                             }}
                                         >
                                             Số bài làm được
@@ -172,8 +175,8 @@ export default function TeacherClassPage({ params }: { params: { id: string } })
                                                 padding: 8,
                                                 fontWeight: 'bold',
                                                 textAlign: 'left',
-                                                width: 180,
-                                                maxWidth: 180
+                                                width: labelColWidth,
+                                                maxWidth: labelColWidth
                                             }}
                                         >
                                             Số bài làm đúng
@@ -198,8 +201,8 @@ export default function TeacherClassPage({ params }: { params: { id: string } })
                                                 padding: 8,
                                                 fontWeight: 'bold',
                                                 textAlign: 'left',
-                                                width: 180,
-                                                maxWidth: 180
+                                                width: labelColWidth,
+                                                maxWidth: labelColWidth
                                             }}
                                         >
                                             Các bài làm sai
@@ -225,8 +228,8 @@ export default function TeacherClassPage({ params }: { params: { id: string } })
                                                 padding: 8,
                                                 fontWeight: 'bold',
                                                 textAlign: 'left',
-                                                width: 180,
-                                                maxWidth: 180
+                                                width: labelColWidth,
+                                                maxWidth: labelColWidth
                                             }}
                                         >
                                             Các bài làm chưa làm được
@@ -252,8 +255,8 @@ export default function TeacherClassPage({ params }: { params: { id: string } })
                                                 padding: 8,
                                                 fontWeight: 'bold',
                                                 textAlign: 'left',
-                                                width: 180,
-                                                maxWidth: 180
+                                                width: labelColWidth,
+                                                maxWidth: labelColWidth
                                             }}
                                         >
                                             Trình bày
@@ -278,8 +281,8 @@ export default function TeacherClassPage({ params }: { params: { id: string } })
                                                 padding: 8,
                                                 fontWeight: 'bold',
                                                 textAlign: 'left',
-                                                width: 180,
-                                                maxWidth: 180
+                                                width: labelColWidth,
+                                                maxWidth: labelColWidth
                                             }}
                                         >
                                             Kĩ năng

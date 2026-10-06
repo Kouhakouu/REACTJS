@@ -3,7 +3,7 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { AuthContext } from '@/library/authContext';
-import { Alert, Badge, Calendar, Card, Col, DatePicker, Modal, List as AntList, Row, Spin, Tag, Typography } from 'antd';
+import { Alert, Badge, Calendar, Card, Col, DatePicker, Grid, Modal, List as AntList, Row, Spin, Tag, Typography } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
@@ -242,6 +242,7 @@ function StackedBarChart({ data }: { data: BarDatum[] }) {
 
 const TeacherPage = () => {
     const { token } = useContext(AuthContext);
+    const screens = Grid.useBreakpoint();
 
     const [hasMounted, setHasMounted] = useState(false);
 
@@ -436,8 +437,8 @@ const TeacherPage = () => {
     }
 
     return (
-        <div style={{ padding: 20 }}>
-            <Row justify="space-between" align="middle" style={{ marginBottom: 2 }}>
+        <div className="page-wrapper">
+            <Row justify="space-between" align="middle" gutter={[8, 8]} style={{ marginBottom: 2 }}>
                 <Col>
                     <Text type="secondary">
                         Thống kê theo tuần: {weekStart.format('DD/MM')} – {weekEnd.format('DD/MM/YYYY')}
@@ -459,10 +460,13 @@ const TeacherPage = () => {
                 {/* LEFT: Calendar (6) */}
                 <Col xs={24} lg={14}>
                     <Card title="Lịch dạy" extra={<Link href="/teacher/classes">Xem lớp</Link>}>
+                        {/* Từ tablet trở lên dùng lịch lớn (mỗi ô cao 86px) để ghi được tên lớp + giờ;
+                            lịch nhỏ (fullscreen=false) chỉ có ô cao 24px nên nội dung bị tràn đè lên hàng dưới */}
                         <Calendar
+                            className="schedule-calendar"
                             value={calendarValue}
                             onChange={(v) => setCalendarValue(v)}
-                            fullscreen={false}
+                            fullscreen={!!screens.sm}
                             dateCellRender={(value) => {
                                 const key = value.format('YYYY-MM-DD');
                                 const events = teachingEventsByDate.get(key) || [];
@@ -472,13 +476,51 @@ const TeacherPage = () => {
                                 const shown = events.slice(0, maxShow);
                                 const remaining = events.length - shown.length;
 
+                                // Điện thoại: ô lịch quá hẹp để ghi tên lớp -> chỉ khoanh ngày có ca dạy, bấm để xem chi tiết
+                                if (!screens.sm) {
+                                    return hasClass ? (
+                                        <div
+                                            onClick={() => setOpenDay(value)}
+                                            style={{
+                                                position: 'absolute',
+                                                inset: '-4px -6px',
+                                                borderRadius: 8,
+                                                border: '2px solid #1677ff',
+                                                background: 'rgba(22, 119, 255, 0.06)',
+                                                cursor: 'pointer',
+                                            }}
+                                        >
+                                            {events.length > 1 && (
+                                                <span
+                                                    style={{
+                                                        position: 'absolute',
+                                                        top: -6,
+                                                        right: -6,
+                                                        minWidth: 14,
+                                                        height: 14,
+                                                        padding: '0 3px',
+                                                        borderRadius: 7,
+                                                        background: '#1677ff',
+                                                        color: '#fff',
+                                                        fontSize: 10,
+                                                        lineHeight: '14px',
+                                                        textAlign: 'center',
+                                                    }}
+                                                >
+                                                    {events.length}
+                                                </span>
+                                            )}
+                                        </div>
+                                    ) : null;
+                                }
+
                                 return (
                                     <div
                                         onClick={() => hasClass && setOpenDay(value)}
                                         style={{
-                                            height: 76,
-                                            padding: 6,
-                                            borderRadius: 12,
+                                            height: '100%',
+                                            padding: 4,
+                                            borderRadius: 8,
                                             border: hasClass ? '2px solid #1677ff' : '1px solid transparent',
                                             background: hasClass ? 'rgba(22, 119, 255, 0.06)' : 'transparent',
                                             boxSizing: 'border-box',
@@ -489,13 +531,17 @@ const TeacherPage = () => {
                                         {hasClass ? (
                                             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                                                 {shown.map((ev) => (
-                                                    <div key={`${ev.classId}-${ev.start}`} style={{ lineHeight: 1.1 }}>
+                                                    <div
+                                                        key={`${ev.classId}-${ev.start}`}
+                                                        title={`${ev.className}: ${ev.start} – ${ev.end}`}
+                                                        style={{ lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                                                    >
                                                         <Badge status="processing" />
-                                                        <span style={{ marginLeft: 6, fontSize: 12, fontWeight: 600 }}>
+                                                        <span style={{ marginLeft: 4, fontSize: 12, fontWeight: 600 }}>
                                                             {ev.className}
                                                         </span>
-                                                        <div style={{ marginLeft: 20, fontSize: 11, color: '#666' }}>
-                                                            {ev.start} – {ev.end}
+                                                        <div style={{ fontSize: 11, color: '#666', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                                            {ev.start}–{ev.end}
                                                         </div>
                                                     </div>
                                                 ))}
@@ -503,7 +549,7 @@ const TeacherPage = () => {
                                                 {remaining > 0 && (
                                                     <Text
                                                         type="secondary"
-                                                        style={{ fontSize: 11, marginLeft: 20 }}
+                                                        style={{ fontSize: 11 }}
                                                         onClick={(e) => {
                                                             e.stopPropagation();
                                                             setOpenDay(value);

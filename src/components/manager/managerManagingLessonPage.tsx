@@ -171,7 +171,7 @@ const ManagerManagingLessonPage = () => {
                     </Form.Item>
                 </Form>
             </Modal>
-            <div style={{ padding: '20px' }}>
+            <div className="page-wrapper">
 
                 {loading && ( // Show loading for lessons specifically if needed
                     <div style={{ textAlign: 'center', padding: '20px' }}><Spin tip="Đang tải buổi học..." /></div>

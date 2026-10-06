@@ -7,8 +7,8 @@ const { Title, Paragraph } = Typography;
 
 const FooterComponent = () => {
     return (
-        <Footer style={{ background: "#FFD700", padding: "40px 10%", color: "#000" }}>
-            <Row gutter={[32, 32]} justify="space-around" align="top">
+        <Footer style={{ background: "#FFD700", padding: "clamp(28px, 6vw, 40px) clamp(16px, 15vw - 72px, 10%)", color: "#000" }}>
+            <Row gutter={[32, 16]} justify="space-around" align="top">
                 <Col xs={24} md={7} style={{ textAlign: "left" }}>
                     <Title level={4} style={{ color: "#000", marginBottom: "20px" }}>
                         Câu lạc bộ Toán học muôn màu

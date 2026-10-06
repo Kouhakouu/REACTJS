@@ -358,6 +358,7 @@ const ChildrenHomework = () => {
             title: 'Nhận xét',
             dataIndex: 'comments',
             key: 'comments',
+            width: 360,
             ellipsis: false,
             render: (value: string) => (
                 <div style={{ whiteSpace: 'pre-wrap', minWidth: 240 }}>{value || ''}</div>
@@ -386,7 +387,7 @@ const ChildrenHomework = () => {
     ];
 
     return (
-        <div style={{ padding: 16, maxWidth: 1200, margin: '0 auto' }}>
+        <div className="page-wrapper" style={{ maxWidth: 1200, margin: '0 auto' }}>
             {/* Upload file Excel */}
             <Card style={{ marginBottom: '20px' }}>
                 <Space direction="vertical" size="middle" style={{ width: '100%' }}>
@@ -425,7 +426,7 @@ const ChildrenHomework = () => {
                 <Col xs={24} lg={12}>
                     <Card style={{ marginBottom: '20px' }}>
                         <Title level={4}>Nhập danh sách bài tập (cách nhau bằng dấu phẩy)</Title>
-                        <Space direction="horizontal" style={{ width: '100%' }}>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, width: '100%' }}>
                             <Input
                                 placeholder="Nhập bài tập: 1a, 2,..."
                                 value={customTasks}
@@ -449,7 +450,7 @@ const ChildrenHomework = () => {
                             >
                                 Xác nhận
                             </Button>
-                        </Space>
+                        </div>
                     </Card>
 
                     <Card>

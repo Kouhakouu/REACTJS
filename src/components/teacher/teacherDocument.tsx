@@ -174,6 +174,7 @@ const TeacherDocument = () => {
             title: 'Mô tả',
             dataIndex: 'description',
             key: 'description',
+            width: 280,
             render: (text: string | null) => text || 'Không có mô tả',
         },
         {
@@ -227,11 +228,12 @@ const TeacherDocument = () => {
     ];
 
     return (
-        <div style={{ padding: 24 }}>
+        <div className="page-wrapper">
             <h2>Tài liệu giáo viên</h2>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
                 <Input.Search
                     placeholder="Tìm tài liệu theo tiêu đề"
+                    className="mobile-full-width"
                     style={{ width: 300 }}
                     onChange={e => setSearchText(e.target.value)}
                     allowClear
@@ -246,6 +248,7 @@ const TeacherDocument = () => {
                 columns={columns}
                 dataSource={filtered}
                 loading={loading}
+                scroll={{ x: 'max-content' }}
                 pagination={{ defaultPageSize: 10, pageSizeOptions: ['5', '10', '20', '50', '100'] }}
             />
 

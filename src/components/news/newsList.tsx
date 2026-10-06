@@ -17,8 +17,8 @@ const NewsList = () => {
             <NavbarComponent />
             <Layout style={{ background: '#f5f7fb' }}>
                 <Content>
-                    <div style={{ maxWidth: 900, margin: '0 auto', padding: '48px 20px' }}>
-                        <Title level={2} style={{ marginBottom: 32 }}>
+                    <div style={{ maxWidth: 900, margin: '0 auto', padding: 'clamp(28px, 6vw, 48px) 20px' }}>
+                        <Title level={2} style={{ marginBottom: 'clamp(20px, 4vw, 32px)' }}>
                             Tin tức
                         </Title>
 
@@ -32,15 +32,17 @@ const NewsList = () => {
                                         src={item.thumbnail}
                                         alt={item.title}
                                         style={{
-                                            width: 220,
-                                            height: 140,
+                                            flex: '1 1 220px',
+                                            minWidth: 0,
+                                            aspectRatio: '11 / 7',
+                                            alignSelf: 'flex-start',
                                             objectFit: 'cover',
                                             borderRadius: 8,
-                                            flexShrink: 0,
                                         }}
                                     />
 
-                                    <div style={{ flex: 1, minWidth: 220 }}>
+                                    {/* Khi xuống dòng (điện thoại), ảnh giãn hết chiều ngang phía trên nội dung */}
+                                    <div style={{ flex: '999 1 0%', minWidth: 220 }}>
                                         <Title
                                             level={4}
                                             style={{
