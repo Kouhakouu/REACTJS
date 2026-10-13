@@ -37,7 +37,6 @@ interface HeaderInfo {
     homeworkList?: string;
     previousHomeworkCount?: number;
     previousLessonContent?: string;
-    hasPreviousLesson?: boolean;
     nextHomework?: string;
     isLocked?: boolean;
 }
@@ -91,7 +90,6 @@ const StudentPerformancePage = () => {
                     homeworkList: data.homeworkList,
                     previousHomeworkCount: data.previousHomeworkCount,
                     previousLessonContent: data.previousLessonContent,
-                    hasPreviousLesson: data.hasPreviousLesson,
                     nextHomework: data.nextHomework,
                     isLocked: data.isLocked
                 });
@@ -157,7 +155,7 @@ const StudentPerformancePage = () => {
     const startEditingInfo = () => {
         setInfoDraft({
             lessonContent: headerInfo.lessonContent || '',
-            previousLessonContent: headerInfo.hasPreviousLesson ? (headerInfo.previousLessonContent || '') : '',
+            previousLessonContent: headerInfo.previousLessonContent || '',
             totalTaskLength: headerInfo.previousHomeworkCount ?? 0,
             nextHomework: headerInfo.nextHomework || '',
         });
@@ -173,7 +171,7 @@ const StudentPerformancePage = () => {
             if (infoDraft.lessonContent !== (headerInfo.lessonContent || '')) {
                 body.lessonContent = infoDraft.lessonContent;
             }
-            if (headerInfo.hasPreviousLesson && infoDraft.previousLessonContent !== (headerInfo.previousLessonContent || '')) {
+            if (infoDraft.previousLessonContent !== (headerInfo.previousLessonContent || '')) {
                 body.previousLessonContent = infoDraft.previousLessonContent;
             }
             if (infoDraft.totalTaskLength !== null && infoDraft.totalTaskLength !== (headerInfo.previousHomeworkCount ?? 0)) {
@@ -473,10 +471,10 @@ const StudentPerformancePage = () => {
                         {/* Nút nằm bên phải */}
                         <div style={{ position: screens.xl ? 'absolute' : 'static', right: 0, display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: 10 }}>
                             {/* Gửi email */}
-                            <Tooltip title={!headerInfo.isLocked ? 'Vui lòng chốt kết quả trước khi gửi email' : 'Gửi email kết quả buổi học cho tất cả phụ huynh'}>
+                            <Tooltip title={!headerInfo.isLocked ? 'Vui lòng chốt kết quả trước khi gửi email' : 'Gửi email kết quả buổi học cho phụ huynh các học sinh có mặt'}>
                                 <Popconfirm
                                     title="Gửi email kết quả buổi học?"
-                                    description="Hệ thống sẽ gửi email tới tất cả học sinh có email phụ huynh. Bạn chắc chắn muốn gửi?"
+                                    description="Hệ thống sẽ gửi email tới phụ huynh của các học sinh có mặt (học sinh vắng không nhận mail). Bạn chắc chắn muốn gửi?"
                                     onConfirm={handleSendEmails}
                                     okText="Gửi ngay"
                                     cancelText="Hủy"
@@ -564,9 +562,10 @@ const StudentPerformancePage = () => {
                             )}
                         </Descriptions.Item>
                         <Descriptions.Item label="Nội dung buổi trước">
-                            {isEditingInfo && headerInfo.hasPreviousLesson ? (
+                            {isEditingInfo ? (
                                 <Input.TextArea
                                     autoSize={{ minRows: 1, maxRows: 6 }}
+                                    placeholder="Không có"
                                     value={infoDraft.previousLessonContent}
                                     onChange={e => setInfoDraft(d => ({ ...d, previousLessonContent: e.target.value }))}
                                 />
