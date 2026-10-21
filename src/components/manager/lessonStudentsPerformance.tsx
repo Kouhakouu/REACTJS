@@ -263,8 +263,10 @@ const StudentPerformancePage = () => {
 
         const messageKey = "send-email-progress";
 
+        // Mỗi request chỉ gửi 1 mail rồi nghỉ, vì gửi dồn dập bị bộ lọc spam của relay (MailBaby) chặn
         let offset = 0;
-        const limit = 5;
+        const limit = 1;
+        const delayBetweenEmailsMs = 5000;
 
         let totalSent = 0;
         let totalFailed = 0;
@@ -322,8 +324,10 @@ const StudentPerformancePage = () => {
 
                 if (!hasMore) break;
 
-                // Nghỉ nhẹ để tránh gửi SMTP quá dồn dập
-                await new Promise(resolve => setTimeout(resolve, 500));
+                // Chỉ nghỉ khi vừa thực sự gửi mail (học sinh thiếu email thì đi tiếp luôn)
+                if ((data?.stats?.sent ?? 0) + (data?.stats?.failed ?? 0) > 0) {
+                    await new Promise(resolve => setTimeout(resolve, delayBetweenEmailsMs));
+                }
             }
 
             if (totalFailed > 0 && allErrors.length > 0) {
