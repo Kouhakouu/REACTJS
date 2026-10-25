@@ -1,8 +1,8 @@
 'use client'
 
 import { useEffect, useState, useContext } from 'react';
-import { Button, Card, Typography, message, Table, Tabs, Collapse, Input, Space, Row, Col, AutoComplete, Tooltip, Popconfirm, Select } from 'antd';
-import { CloseOutlined, RobotOutlined, ThunderboltOutlined, SaveOutlined } from '@ant-design/icons';
+import { Button, Card, Typography, message, Table, Tabs, Collapse, Input, Space, Row, Col, AutoComplete, Tooltip, Popconfirm, Select, Upload } from 'antd';
+import { CloseOutlined, RobotOutlined, ThunderboltOutlined, SaveOutlined, UploadOutlined, DeleteOutlined, FilePdfOutlined } from '@ant-design/icons';
 import { AuthContext } from '@/library/authContext';
 import * as XLSX from 'xlsx';
 import { formatDate } from '@/utils/formatDate';
@@ -40,8 +40,12 @@ interface StudentPerformance {
     fullName: string;
     school: string;
     attendance: boolean;
+    // File PDF bài đã chấm (Cloudinary), gửi kèm mail kết quả cho phụ huynh
+    gradedFile: { url: string; name: string | null } | null;
     performance: Performance | null;
 }
+
+const MAX_GRADED_FILE_SIZE = 10 * 1024 * 1024; // khớp giới hạn 10MB ở backend
 
 interface EditablePerformanceFields {
     presentation: string;
@@ -81,6 +85,9 @@ const StudentHomework = () => {
     // State chỉnh sửa trực tiếp các cột Trình bày, Kĩ năng và Nhận xét
     const [performanceDrafts, setPerformanceDrafts] = useState<Record<number, EditablePerformanceFields>>({});
     const [savingPerformanceIds, setSavingPerformanceIds] = useState<Set<number>>(new Set());
+
+    // State upload file PDF bài đã chấm
+    const [gradedFileLoadingIds, setGradedFileLoadingIds] = useState<Set<number>>(new Set());
 
     const buildPerformanceDrafts = (data: StudentPerformance[]) => {
         return Object.fromEntries(
@@ -602,6 +609,80 @@ const StudentHomework = () => {
         }
     };
 
+    const setGradedFileLoading = (studentId: number, loading: boolean) => {
+        setGradedFileLoadingIds(prev => {
+            const next = new Set(prev);
+            if (loading) next.add(studentId); else next.delete(studentId);
+            return next;
+        });
+    };
+
+    // Upload (hoặc thay) file PDF bài đã chấm của 1 học sinh
+    const handleUploadGradedFile = async (student: StudentPerformance, file: File) => {
+        if (!selectedClass || !selectedLesson) return;
+        const isPdf = file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
+        if (!isPdf) {
+            message.error('Chỉ nhận file PDF.');
+            return;
+        }
+        if (file.size > MAX_GRADED_FILE_SIZE) {
+            message.error('File quá lớn, tối đa 10MB.');
+            return;
+        }
+
+        setGradedFileLoading(student.id, true);
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            const res = await fetch(
+                `${process.env.NEXT_PUBLIC_BACKEND_PORT}/assistant/classes/${selectedClass.id}/lessons/${selectedLesson.id}/students/${student.id}/graded-file`,
+                {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                }
+            );
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || 'Không upload được file bài chấm');
+
+            setLessonPerformance(prev => prev.map(s =>
+                s.id === student.id ? { ...s, gradedFile: data.gradedFile } : s
+            ));
+            message.success(`Đã upload bài chấm của ${student.fullName}`);
+        } catch (err: any) {
+            console.error(err);
+            message.error(err.message || 'Không upload được file bài chấm');
+        } finally {
+            setGradedFileLoading(student.id, false);
+        }
+    };
+
+    const handleDeleteGradedFile = async (student: StudentPerformance) => {
+        if (!selectedClass || !selectedLesson) return;
+        setGradedFileLoading(student.id, true);
+        try {
+            const res = await fetch(
+                `${process.env.NEXT_PUBLIC_BACKEND_PORT}/assistant/classes/${selectedClass.id}/lessons/${selectedLesson.id}/students/${student.id}/graded-file`,
+                {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                }
+            );
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || 'Không xoá được file bài chấm');
+
+            setLessonPerformance(prev => prev.map(s =>
+                s.id === student.id ? { ...s, gradedFile: null } : s
+            ));
+            message.success(`Đã xoá bài chấm của ${student.fullName}`);
+        } catch (err: any) {
+            console.error(err);
+            message.error(err.message || 'Không xoá được file bài chấm');
+        } finally {
+            setGradedFileLoading(student.id, false);
+        }
+    };
+
     // Gọi AI sinh nhận xét cho 1 học sinh
     const handleAiCommentSingle = async (student: StudentPerformance) => {
         if (!selectedClass || !selectedLesson) return;
@@ -772,6 +853,59 @@ const StudentHomework = () => {
                     />
                 </Tooltip>
             )
+        },
+        {
+            title: 'Bài chấm (PDF)',
+            key: 'gradedFile',
+            width: 200,
+            render: (_: any, record: StudentPerformance) => {
+                const locked = !!selectedLesson?.isLocked;
+                const loading = gradedFileLoadingIds.has(record.id);
+                return (
+                    <Space size={4}>
+                        {record.gradedFile && (
+                            <Tooltip title={record.gradedFile.name || 'Xem bài chấm'}>
+                                <Button
+                                    type="link"
+                                    icon={<FilePdfOutlined />}
+                                    href={record.gradedFile.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style={{ paddingInline: 4 }}
+                                >
+                                    Xem
+                                </Button>
+                            </Tooltip>
+                        )}
+                        <Upload
+                            accept=".pdf,application/pdf"
+                            showUploadList={false}
+                            disabled={locked || loading}
+                            beforeUpload={(file) => {
+                                handleUploadGradedFile(record, file);
+                                return Upload.LIST_IGNORE;
+                            }}
+                        >
+                            <Tooltip title={locked ? 'Buổi học đã chốt, không thể thay đổi' : record.gradedFile ? 'Thay file khác' : 'Upload file PDF bài đã chấm'}>
+                                <Button icon={<UploadOutlined />} loading={loading} disabled={locked}>
+                                    {record.gradedFile ? 'Thay' : 'Upload'}
+                                </Button>
+                            </Tooltip>
+                        </Upload>
+                        {record.gradedFile && (
+                            <Popconfirm
+                                title="Xoá file bài chấm?"
+                                okText="Xoá"
+                                cancelText="Huỷ"
+                                disabled={locked || loading}
+                                onConfirm={() => handleDeleteGradedFile(record)}
+                            >
+                                <Button type="text" danger icon={<DeleteOutlined />} disabled={locked || loading} />
+                            </Popconfirm>
+                        )}
+                    </Space>
+                );
+            }
         },
         {
             title: 'AI',

@@ -4,7 +4,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { AuthContext } from '@/library/authContext';
 import { Table, Spin, Typography, Switch, message, Descriptions, Button, Popconfirm, Tooltip, Input, InputNumber, Space, Grid } from 'antd';
-import { LockOutlined, UnlockOutlined, MailOutlined, EditOutlined, SaveOutlined } from '@ant-design/icons';
+import { LockOutlined, UnlockOutlined, MailOutlined, EditOutlined, SaveOutlined, FilePdfOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { formatDate } from '@/utils/formatDate';
 
@@ -27,6 +27,8 @@ interface StudentPerformance {
     parentPhoneNumber: string | null;
     parentEmail: string | null;
     attendance: boolean;
+    // File PDF bài đã chấm do trợ giảng upload, được đính kèm khi gửi mail
+    gradedFile: { url: string; name: string | null } | null;
     performance: PerformanceDetails | null;
 }
 
@@ -272,6 +274,7 @@ const StudentPerformancePage = () => {
         let totalFailed = 0;
         let totalSkipped = 0;
         let totalNotSaved = 0;
+        let totalWithGradedFile = 0;
         let totalStudents = 0;
 
         const allErrors: any[] = [];
@@ -310,6 +313,7 @@ const StudentPerformancePage = () => {
                 totalFailed += data?.stats?.failed ?? 0;
                 totalSkipped += data?.stats?.skippedNoEmail ?? 0;
                 totalNotSaved += data?.stats?.notSavedToSent ?? 0;
+                totalWithGradedFile += data?.stats?.withGradedFile ?? 0;
 
                 if (Array.isArray(data?.errors)) {
                     allErrors.push(...data.errors);
@@ -341,7 +345,7 @@ const StudentPerformancePage = () => {
             } else {
                 message.success({
                     key: messageKey,
-                    content: `Đã gửi email xong. Thành công: ${totalSent} | Bỏ qua thiếu email: ${totalSkipped}`,
+                    content: `Đã gửi email xong. Thành công: ${totalSent} (kèm bài chấm: ${totalWithGradedFile}) | Bỏ qua thiếu email: ${totalSkipped}`,
                     duration: 5,
                 });
             }
@@ -455,6 +459,22 @@ const StudentPerformancePage = () => {
             dataIndex: ['performance', 'comment'],
             key: 'comment',
             render: (comment: string | null) => comment || <Text type="secondary">-</Text>,
+        },
+        {
+            title: 'Bài chấm',
+            dataIndex: 'gradedFile',
+            key: 'gradedFile',
+            align: 'center',
+            width: 100,
+            render: (gradedFile: StudentPerformance['gradedFile']) => gradedFile
+                ? (
+                    <Tooltip title={gradedFile.name || 'Xem bài chấm (sẽ đính kèm khi gửi mail)'}>
+                        <a href={gradedFile.url} target="_blank" rel="noopener noreferrer">
+                            <FilePdfOutlined /> Xem
+                        </a>
+                    </Tooltip>
+                )
+                : <Text type="secondary">-</Text>,
         },
     ];
 
