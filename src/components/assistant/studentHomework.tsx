@@ -7,6 +7,7 @@ import { AuthContext } from '@/library/authContext';
 import * as XLSX from 'xlsx';
 import { formatDate } from '@/utils/formatDate';
 import { buildComment } from '@/utils/homeworkComment';
+import { uploadGradedFile, MAX_GRADED_FILE_SIZE } from '@/utils/gradedFileUpload';
 import BulkResultImport from './bulkResultImport';
 
 const { Title, Text } = Typography;
@@ -45,8 +46,6 @@ interface StudentPerformance {
     gradedFile: { url: string; name: string | null } | null;
     performance: Performance | null;
 }
-
-const MAX_GRADED_FILE_SIZE = 10 * 1024 * 1024; // khớp giới hạn 10MB ở backend
 
 interface EditablePerformanceFields {
     presentation: string;
@@ -636,21 +635,16 @@ const StudentHomework = () => {
 
         setGradedFileLoading(student.id, true);
         try {
-            const formData = new FormData();
-            formData.append('file', file);
-            const res = await fetch(
-                `${process.env.NEXT_PUBLIC_BACKEND_PORT}/assistant/classes/${selectedClass.id}/lessons/${selectedLesson.id}/students/${student.id}/graded-file`,
-                {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}` },
-                    body: formData
-                }
-            );
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.message || 'Không upload được file bài chấm');
+            const gradedFile = await uploadGradedFile({
+                classId: selectedClass.id,
+                lessonId: selectedLesson.id,
+                studentId: student.id,
+                file,
+                token
+            });
 
             setLessonPerformance(prev => prev.map(s =>
-                s.id === student.id ? { ...s, gradedFile: data.gradedFile } : s
+                s.id === student.id ? { ...s, gradedFile } : s
             ));
             message.success(`Đã upload bài chấm của ${student.fullName}`);
         } catch (err: any) {

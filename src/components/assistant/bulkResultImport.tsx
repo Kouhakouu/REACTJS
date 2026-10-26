@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Alert, Button, Modal, Progress, Select, Space, Table, Tag, Typography, Upload, message } from 'antd';
 import { FileExcelOutlined, FilePdfOutlined, FolderOpenOutlined, InboxOutlined } from '@ant-design/icons';
 import * as XLSX from 'xlsx';
+import { uploadGradedFile, MAX_GRADED_FILE_SIZE } from '@/utils/gradedFileUpload';
 
 const { Text } = Typography;
 
@@ -54,7 +55,6 @@ interface Props {
     onImported: () => void | Promise<void>;
 }
 
-const MAX_GRADED_FILE_SIZE = 10 * 1024 * 1024; // khớp giới hạn 10MB ở backend
 const IMPORT_CONCURRENCY = 3;
 
 // Chuẩn hoá tên để so khớp: tên file trên Windows/macOS có thể ở dạng Unicode NFD
@@ -297,15 +297,7 @@ const BulkResultImport = ({ open, onClose, classId, lessonId, token, students, t
                     if (!res.ok) throw new Error(data.message || 'Lỗi khi lưu kết quả');
                 }
                 if (item.pdf && item.pdf.size <= MAX_GRADED_FILE_SIZE) {
-                    const formData = new FormData();
-                    formData.append('file', item.pdf);
-                    const res = await fetch(`${base}/students/${studentId}/graded-file`, {
-                        method: 'POST',
-                        headers,
-                        body: formData,
-                    });
-                    const data = await res.json().catch(() => ({}));
-                    if (!res.ok) throw new Error(data.message || 'Lỗi khi upload file PDF');
+                    await uploadGradedFile({ classId, lessonId, studentId, file: item.pdf, token });
                 }
             } catch (err: any) {
                 newFailures.push({ name: label, reason: err.message || 'Lỗi không xác định' });
