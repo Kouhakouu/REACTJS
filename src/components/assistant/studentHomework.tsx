@@ -2,11 +2,12 @@
 
 import { useEffect, useState, useContext } from 'react';
 import { Button, Card, Typography, message, Table, Tabs, Collapse, Input, Space, Row, Col, AutoComplete, Tooltip, Popconfirm, Select, Upload } from 'antd';
-import { CloseOutlined, RobotOutlined, ThunderboltOutlined, SaveOutlined, UploadOutlined, DeleteOutlined, FilePdfOutlined } from '@ant-design/icons';
+import { CloseOutlined, RobotOutlined, ThunderboltOutlined, SaveOutlined, UploadOutlined, DeleteOutlined, FilePdfOutlined, CloudUploadOutlined } from '@ant-design/icons';
 import { AuthContext } from '@/library/authContext';
 import * as XLSX from 'xlsx';
 import { formatDate } from '@/utils/formatDate';
 import { buildComment } from '@/utils/homeworkComment';
+import BulkResultImport from './bulkResultImport';
 
 const { Title, Text } = Typography;
 
@@ -88,6 +89,9 @@ const StudentHomework = () => {
 
     // State upload file PDF bài đã chấm
     const [gradedFileLoadingIds, setGradedFileLoadingIds] = useState<Set<number>>(new Set());
+
+    // Modal nhập hàng loạt kết quả (file Excel nhận xét + các file PDF bài chấm)
+    const [bulkImportOpen, setBulkImportOpen] = useState<boolean>(false);
 
     const buildPerformanceDrafts = (data: StudentPerformance[]) => {
         return Object.fromEntries(
@@ -1076,6 +1080,17 @@ const StudentHomework = () => {
                                                                     Sinh AI nhận xét cho cả lớp
                                                                 </Button>
                                                             </Popconfirm>
+                                                            <Tooltip title={selectedLesson.isLocked ? 'Buổi học đã chốt, không thể thay đổi' : 'Nhập kết quả từ file Excel nhận xét và các file PDF bài chấm'}>
+                                                                <Button
+                                                                    type="default"
+                                                                    icon={<CloudUploadOutlined />}
+                                                                    onClick={() => setBulkImportOpen(true)}
+                                                                    disabled={!!selectedLesson.isLocked}
+                                                                    style={{ width: '100%', marginTop: '10px' }}
+                                                                >
+                                                                    Nhập hàng loạt kết quả (Excel + PDF)
+                                                                </Button>
+                                                            </Tooltip>
                                                             <Button type="default" onClick={exportToExcel} style={{ width: '100%', marginTop: '10px' }}>
                                                                 Xuất Excel
                                                             </Button>
@@ -1098,6 +1113,25 @@ const StudentHomework = () => {
                     </Tabs.TabPane>
                 ))}
             </Tabs>
+
+            {selectedClass && selectedLesson && (
+                <BulkResultImport
+                    open={bulkImportOpen}
+                    onClose={() => setBulkImportOpen(false)}
+                    classId={selectedClass.id}
+                    lessonId={selectedLesson.id}
+                    token={token}
+                    students={lessonPerformance.map(s => ({
+                        id: s.id,
+                        fullName: s.fullName,
+                        school: s.school,
+                        hasPerformance: !!s.performance,
+                        hasGradedFile: !!s.gradedFile,
+                    }))}
+                    totalTaskLength={initialTasks.length}
+                    onImported={fetchStudentPerformance}
+                />
+            )}
         </div>
     );
 };
