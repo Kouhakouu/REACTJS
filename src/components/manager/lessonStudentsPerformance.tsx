@@ -3,8 +3,8 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { AuthContext } from '@/library/authContext';
-import { Table, Spin, Typography, Switch, message, Descriptions, Button, Popconfirm, Tooltip, Input, InputNumber, Space, Grid } from 'antd';
-import { LockOutlined, UnlockOutlined, MailOutlined, EditOutlined, SaveOutlined, FilePdfOutlined } from '@ant-design/icons';
+import { Table, Spin, Typography, Switch, message, Descriptions, Button, Popconfirm, Tooltip, Input, InputNumber, Space, Grid, Alert, Tag } from 'antd';
+import { LockOutlined, UnlockOutlined, MailOutlined, EditOutlined, SaveOutlined, FilePdfOutlined, RedoOutlined, SendOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { formatDate } from '@/utils/formatDate';
 
@@ -50,6 +50,29 @@ interface InfoDraft {
     nextHomework: string;
 }
 
+// Học sinh gửi mail lỗi / bị bỏ qua vì thiếu email, do backend trả về
+interface MailIssue {
+    studentId: number;
+    fullName: string;
+    email: string | null;
+    parentPhoneNumber: string | null;
+    school: string | null;
+    hasGradedFile?: boolean;
+    reason?: string;
+    error?: string;
+}
+
+interface MailReport {
+    failed: MailIssue[];
+    skipped: MailIssue[];
+    // Lỗi làm dừng cả lượt gửi giữa chừng (vd lỗi server), các học sinh sau đó chưa được xử lý
+    abortedMessage?: string;
+}
+
+type MailStatus = { status: 'sent' | 'failed' | 'skipped'; reason?: string; error?: string };
+
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 
 
 const StudentPerformancePage = () => {
@@ -70,6 +93,10 @@ const StudentPerformancePage = () => {
     const [buttonLoading, setButtonLoading] = useState(false);
     const [emailLoading, setEmailLoading] = useState(false);
     const [emailProgress, setEmailProgress] = useState<string>('');
+    const [mailReport, setMailReport] = useState<MailReport | null>(null);
+    const [mailStatus, setMailStatus] = useState<Record<number, MailStatus>>({});
+    const [sendingStudentId, setSendingStudentId] = useState<number | null>(null);
+    const [resendingAll, setResendingAll] = useState(false);
     const [isEditingInfo, setIsEditingInfo] = useState(false);
     const [savingInfo, setSavingInfo] = useState(false);
     const [infoDraft, setInfoDraft] = useState<InfoDraft>({
@@ -243,6 +270,99 @@ const StudentPerformancePage = () => {
         }
     };
 
+    // Gọi API gửi mail kết quả buổi học (query: offset/limit để gửi theo batch, hoặc studentId để gửi riêng 1 học sinh)
+    const requestSendEmails = async (query: string) => {
+        const res = await fetch(
+            `${process.env.NEXT_PUBLIC_BACKEND_PORT}/manager/classes/${classId}/lessons/${lessonId}/send-results-emails?${query}`,
+            {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                }
+            }
+        );
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+            throw new Error(data?.message || `Lỗi HTTP: ${res.status}`);
+        }
+        return data;
+    };
+
+    // Cập nhật trạng thái mail của từng học sinh (cột "Gửi mail") theo kết quả 1 lần gọi API
+    const applyMailResult = (data: any) => {
+        setMailStatus(prev => {
+            const next = { ...prev };
+            (data?.sentStudentIds ?? []).forEach((id: number) => { next[id] = { status: 'sent' }; });
+            (data?.errors ?? []).forEach((e: MailIssue) => {
+                next[e.studentId] = { status: 'failed', reason: e.reason, error: e.error };
+            });
+            (data?.skippedStudents ?? []).forEach((s: MailIssue) => { next[s.studentId] = { status: 'skipped' }; });
+            return next;
+        });
+    };
+
+    // Gửi riêng mail cho 1 học sinh (dùng để gửi lại khi bị lỗi). Trả về true nếu gửi thành công.
+    const handleSendSingleEmail = async (studentId: number, fullName: string, silent = false) => {
+        if (!token || !classId || !lessonId) return false;
+
+        setSendingStudentId(studentId);
+        try {
+            const data = await requestSendEmails(`studentId=${studentId}`);
+            applyMailResult(data);
+
+            const failure: MailIssue | undefined = data?.errors?.[0];
+            if (failure) {
+                // Giữ học sinh trong danh sách lỗi (cập nhật lý do mới) để quản lý thấy và gửi lại
+                setMailReport(prev => {
+                    const failed = prev?.failed ?? [];
+                    const exists = failed.some(f => f.studentId === studentId);
+                    return {
+                        failed: exists ? failed.map(f => (f.studentId === studentId ? failure : f)) : [...failed, failure],
+                        skipped: prev?.skipped ?? [],
+                        abortedMessage: prev?.abortedMessage,
+                    };
+                });
+                if (!silent) message.error(`Gửi mail cho ${fullName} thất bại: ${failure.reason || failure.error}`, 6);
+                return false;
+            }
+
+            setMailReport(prev => prev && { ...prev, failed: prev.failed.filter(f => f.studentId !== studentId) });
+            if (!silent) message.success(`Đã gửi mail cho phụ huynh ${fullName}`);
+            return true;
+        } catch (err: any) {
+            if (!silent) message.error(`Gửi mail cho ${fullName} thất bại: ${err?.message || 'Lỗi không xác định'}`, 6);
+            return false;
+        } finally {
+            setSendingStudentId(null);
+        }
+    };
+
+    // Gửi lại lần lượt cho tất cả học sinh đang bị lỗi, nghỉ giữa các mail giống lúc gửi cả lớp
+    const handleResendAllFailed = async () => {
+        const targets = mailReport?.failed ?? [];
+        if (targets.length === 0) return;
+
+        setResendingAll(true);
+        let ok = 0;
+        try {
+            for (let i = 0; i < targets.length; i++) {
+                if (i > 0) await delay(5000);
+                message.loading({
+                    key: 'resend-failed-progress',
+                    content: `Đang gửi lại ${i + 1}/${targets.length}: ${targets[i].fullName}`,
+                    duration: 0,
+                });
+                if (await handleSendSingleEmail(targets[i].studentId, targets[i].fullName, true)) ok++;
+            }
+        } finally {
+            setResendingAll(false);
+        }
+
+        const content = `Gửi lại xong: thành công ${ok}/${targets.length}`;
+        if (ok === targets.length) message.success({ key: 'resend-failed-progress', content, duration: 5 });
+        else message.warning({ key: 'resend-failed-progress', content: `${content}. Xem danh sách lỗi bên dưới.`, duration: 6 });
+    };
+
     // Gửi email kết quả buổi học theo nhiều batch nhỏ
     const handleSendEmails = async () => {
         if (!token) {
@@ -262,6 +382,8 @@ const StudentPerformancePage = () => {
 
         setEmailLoading(true);
         setEmailProgress("Đang chuẩn bị gửi email...");
+        setMailReport(null);
+        setMailStatus({});
 
         const messageKey = "send-email-progress";
 
@@ -277,7 +399,8 @@ const StudentPerformancePage = () => {
         let totalWithGradedFile = 0;
         let totalStudents = 0;
 
-        const allErrors: any[] = [];
+        const allErrors: MailIssue[] = [];
+        const allSkipped: MailIssue[] = [];
 
         try {
             while (true) {
@@ -289,23 +412,8 @@ const StudentPerformancePage = () => {
 
                 setEmailProgress(`Đang gửi email... Đã xử lý ${offset}/${totalStudents || "?"}`);
 
-                const res = await fetch(
-                    `${process.env.NEXT_PUBLIC_BACKEND_PORT}/manager/classes/${classId}/lessons/${lessonId}/send-results-emails?offset=${offset}&limit=${limit}`,
-                    {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                        }
-                    }
-                );
-
-                const data = await res.json().catch(() => ({}));
-
-                console.log("send mail batch result:", data);
-
-                if (!res.ok) {
-                    throw new Error(data?.message || `Lỗi HTTP: ${res.status}`);
-                }
+                const data = await requestSendEmails(`offset=${offset}&limit=${limit}`);
+                applyMailResult(data);
 
                 totalStudents = data?.totalStudents ?? totalStudents;
 
@@ -317,6 +425,9 @@ const StudentPerformancePage = () => {
 
                 if (Array.isArray(data?.errors)) {
                     allErrors.push(...data.errors);
+                }
+                if (Array.isArray(data?.skippedStudents)) {
+                    allSkipped.push(...data.skippedStudents);
                 }
 
                 const nextOffset = data?.batch?.nextOffset ?? offset + limit;
@@ -334,14 +445,16 @@ const StudentPerformancePage = () => {
                 }
             }
 
-            if (totalFailed > 0 && allErrors.length > 0) {
+            if (allErrors.length > 0 || allSkipped.length > 0) {
+                setMailReport({ failed: allErrors, skipped: allSkipped });
+            }
+
+            if (totalFailed > 0) {
                 message.warning({
                     key: messageKey,
-                    content: `Đã gửi: ${totalSent} | Lỗi: ${totalFailed} | Bỏ qua thiếu email: ${totalSkipped}`,
-                    duration: 6,
+                    content: `Đã gửi: ${totalSent} | Lỗi: ${totalFailed} | Bỏ qua thiếu email: ${totalSkipped}. Xem danh sách học sinh bị lỗi phía trên bảng để gửi lại.`,
+                    duration: 8,
                 });
-
-                message.error(`Lỗi đầu tiên: ${allErrors[0]?.email} - ${allErrors[0]?.error}`);
             } else {
                 message.success({
                     key: messageKey,
@@ -358,6 +471,13 @@ const StudentPerformancePage = () => {
 
         } catch (error: any) {
             console.error(error);
+
+            // Vẫn báo những học sinh đã lỗi trước khi dừng, kèm vị trí dừng để biết còn ai chưa được gửi
+            setMailReport({
+                failed: allErrors,
+                skipped: allSkipped,
+                abortedMessage: `${error?.message || "Lỗi khi gửi email"} - đã dừng ở học sinh thứ ${offset + 1}/${totalStudents || "?"}. Các học sinh từ đó trở đi chưa được gửi, hãy gửi riêng hoặc bấm "Gửi email" lại.`,
+            });
 
             message.error({
                 key: messageKey,
@@ -476,7 +596,120 @@ const StudentPerformancePage = () => {
                 )
                 : <Text type="secondary">-</Text>,
         },
+        {
+            title: 'Gửi mail',
+            key: 'mail',
+            align: 'center',
+            width: 140,
+            render: (_, record: StudentPerformance) => {
+                const st = mailStatus[record.id];
+                const disabledReason = !headerInfo.isLocked
+                    ? 'Vui lòng chốt kết quả trước khi gửi email'
+                    : !record.attendance
+                        ? 'Học sinh vắng không nhận mail'
+                        : !record.parentEmail
+                            ? 'Học sinh chưa có email phụ huynh'
+                            : null;
+                const busy = emailLoading || resendingAll || (sendingStudentId !== null && sendingStudentId !== record.id);
+
+                return (
+                    <Space direction="vertical" size={4} align="center">
+                        {st?.status === 'sent' && <Tag color="success" style={{ margin: 0 }}>Đã gửi</Tag>}
+                        {st?.status === 'failed' && (
+                            <Tooltip title={`${st.reason || ''}${st.error ? ` (${st.error})` : ''}`}>
+                                <Tag color="error" style={{ margin: 0 }}>Gửi lỗi</Tag>
+                            </Tooltip>
+                        )}
+                        {st?.status === 'skipped' && <Tag color="warning" style={{ margin: 0 }}>Thiếu email</Tag>}
+                        <Tooltip title={disabledReason || `Gửi mail riêng tới ${record.parentEmail}`}>
+                            <Popconfirm
+                                title={`Gửi mail riêng cho phụ huynh ${record.fullName}?`}
+                                description={`Mail kết quả buổi học sẽ được gửi tới ${record.parentEmail}`}
+                                onConfirm={() => handleSendSingleEmail(record.id, record.fullName)}
+                                okText="Gửi"
+                                cancelText="Hủy"
+                                disabled={!!disabledReason || busy}
+                            >
+                                <Button
+                                    size="small"
+                                    danger={st?.status === 'failed'}
+                                    icon={st?.status === 'failed' ? <RedoOutlined /> : <SendOutlined />}
+                                    loading={sendingStudentId === record.id}
+                                    disabled={!!disabledReason || busy}
+                                >
+                                    {st?.status === 'failed' ? 'Gửi lại' : 'Gửi riêng'}
+                                </Button>
+                            </Popconfirm>
+                        </Tooltip>
+                    </Space>
+                );
+            },
+        },
     ];
+
+    // Bảng chi tiết các học sinh gửi mail bị lỗi, để quản lý liên hệ / gửi lại riêng
+    const failedColumns: ColumnsType<MailIssue> = [
+        {
+            title: 'STT',
+            key: 'index',
+            align: 'center',
+            width: 60,
+            render: (_, __, index) => index + 1,
+        },
+        {
+            title: 'Học sinh',
+            key: 'student',
+            render: (_, r) => (
+                <>
+                    <Text strong>{r.fullName}</Text>
+                    {r.school && <div><Text type="secondary" style={{ fontSize: 12 }}>{r.school}</Text></div>}
+                </>
+            ),
+        },
+        {
+            title: 'Email phụ huynh',
+            dataIndex: 'email',
+            key: 'email',
+            render: (email: string | null) => email ? <a href={`mailto:${email}`}>{email}</a> : <Text type="secondary">-</Text>,
+        },
+        {
+            title: 'SĐT phụ huynh',
+            dataIndex: 'parentPhoneNumber',
+            key: 'parentPhoneNumber',
+            render: (phone: string | null) => phone || <Text type="secondary">-</Text>,
+        },
+        {
+            title: 'Lý do lỗi',
+            key: 'reason',
+            render: (_, r) => (
+                <>
+                    <Text type="danger">{r.reason || 'Lỗi không xác định'}</Text>
+                    {r.error && <div><Text type="secondary" style={{ fontSize: 12 }}>{r.error}</Text></div>}
+                    {r.hasGradedFile && <div><Text type="secondary" style={{ fontSize: 12 }}>Mail có đính kèm bài chấm</Text></div>}
+                </>
+            ),
+        },
+        {
+            title: 'Thao tác',
+            key: 'action',
+            align: 'center',
+            width: 110,
+            render: (_, r) => (
+                <Button
+                    size="small"
+                    type="primary"
+                    icon={<RedoOutlined />}
+                    loading={sendingStudentId === r.studentId}
+                    disabled={emailLoading || resendingAll || (sendingStudentId !== null && sendingStudentId !== r.studentId)}
+                    onClick={() => handleSendSingleEmail(r.studentId, r.fullName)}
+                >
+                    Gửi lại
+                </Button>
+            ),
+        },
+    ];
+
+    const hasMailReport = !!mailReport && (mailReport.failed.length > 0 || mailReport.skipped.length > 0 || !!mailReport.abortedMessage);
 
     const presentCount = studentPerformances.filter(student => student.attendance).length;
 
@@ -508,7 +741,7 @@ const StudentPerformancePage = () => {
                                         type="primary"
                                         icon={<MailOutlined />}
                                         loading={emailLoading}
-                                        disabled={!headerInfo.isLocked}
+                                        disabled={!headerInfo.isLocked || resendingAll || sendingStudentId !== null}
                                     >
                                         Gửi email
                                     </Button>
@@ -632,6 +865,69 @@ const StudentPerformancePage = () => {
             {loading && (
                 <div style={{ display: 'flex', justifyContent: 'center', padding: 40 }}>
                     <Spin size="large" tip="Đang tải dữ liệu..." />
+                </div>
+            )}
+
+            {!loading && hasMailReport && mailReport && (
+                <div style={{ marginBottom: 24, display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    {mailReport.abortedMessage && (
+                        <Alert type="error" showIcon message="Gửi email bị dừng giữa chừng" description={mailReport.abortedMessage} />
+                    )}
+
+                    {mailReport.failed.length > 0 && (
+                        <Alert
+                            type="error"
+                            showIcon
+                            message={
+                                <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+                                    <Text strong>Có {mailReport.failed.length} học sinh chưa gửi được email kết quả</Text>
+                                    <Button
+                                        danger
+                                        icon={<RedoOutlined />}
+                                        loading={resendingAll}
+                                        disabled={emailLoading || (sendingStudentId !== null && !resendingAll)}
+                                        onClick={handleResendAllFailed}
+                                    >
+                                        Gửi lại tất cả
+                                    </Button>
+                                </div>
+                            }
+                            description={
+                                <Table
+                                    columns={failedColumns}
+                                    dataSource={mailReport.failed}
+                                    rowKey="studentId"
+                                    size="small"
+                                    pagination={false}
+                                    scroll={{ x: 'max-content' }}
+                                    style={{ marginTop: 8 }}
+                                />
+                            }
+                        />
+                    )}
+
+                    {mailReport.skipped.length > 0 && (
+                        <Alert
+                            type="warning"
+                            showIcon
+                            message={`${mailReport.skipped.length} học sinh có mặt nhưng chưa có email phụ huynh nên không được gửi mail`}
+                            description={
+                                <ul style={{ margin: 0, paddingLeft: 20 }}>
+                                    {mailReport.skipped.map(s => (
+                                        <li key={s.studentId}>
+                                            <Text strong>{s.fullName}</Text>
+                                            {s.school && <> - {s.school}</>}
+                                            {' '}- SĐT phụ huynh: {s.parentPhoneNumber || 'chưa có'}
+                                        </li>
+                                    ))}
+                                </ul>
+                            }
+                        />
+                    )}
+
+                    <div style={{ textAlign: 'right' }}>
+                        <Button size="small" onClick={() => setMailReport(null)}>Ẩn báo cáo gửi mail</Button>
+                    </div>
                 </div>
             )}
 
