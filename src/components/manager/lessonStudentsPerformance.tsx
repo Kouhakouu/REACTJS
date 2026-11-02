@@ -578,7 +578,11 @@ const StudentPerformancePage = () => {
             title: 'Nhận xét',
             dataIndex: ['performance', 'comment'],
             key: 'comment',
-            render: (comment: string | null) => comment || <Text type="secondary">-</Text>,
+            width: 480,
+            // Giữ xuống dòng của nhận xét (nhập từ Excel) và giới hạn bề rộng để chữ tự xuống dòng
+            render: (comment: string | null) => comment
+                ? <div style={{ whiteSpace: 'pre-line', minWidth: 320, maxWidth: 560 }}>{comment}</div>
+                : <Text type="secondary">-</Text>,
         },
         {
             title: 'Bài chấm',
