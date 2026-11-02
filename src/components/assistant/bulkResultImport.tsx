@@ -109,7 +109,11 @@ const parseResultWorkbook = async (file: File): Promise<ExcelResultRow[]> => {
         incorrectTasks: col('incorrectTasks'), missingTasks: col('missingTasks'),
         presentation: col('presentation'), skills: col('skills'), comment: col('comment'),
     };
-    const cell = (r: unknown[], i: number) => (i >= 0 ? r[i] : '');
+    // Ô có xuống dòng (Alt+Enter) giữ nguyên, chỉ chuẩn hoá \r\n -> \n
+    const cell = (r: unknown[], i: number) => {
+        const v = i >= 0 ? r[i] : '';
+        return typeof v === 'string' ? v.replace(/\r\n?/g, '\n') : v;
+    };
 
     return rows.slice(headerIndex + 1)
         .filter(r => String(cell(r, idx.name)).trim() !== '')

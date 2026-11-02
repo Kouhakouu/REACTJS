@@ -130,7 +130,7 @@ export default function StudentClassDetailPage() {
                 const comment = record.performance?.comment;
                 if (!comment) return '—';
                 return (
-                    <Tooltip title={comment}>
+                    <Tooltip title={<div style={{ whiteSpace: 'pre-line' }}>{comment}</div>}>
                         <span style={{ cursor: 'help' }}>
                             {comment.length > 40 ? comment.slice(0, 40) + '…' : comment}
                         </span>
